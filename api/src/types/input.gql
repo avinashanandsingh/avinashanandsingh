@@ -1,0 +1,192 @@
+input OrderBy {
+  column: String!
+  asc: Boolean = true
+}
+
+input Criteria {
+  column: String!
+  cop: COP!
+  lop: LOP
+  value: Object!
+}
+
+input Filter {
+  criteria: [Criteria!]
+  orderBy: [OrderBy!]
+  offset: Int
+  limit: Int
+}
+
+input SignUp {
+  first_name: String! @constraint(pattern: "^[a-zA-Z\\s]*$", maxLength: 50)
+  last_name: String!
+  email: String! @constraint(format: "email", maxLength: 255)
+  phone: String!
+    @constraint(
+      pattern: "^(?:\\+?[1-9]\\d{0,3}[-\\s]?)?(?:\\(\\d{1,5}\\)|\\d{1,5})?[-\\s]?(?:\\d[-\\s]?){6,19}\\d$"
+      maxLength: 20
+    )
+  password: String!
+    @constraint(pattern: "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,}", minLength: 8)
+}
+
+input SignIn {
+  username: String!
+  password: String!
+}
+
+input UserIn {
+  role: UserRole!
+  first_name: String! @constraint(pattern: "^[a-zA-Z\\s]*$", maxLength: 50)
+  last_name: String!
+  email: String! @constraint(format: "email", maxLength: 255)
+  phone: String!
+    @constraint(
+      pattern: "^(?:\\+?[1-9]\\d{0,3}[-\\s]?)?(?:\\(\\d{1,5}\\)|\\d{1,5})?[-\\s]?(?:\\d[-\\s]?){6,19}\\d$"
+      maxLength: 20
+    )
+}
+
+input CategoryIn {
+  name: String!
+  slug: String!
+  description: String
+  file: File
+  icon: String
+}
+
+input CourseIn {
+  categoryid: UUID
+  title: String!
+  description: String
+  thumbnail: File!
+  video: File
+  url: String
+  level: String
+  free: Boolean
+  short: Boolean
+  currency: String
+  price: Float
+  offer: Float
+}
+
+input ScheduleIn {
+  courseid: UUID!
+  title: String!
+  start_date: Date!
+  end_date: Date!
+  start_time: String!
+  end_time: String!
+  deadline: DateTime!
+  capacity: Int = 0
+}
+
+input EnrollIn {
+  courseid: UUID
+  scheduleid: UUID
+  enrolledat: DateTime
+  completedat: DateTime
+  progress_percentage: Float
+  grade: Float
+  certificate_issued_at: DateTime
+  droppedat: DateTime
+  droppedby: UUID
+  notes: String
+}
+
+input DropIn {
+  droppedat: DateTime!
+  notes: String!
+}
+
+input ModuleIn {
+  courseid: UUID!
+  scheduleid: UUID
+  title: String
+  description: String
+  sort: Int! = 0
+  file: File
+  url: String
+}
+
+input ContentIn {
+  context: Context!
+  contextid: UUID!
+  title: String!
+  type: ContentType!
+  file: File
+  url: String
+  content: String
+  visible: Boolean = true
+  sort: Int! = 0
+  duration: Int
+}
+
+input ShortIn {
+  title: String!
+  thumbnail: File!
+  video: File
+  url: String
+}
+
+input ResourceIn {
+  title: String!
+  url: String
+  file: File
+}
+
+input SmtpIn {
+  host: String!
+  port: Int!
+  username: String! @constraint(format: "email", maxLength: 255)
+  password: String!
+  sender_name: String!
+  sender_email: String! @constraint(format: "email", maxLength: 255)
+}
+
+input ReactionIn {
+  context: Context!
+  contextid: UUID!
+  liked: Boolean
+  disliked: Boolean
+}
+
+input TimeslotIn {
+  name: String!
+  start_time: String!
+  end_time: String!
+}
+
+input ServiceIn {
+  name: String!
+  price: Float!
+  offer: Float!
+  timeslots: [TimeslotIn!]!
+}
+
+input ScaredvibeIn {
+  courseid: UUID!
+  title: String!
+  url: String
+  file: File
+}
+
+input ReferralIn {
+  first_name: String!
+  last_name: String!
+  email: String!
+  referredat: DateTime!
+}
+
+input ReviewIn {
+  context: Context
+  contextid: UUID
+  title: String
+  content: String
+}
+
+input InquiryIn {
+  subject: String
+  message: String
+  status: String
+}

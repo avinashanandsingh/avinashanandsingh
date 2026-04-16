@@ -1,0 +1,117 @@
+type Query {
+  exist(username: String!): Boolean
+  signin(input: SignIn!): String
+  signout:Boolean
+  verify(token: String!): Boolean
+  country(id: Int!): Country
+  countries(filter: Filter): CountryResult
+  state(id: Int!): State
+  states(filter: Filter): StateResult
+  city(id: Int!): City
+  cities(filter: Filter): CityResult
+
+  user(id: UUID!): User!
+  users(filter: Filter!): UserResult!
+  me: User!
+
+  category(id: UUID!): Category!
+  categories(filter: Filter!): CategoryResult!
+  
+  course(id: UUID!): Course!
+  courses(filter: Filter!): CourseResult!
+  
+  schedule(id: UUID!): Schedule!
+  schedules(filter: Filter!): ScheduleResult!
+
+  module(id: UUID!): Module!
+  modules(filter: Filter!): ModuleResult!
+
+  content(id: UUID!): Content!
+  contents(filter: Filter!): ContentResult!
+
+  enrollment(id: UUID!): Enrollment!
+  enrollments(filter: Filter!): EnrollmentResult!
+
+  myEnrolledCourses: EnrollmentResult!  
+  
+  myNotifications: NotificationResult!
+  notificationsRead: Boolean
+
+  short(id: UUID!): Short!
+  shorts(filter: Filter!): ShortResult!
+  
+  resource(id: UUID!): Resource!
+  resources(filter: Filter!): ResourceResult!
+
+  scaredvibe(id: UUID!): Scaredvibe!
+  scaredvibes(filter: Filter!): ScaredvibeResult!
+
+  referral(id: UUID!): Referral!
+  referrals(filter: Filter!): ReferralResult!
+
+  service(id: UUID!): Service!
+  services(filter: Filter!): ServiceResult!
+
+  review(id: UUID!): Review!
+  reviews(filter: Filter!): ReviewResult!
+
+  inquiry(id: UUID!): Inquiry!
+  inquiries(filter: Filter!): InquiryResult!
+
+  smtp: Smtp!
+}
+
+type Mutation {
+  signup(input: SignUp!): User!
+  addUser(input: UserIn!): User!
+  updateUser(id:UUID!, input: UserIn!): User!
+  addCategory(input: CategoryIn!): Category!
+  updateCategory(id:UUID!, input: CategoryIn!): Category!
+  deleteCategory(id:UUID!): Category!
+
+  addCourse(input: CourseIn!): Course!
+  updateCourse(id:UUID!, input: CourseIn!): Course!
+  archiveCourse(id:UUID!): Course!
+  publishCourse(id:UUID!): Course!
+
+  addSchedule(input: ScheduleIn!): Schedule
+  updateSchedule(id:UUID!, input: ScheduleIn!): Schedule
+  deleteSchedule(id:UUID!): Schedule
+
+  addModule(input: ModuleIn!): Module!
+  updateModule(id:UUID!, input: ModuleIn!): Module!
+  deleteModule(id:UUID!): Module!
+
+  enroll(input: EnrollIn!): Enrollment!
+  drop(id:UUID!, input: DropIn!): Enrollment!
+  updateEnrollment(id:UUID!, input: EnrollIn!):Enrollment!
+
+  addShort(input: ShortIn!): Short!
+  updateShort(id:UUID!, input: ShortIn!): Short!
+  deleteShort(id:UUID!): Short!
+
+  addResource(input: ResourceIn!): Resource!
+  updateResource(id:UUID!, input: ResourceIn!): Resource!
+  deleteResource(id:UUID!): Resource!
+
+  addScaredvibe(input: ScaredvibeIn!): Scaredvibe!
+  updateScaredvibe(id:UUID!, input: ScaredvibeIn!): Scaredvibe!
+  deleteScaredvibe(id:UUID!): Scaredvibe!
+
+  refer(input: ReferralIn!): Referral!
+  deleteReferral(id:UUID!): Referral!
+
+  addService(input: ServiceIn!): Service!
+  updateService(id:UUID!, input: ServiceIn!): Service!
+  deleteService(id:UUID!): Service!
+
+  postReview(input: ReviewIn!): Review!
+  deleteReview(id:UUID!): Review!
+
+  newInquiry(input: InquiryIn!): Inquiry!
+  updateInquiry(id:UUID!, input: InquiryIn!): Inquiry!
+  deleteInquiry(id:UUID!): Inquiry!
+
+  addSmtp(input: SmtpIn!): Smtp!
+  updateSmtp(id:UUID!, input: SmtpIn!): Smtp!
+}

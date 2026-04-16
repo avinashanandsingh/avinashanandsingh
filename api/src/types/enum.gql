@@ -1,0 +1,100 @@
+enum UserRole {
+  STUDENT
+  INSTRUCTOR
+  ADMINISTRATOR
+  GUEST
+}
+
+enum CourseStatus {
+  PUBLISHED
+  DRAFT
+  ARCHIVED
+}
+
+enum Context {
+  COURSE
+  MODULE
+  SHORT_VIDEO
+  SERVICE
+  SCARED_VIBE_AUDIO
+}
+
+enum ContentType {
+  VIDEO
+  AUDIO
+  DOCUMENT
+  QUIZ
+  ASSIGNMENT
+  URL
+  TEXT
+}
+
+enum AssessmentType {
+  QUIZ
+  ASSIGNMENT
+  EXAM
+}
+
+enum DiscussionStatus {
+  OPEN
+  CLOSED
+  ARCHIVED
+}
+
+enum EnrollmentStatus {
+  ENROLLED
+  COMPLETED
+  DROPPED
+}
+
+
+enum MessageStatus {
+  SENT
+  READ
+  ARCHIVED
+  HIDDEN
+}
+
+enum Status {
+  ACTIVE
+  APPROVED
+  CANCELLED
+  DELETED
+  INACTIVE
+  PENDING  
+  REJECTED
+}
+
+enum ResourceType {
+  MENU
+  TAB
+  ACTION
+  COLUMN
+}
+
+enum COP {
+  eq
+  ne
+  gt
+  lt
+  ge
+  le
+  like
+  in
+  ni
+}
+
+enum LOP {
+  AND
+  OR
+}
+
+enum ORDER {
+  ASC
+  DESC
+}
+
+enum MessageType {
+  ERROR
+  INFO
+}

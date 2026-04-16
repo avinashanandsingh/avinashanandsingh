@@ -1,0 +1,401 @@
+type User {
+  id: UUID
+  first_name: String
+  last_name: String
+  role: UserRole
+  email: String
+  password: String
+  avatar: String
+  phone: String
+  verified: Boolean
+  status: String
+  last_login_at: DateTime
+  creator: User
+  createdat: Date
+  updater: User  
+  updatedat: Date
+
+  courses: [Course!]
+}
+
+type UserResult {
+  count: Int
+  rows:[User]
+}
+
+type Category {
+  id: UUID!
+  name: String
+  slug: String
+  description: String
+  icon: String
+  status: Status
+  creator: User
+  createdat: Date
+  updater: User
+  updatedat: Date
+}
+
+type CategoryResult {
+  count: Int
+  rows:[Category]
+}
+
+type Course {
+  id: UUID
+  title: String  
+  description: String
+  thumbnail: String
+  url: String
+  categoryid: UUID
+  category: Category
+  short: Boolean
+  level: String
+  free: Boolean
+  currency: String
+  price: Float
+  offer: Float
+  status: String
+  creator: User
+  createdat: Date
+  updater: User
+  updatedat: Date
+
+  modules: [Module!]
+  students: [User!]  
+  contents:  [Content]
+}
+
+type CourseResult {
+  count: Int
+  rows:[Course]
+}
+
+type Schedule {
+  id: String
+  courseid: UUID
+  course: Course
+  title: String  
+  start_date: Date
+  end_date: Date
+  start_time: String
+  end_time: String
+  deadline: DateTime
+  capacity: Int
+  enrollment_count: Int
+  status: String  
+  creator: User
+  createdat: DateTime
+  updater: User
+  updatedat: DateTime
+  modules:[Module]
+}
+
+type ScheduleResult {
+  count: Int
+  rows:[Schedule]
+}
+
+type Module {
+  id: UUID
+  courseid: UUID
+  course: Course
+  scheduleid: UUID
+  schedule: Schedule
+  title: String
+  description: String
+  url: String
+  sort: Int
+  completed: Boolean
+  completedat: DateTime
+  status: Status
+  creator: User
+  createdat: Date
+  updater: User
+  updatedat: Date
+}
+
+type ModuleResult {
+  count: Int
+  rows:[Module]
+}
+
+type Content {
+  id: UUID
+  context: Context
+  contextid: UUID
+  title: String
+  type: ContentType
+  url: String
+  visible: Boolean
+  duration: Int
+  sort: Int!
+  creator: User
+  createdat: Date
+  updater: User
+  updatedat: Date
+  course: Course  
+}
+
+type ContentResult {
+  count: Int
+  rows:[Content]
+}
+
+type Enrollment {
+  id: UUID
+  userid: UUID
+  user: User
+  courseid: UUID
+  course: Course
+  scheduleid: UUID
+  schedule: Schedule
+  status: String
+  enrolledat: DateTime
+  completedat: DateTime
+  certificate_issued_at: DateTime
+  droppedat: DateTime
+  droppedby: User
+  notes: String
+  progress: [UserProgress!]!
+}
+
+type EnrollmentResult {
+  count: Int
+  rows:[Enrollment]
+}
+
+type UserProgress {
+  id: UUID
+  enrollmentid: UUID
+  moduleid: UUID  
+  completedat: DateTime
+  time_spent_seconds: Int
+  completed: Boolean
+  course: Course
+  module: Module  
+}
+
+type ProgressResult {
+  count: Int
+  rows:[UserProgress]
+}
+
+type Notification {
+  id: UUID
+  userid: UUID
+  title: String
+  message: String
+  type: String
+  red: Boolean
+  readat: DateTime
+  createdat: DateTime
+  expiresat: DateTime
+}
+
+type NotificationResult {
+  count: Int
+  rows:[Notification]
+}
+
+type SearchResult {
+  users: [User!]
+  courses: [Course!]  
+}
+
+type Country {
+  id: Int
+  name: String
+  iso2: String
+  iso3: String 
+  phonecode: Int
+  currency: String
+  symbol: String
+  latitude: Float
+  longitude: Float
+  emoji: String
+}
+
+type CountryResult {
+  count: Int
+  rows:[Country]
+}
+
+type State {
+  id: Int
+  name: String
+  countryid: Int
+  country: String  
+  code: String
+  type: String  
+  latitude: Float
+  longitude: Float  
+}
+
+type StateResult {
+  count: Int
+  rows:[State]
+}
+
+type City {
+  id: Int
+  name: String
+  stateid: Int
+  state: String
+  countryid: Int
+  country: String    
+  latitude: Float
+  longitude: Float  
+}
+
+type CityResult {
+  count: Int
+  rows:[City]
+}
+
+type Short {
+  id: String
+  title: String
+  thumbnail: String
+  url: String
+  status: String
+  sort: Int
+	likes: Int
+	hits: Int
+  creator: User
+  createdat: DateTime
+  updater: User
+  updatedat: DateTime
+}
+
+type ShortResult {
+  count: Int
+  rows:[Short]
+}
+
+type Smtp {
+  id: String
+  host: String
+  port: Int
+  username: String
+  password: String
+  sender_name: String
+  sender_email: String
+  creator: User
+  createdat: DateTime
+  updater: User
+  updatedat: DateTime
+}
+
+type Resource {
+  id: String
+  title: String
+  url: String
+  status: String
+  display_order: Int	
+  creator: User
+  createdat: DateTime
+  updater: User
+  updatedat: DateTime
+}
+
+type ResourceResult {
+  count: Int
+  rows:[Resource]
+}
+
+type Scaredvibe {
+  id: String
+  courseid: String
+  course: Course
+  title: String
+  url: String
+  status: String
+  sort: Int	
+  creator: User
+  createdat: DateTime
+  updater: User
+  updatedat: DateTime
+}
+
+type ScaredvibeResult {
+  count: Int
+  rows:[Scaredvibe]
+}
+
+type Referral {
+  id: UUID
+  first_name: String
+  last_name: String
+  email: String
+  referrer: UUID
+  referby: User
+  referredat: DateTime  
+}
+
+type ReferralResult {
+  count: Int
+  rows: [Referral]
+}
+
+type Timeslot {
+  id: UUID
+  serviceid: UUID
+  service: Service
+  name: String
+  start_time: String
+  end_time: String
+}
+
+type Service {
+  id: UUID
+  name: String
+  price: Float
+  offer: Float
+  timeslots: [Timeslot]
+  status: String
+  creator: User
+  createdat: DateTime
+  updater: User
+  updatedat: DateTime
+  
+}
+
+type ServiceResult {
+  count: Int
+  rows: [Service]
+}
+
+
+type Review {
+  id: UUID
+  context: Context
+  contextid: UUID
+  userid: UUID
+  user: User
+  title: String
+  content: String  
+  public: Boolean
+  createdat: DateTime
+}
+
+type ReviewResult {
+  count: Int
+  rows: [Review]
+}
+
+type Inquiry {
+  id: UUID  
+  subject: String
+  message: String
+  status: String
+  creator: User
+  createdat: DateTime
+  updater: User
+  updatedat: DateTime
+}
+
+type InquiryResult {
+  count: Int
+  rows: [Inquiry]
+}

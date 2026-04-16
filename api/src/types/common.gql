@@ -1,0 +1,9 @@
+scalar Object
+scalar JSON
+scalar Date
+scalar Array
+scalar File
+scalar BigInt
+scalar UUID
+scalar DateTime
+scalar Currency
