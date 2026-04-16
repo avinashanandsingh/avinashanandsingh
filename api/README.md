@@ -11,9 +11,9 @@ Before installing, ensure you have:
 npm install
 
 
-## Run Application in Development Mode
+## Development Mode
 npm run dev
 
-## Run Application in Production Mode
+## Production Mode
 npm run build
 npm start
