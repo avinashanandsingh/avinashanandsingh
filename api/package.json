@@ -10,7 +10,12 @@
     "Postgres"
   ],
   "license": "ISC",
-  "author": "Ravindra Wagh",
+  "author": {
+    "name": "Ravindra Wagh",
+    "email": "ravindra.wagh@live.in",
+    "url": "https://www.linkedin.com/in/ravindra-wagh-43382721",
+    "phone": "+91 99043 77726"
+  },
   "type": "commonjs",
   "main": "index.js",
   "scripts": {
