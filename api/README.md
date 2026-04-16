@@ -7,13 +7,12 @@ Before installing, ensure you have:
 ---
 
 ## Installation
-
-npm install
+* npm install
 
 
 ## Development Mode
-npm run dev
+* npm run dev
 
 ## Production Mode
-npm run build
-npm start
+* npm run build
+* npm start
