@@ -1,4 +1,3 @@
-import service from "./service";
 import shield from "./shield";
 
 const resolvers = {
@@ -24,9 +23,9 @@ const resolvers = {
     module: shield,
     modules: shield,
     enrollment:shield,
-    enrollments: shield,
-    contents: shield,
-    content: shield,    
+    enrollments: shield,    
+    meditation: shield,
+    meditations: shield,
     short: shield,
     shorts: shield,
     resource: shield,
@@ -69,6 +68,9 @@ const resolvers = {
     addShort: shield,
     updateShort: shield,
     deleteShort: shield,
+    addMeditation: shield,
+    updateMeditation: shield,
+    deleteMeditation: shield,
     addResource: shield,
     updateResource: shield,
     deleteResource: shield,

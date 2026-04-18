@@ -2,17 +2,13 @@ import { GraphQLError } from "graphql";
 import helper from "../../helper/index";
 import { COP } from "../../models/enum";
 import Update from "../../models/update";
-import jwt from "jsonwebtoken";
-import Uom from "../../models/uom";
 
-export default async (_: any, args: {id: number, input: Uom }, ctx: any): Promise<any> => {
+export default async (_: any, args: {id: number, input: any }, ctx: any): Promise<any> => {
   let row: any;
   let table = "templates";
   try {
-    let headers = ctx.req.headers;
-    let authorization = headers["authorization"];
-    let token = authorization.replace("Bearer", "").trim();
-    let user: any = jwt.decode(token);
+
+    let user: any = ctx.user;
 
     let input: Update = {
       table: table,

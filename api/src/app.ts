@@ -8,7 +8,6 @@ import { createEnvelopQueryValidationPlugin } from "graphql-constraint-directive
 import env from "dotenv";
 
 import requestIp from "request-ip";
-//import DeviceDetector from "device-detector-js";
 import cors from "cors";
 import typeDefs from "./types/index";
 import resolvers from "./resolvers/index";

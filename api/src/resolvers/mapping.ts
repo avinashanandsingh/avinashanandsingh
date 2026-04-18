@@ -7,6 +7,7 @@ import course from "./course";
 import schedule from "./schedule";
 import _module from "./module";
 import entrollment from "./entrollment";
+import Meditation from "./meditation";
 import short from "./short";
 import resource from "./resource";
 import scaredvibe from "./scaredvibe";
@@ -21,6 +22,7 @@ import smtp from "./smtp";
 import message from "./message";
 
 import { UserRole } from "../models/enum";
+import meditation from "./meditation";
 
 const mapping = [
   {
@@ -206,7 +208,7 @@ const mapping = [
   {
     name: "courses",
     execute: course.list,
-    include: true,
+    include: false,
     role: UserRole.ANONYMOUS,
   },
   {
@@ -374,6 +376,36 @@ const mapping = [
   {
     name: "updateEnrollment",
     execute: entrollment.update,
+    include: true,
+    role: UserRole.ADMINISTRATOR,
+  },
+  {
+    name: "meditations",
+    execute: meditation.list,
+    include: false,
+    role: UserRole.ANONYMOUS,
+  },
+  {
+    name: "meditation",
+    execute: meditation.get,
+    include: true,
+    role: UserRole.ANONYMOUS,
+  },
+  {
+    name: "addMeditation",
+    execute: meditation.add,
+    include: true,
+    role: UserRole.ADMINISTRATOR,
+  },
+  {
+    name: "updateMeditation",
+    execute: Meditation.update,
+    include: true,
+    role: UserRole.ADMINISTRATOR,
+  },
+  {
+    name: "deleteMeditation",
+    execute: Meditation.delete,
     include: true,
     role: UserRole.ADMINISTRATOR,
   },

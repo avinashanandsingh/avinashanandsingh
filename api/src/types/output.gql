@@ -306,8 +306,6 @@ type ResourceResult {
 
 type Scaredvibe {
   id: String
-  courseid: String
-  course: Course
   title: String
   url: String
   status: String
@@ -321,6 +319,25 @@ type Scaredvibe {
 type ScaredvibeResult {
   count: Int
   rows:[Scaredvibe]
+}
+
+type Meditation {
+  id: String
+  courseid: String
+  course: Course
+  title: String
+  url: String
+  status: String
+  sort: Int	
+  creator: User
+  createdat: DateTime
+  updater: User
+  updatedat: DateTime
+}
+
+type MeditationResult {
+  count: Int
+  rows:[Meditation]
 }
 
 type Referral {

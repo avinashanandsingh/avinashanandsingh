@@ -84,7 +84,8 @@ export default async (
           },
         });
     }
-    let pwd = Buffer.from(args.input.password!, "base64").toString();
+    let pwd = Buffer.from(args.input.password!, "base64").toString();    
+    console.log(pwd);
     let compared = await bcrypt.compare(pwd, user?.password!);
     if (compared) {
       delete user?.password;

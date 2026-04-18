@@ -190,3 +190,10 @@ input InquiryIn {
   message: String
   status: String
 }
+
+input MeditationIn {
+  title: String!
+  thumbnail: File!
+  file: File
+  url: String
+}

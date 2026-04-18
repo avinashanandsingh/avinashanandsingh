@@ -37,6 +37,9 @@ type Query {
   myNotifications: NotificationResult!
   notificationsRead: Boolean
 
+  meditation(id: UUID!): Meditation!
+  meditations(filter: Filter!): MeditationResult!
+
   short(id: UUID!): Short!
   shorts(filter: Filter!): ShortResult!
   
@@ -85,6 +88,10 @@ type Mutation {
   enroll(input: EnrollIn!): Enrollment!
   drop(id:UUID!, input: DropIn!): Enrollment!
   updateEnrollment(id:UUID!, input: EnrollIn!):Enrollment!
+
+  addMeditation(input: MeditationIn!): Meditation!
+  updateMeditation(id:UUID!, input: MeditationIn!): Meditation!
+  deleteMeditation(id:UUID!): Meditation!
 
   addShort(input: ShortIn!): Short!
   updateShort(id:UUID!, input: ShortIn!): Short!
