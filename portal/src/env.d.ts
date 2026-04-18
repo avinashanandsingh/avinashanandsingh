@@ -2,13 +2,7 @@
 declare interface Env {
   readonly NODE_ENV: string;
   readonly NG_APP_API: string;
-  readonly NG_APP_SMTP_HOST: string;
-  readonly NG_APP_SMTP_PORT: string;
-  readonly NG_APP_SMTP_SECURE: boolean;
-  readonly NG_APP_SMTP_USERNAME: string;
-  readonly NG_APP_SMTP_PASSWORD: string;
-  readonly NG_APP_SMTP_FROM_EMAIL: string;
-  readonly NG_APP_SMTP_SENDER_NAME: string;
+  readonly NG_APP_CDN: string;
   // Replace the following with your own environment variables.
   // Example: NGX_VERSION: string;
   [key: string]: any;
