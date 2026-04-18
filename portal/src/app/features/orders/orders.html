@@ -1,0 +1,117 @@
+<div class="p-6 bg-white space-y-3 rounded min-h-screen">
+
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800">Orders</h1>
+            <p class="text-gray-500 text-sm">Manage orders here</p>
+        </div>
+    </div>
+
+    <!-- List Table -->
+    <div class="w-full  rounded-lg shadow overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+                            Order By
+                        </th>
+                        <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+                            Context
+                        </th>                        
+                        <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+                            Price
+                        </th>
+                        <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+                            Order Status
+                        </th>
+                        <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+                            Reason
+                        </th>
+                        <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+                            Payment Status
+                        </th>
+                        <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+                            Reason
+                        </th>                       
+                        <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+                            Status
+                        </th>
+                        <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider w-20">
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @for(item of list(); track item.id){
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ item.course?.title }}</div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ item.schedule!.title! }}</div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ item.title }}</div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ item.description }}</div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ item.url }}</div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ item.completed }}</div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">
+                                {{ item.completedat! | date:'dd-MMM-yyyy HH:MM a' }}
+                            </div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap text-base text-gray-500">
+                            @switch (item.status) {
+                            @case ('ACTIVE') {
+                            <span class="px-2 py-1 rounded-sm text-base bg-green-100 text-green-700">
+                                {{ item.status | titlecase}}
+                            </span>
+                            }
+                            @case('INACTIVE'){
+                            <span class="px-2 py-1 rounded-sm text-base bg-gray-100 text-gray-600">
+                                {{ item.status | titlecase}}
+                            </span>
+                            }
+                            @case('DELETED'){
+                            <span class="px-2 py-1 rounded-sm text-base bg-red-50 text-red-700">
+                                {{ item.status | titlecase}}
+                            </span>
+                            }
+                            }
+                        </td>
+
+                        <td class="p-3 whitespace-nowrap text-right text-base font-medium w-20">
+                            <div class="flex flex-row gap-3">
+                                <!-- <button (click)="showPlayer(item.id!)"
+                                    class="text-purple-600 hover:text-purple-900 text-base">
+                                    <i class="bi bi-play-circle"></i>
+                                </button>
+                                <button (click)="show(formDialog, item.id!)"
+                                    class="text-purple-600 hover:text-purple-900 text-base">
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
+                                <button (click)="delete(item.id!)"
+                                    class="text-purple-600 hover:text-purple-900 text-base">
+                                    <i class="bi bi-trash"></i>
+                                </button> -->
+                            </div>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+            @if(list().length === 0){
+            <p class="p-6 text-center text-gray-500 text-base">No modules added yet.</p>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,46 @@
+@if(isOpen()){
+<div class="dialog-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity duration-300"
+    [class.pointer-events-none]="!isOpen()" (click)="handleBackdropClick($event)">
+    <!-- Animation Wrapper -->
+    <div class="dialog-box bg-white rounded-lg shadow-xl w-full max-w-lg mx-4 overflow-hidden transform transition-all duration-300 ease-out"
+        [class.scale-100]="isOpen()" [class.scale-95]="!isOpen()" [class.opacity-100]="isOpen()"
+        [class.opacity-0]="!isOpen()">
+
+        <!-- Header -->
+        <div class="flex justify-between items-center px-6 py-4 border-b border-gray-100">
+            <h2 class="text-xl font-semibold text-gray-800" [style.display]="!showCloseIcon() ? 'none' : 'block'">
+                {{ title }}
+            </h2>
+
+            <!-- Close Button (Icon or Button) -->
+            <button *ngIf="showCloseIcon()"
+                class="text-gray-400 hover:text-gray-600 focus:outline-none p-1 rounded-full hover:bg-gray-100 transition"
+                (click)="closeMe()" (keydown.enter)="closeMe()" (keydown.space)="closeMe()" aria-label="Close dialog">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
+                        d="M4.293 4.293a1 1 0 011.414 0L10 9.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L9.586 10 4.293 5.707a1 1 0 010-1.414z"
+                        clip-rule="evenodd" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Body -->
+        <div class="px-6 py-4 p-6 overflow-y-auto scrollbar-thin" style="max-height: 80vh;">
+            <ng-content />
+        </div>
+
+        <!-- Footer (Buttons) -->
+        @if(footer){
+        <div class="flex w-full justify-end space-x-3 p-3 bg-gray-50 border-t border-gray-100 rounded-b-lg">
+            <!-- Render Buttons -->
+            <ng-container *ngFor="let btn of buttons()">
+                <button [attr.aria-label]="btn.label" (click)="btn.action()" [class]="btn.type"
+                    [disabled]="btn.disabled!">
+                    {{ btn.label }}
+                </button>
+            </ng-container>
+        </div>
+        }
+    </div>
+</div>
+}

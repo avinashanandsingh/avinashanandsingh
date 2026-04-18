@@ -1,0 +1,92 @@
+<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-lg mx-4 transform transition-all">
+
+        <!-- Header -->
+        <div class="flex justify-between items-center px-6 py-4 border-b border-gray-100">
+            <h2 class="text-xl font-semibold text-gray-800">
+                {{ isEditing ? 'Edit User' : 'Add New User' }}
+            </h2>
+            <button (click)="closeDialog()"
+                class="text-gray-400 hover:text-gray-600 focus:outline-none p-1 rounded-full hover:bg-gray-100">
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Form -->
+        <div class="p-6">
+            <div class="space-y-4">
+
+                <!-- Name Fields -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="label">First Name</label>
+                        <input name="first_name"
+                            class="input"
+                            [disabled]="isEditing" />
+                    </div>
+                    <div>
+                        <label class="label">Last Name</label>
+                        <input name="last_name"
+                            class="input"
+                            [disabled]="isEditing" />
+                    </div>
+                </div>
+
+                <!-- Email -->
+                <div>
+                    <label class="label">Email</label>
+                    <input name="email" type="email"
+                        class="input"
+                        [disabled]="isEditing" />
+                </div>
+
+                <!-- Phone -->
+                <div>
+                    <label class="label">Phone</label>
+                    <input name="phone" type="tel"
+                        class="input"
+                        [disabled]="isEditing" />
+                </div>
+
+                <!-- Role -->
+                <div>
+                    <label class="label">Role</label>
+                    
+                    <select id="role" 
+                        class="input"
+                      >
+                       <option value="">Select a role</option>
+                        <option value="ADMINISTRATOR">Administrator</option>
+                        <option value="INSTRUCTOR">Instructor</option>
+                        <option value="STUDENT">Student</option>                        
+                    </select>
+                
+                </div>
+
+                <!-- Avatar Upload (Preview) -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Avatar</label>
+                    <input type="file" accept="image/*"
+                        class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700" />
+                    @if(user?.avatar){
+                    <div class="mt-2">
+                        <img [src]="user!.avatar" class="w-16 h-16 rounded-full" alt="Preview" />
+                    </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="flex justify-end space-x-2 p-6 bg-gray-50 border-t border-gray-100 rounded-b-lg">
+            <button (click)="closeDialog()" class="btn btn-secondary">
+                Cancel
+            </button>
+            <button (click)="submit()" class="btn btn-primary">
+                {{ isEditing ? 'Save Changes' : 'Add User' }}
+            </button>
+        </div>
+    </div>
+</div>

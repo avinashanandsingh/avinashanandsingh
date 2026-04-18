@@ -1,0 +1,190 @@
+<!-- DASHBOARD CONTENT -->
+<main class="flex-1 overflow-y-auto">
+
+    <!-- Stats Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+
+        <!-- Card 1: Students -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col">
+            <div class="flex justify-between items-start mb-4">
+                <h3 class="text-gray-500 text-sm font-medium">Total Students</h3>
+                <div class="p-2 bg-purple-50 rounded-lg text-purple-600">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                </div>
+            </div>
+            <div class="text-3xl font-bold text-gray-800 mb-1">{{ isLoading() ? '...' : totalStudents() }}</div>
+            <p class="text-green-500 text-sm font-medium">+12% from last month</p>
+        </div>
+
+        <!-- Card 2: Active Courses -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col">
+            <div class="flex justify-between items-start mb-4">
+                <h3 class="text-gray-500 text-sm font-medium">Active Courses</h3>
+                <div class="p-2 bg-blue-50 rounded-lg text-blue-600">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+            </div>
+            <div class="text-3xl font-bold text-gray-800 mb-1">{{ isLoading() ? '...' : totalCourses() }}</div>
+            <p class="text-gray-400 text-sm font-medium">Across all categories</p>
+        </div>
+
+        <!-- Card 3: Revenue -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col">
+            <div class="flex justify-between items-start mb-4">
+                <h3 class="text-gray-500 text-sm font-medium">Total Revenue</h3>
+                <div class="p-2 bg-green-50 rounded-lg text-green-600">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+            </div>
+            <div class="text-3xl font-bold text-gray-800 mb-1">{{ isLoading() ? '...' : totalRevenue() }}</div>
+            <p class="text-green-500 text-sm font-medium">+4.8% from last month</p>
+        </div>
+
+        <!-- Card 4: Engagement -->
+        <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex flex-col">
+            <div class="flex justify-between items-start mb-4">
+                <h3 class="text-gray-500 text-sm font-medium">Active Users</h3>
+                <div class="p-2 bg-orange-50 rounded-lg text-orange-600">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.268l7.682-7.682a4.5 4.5 0 00-6.364-6.318M12 7a5 5 0 100 10 5 5 0 000-10z" />
+                    </svg>
+                </div>
+            </div>
+            <div class="text-3xl font-bold text-gray-800 mb-1">{{ isLoading() ? '...' : activeUsers() }}</div>
+            <p class="text-gray-400 text-sm font-medium">Currently online</p>
+        </div>
+    </div>
+
+    <!-- Charts Section (Simulated with CSS) -->
+    <div class="grid grid-cols-1 lg:grid-cols-1 gap-8 mb-8">
+        <!-- Left: Large Chart -->
+        <div class="lg:col-span-2 bg-white p-6 rounded-xl shadow-sm border border-gray-100">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-lg font-bold text-gray-800">Course Enrollment Trends</h3>
+                <select class="text-sm border-gray-300 rounded-md focus:ring-purple-500 focus:border-purple-500">
+                    <option>Last 7 Days</option>
+                    <option>Last 30 Days</option>
+                </select>
+            </div>
+            <div class="h-64 flex items-end justify-between space-x-2">
+                <!-- Simulated Bar Chart -->
+                <div
+                    class="w-full bg-purple-100 rounded-t-md hover:bg-purple-200 transition-colors relative group h-3/4">
+                    <div class="w-full bg-purple-500 h-2/3 rounded-t-md group-hover:h-3/4 transition-all"></div>
+                </div>
+                <div
+                    class="w-full bg-purple-100 rounded-t-md hover:bg-purple-200 transition-colors relative group h-1/2">
+                    <div class="w-full bg-purple-500 h-1/2 rounded-t-md group-hover:h-5/6 transition-all"></div>
+                </div>
+                <div
+                    class="w-full bg-purple-100 rounded-t-md hover:bg-purple-200 transition-colors relative group h-4/5">
+                    <div class="w-full bg-purple-500 h-4/5 rounded-t-md group-hover:h-full transition-all"></div>
+                </div>
+                <div
+                    class="w-full bg-purple-100 rounded-t-md hover:bg-purple-200 transition-colors relative group h-3/5">
+                    <div class="w-full bg-purple-500 h-3/5 rounded-t-md group-hover:h-2/3 transition-all"></div>
+                </div>
+                <div
+                    class="w-full bg-purple-100 rounded-t-md hover:bg-purple-200 transition-colors relative group h-full">
+                    <div class="w-full bg-purple-600 h-full rounded-t-md shadow-lg"></div>
+                </div>
+                <div
+                    class="w-full bg-purple-100 rounded-t-md hover:bg-purple-200 transition-colors relative group h-3/4">
+                    <div class="w-full bg-purple-500 h-3/4 rounded-t-md group-hover:h-4/5 transition-all"></div>
+                </div>
+                <div
+                    class="w-full bg-purple-100 rounded-t-md hover:bg-purple-200 transition-colors relative group h-2/3">
+                    <div class="w-full bg-purple-500 h-2/3 rounded-t-md group-hover:h-3/4 transition-all"></div>
+                </div>
+            </div>
+            <div class="flex justify-between mt-2 text-xs text-gray-400 uppercase tracking-wide font-semibold">
+                <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+            </div>
+        </div>
+       
+    </div>
+
+    <!-- Recent Enrollments Table -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+            <h3 class="font-bold text-gray-800">Recent Enrollments</h3>
+            <button class="text-sm text-purple-600 hover:text-purple-700 font-medium">See All</button>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm text-gray-600">
+                <thead class="bg-gray-50 text-xs uppercase text-gray-500">
+                    <tr>
+                        <th class="px-6 py-3 font-semibold">Student Name</th>
+                        <th class="px-6 py-3 font-semibold">Course</th>
+                        <th class="px-6 py-3 font-semibold">Status</th>
+                        <th class="px-6 py-3 font-semibold">Date</th>
+                        <th class="px-6 py-3 font-semibold">Amount</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    <tr>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center">
+                                <div
+                                    class="h-8 w-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center font-bold mr-3">
+                                    SJ</div>
+                                <span class="font-medium text-gray-900">Sarah Johnson</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-gray-500">Advanced React Patterns</td>
+                        <td class="px-6 py-4"><span
+                                class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Completed</span>
+                        </td>
+                        <td class="px-6 py-4 text-gray-400">Oct 24, 2023</td>
+                        <td class="px-6 py-4 text-gray-900 font-medium">$129.00</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center">
+                                <div
+                                    class="h-8 w-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold mr-3">
+                                    MK</div>
+                                <span class="font-medium text-gray-900">Michael King</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-gray-500">Tailwind CSS Mastery</td>
+                        <td class="px-6 py-4"><span
+                                class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">In
+                                Progress</span></td>
+                        <td class="px-6 py-4 text-gray-400">Oct 23, 2023</td>
+                        <td class="px-6 py-4 text-gray-900 font-medium">$99.00</td>
+                    </tr>
+                    <tr>
+                        <td class="px-6 py-4">
+                            <div class="flex items-center">
+                                <div
+                                    class="h-8 w-8 rounded-full bg-pink-100 text-pink-600 flex items-center justify-center font-bold mr-3">
+                                    EL</div>
+                                <span class="font-medium text-gray-900">Emma Lee</span>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 text-gray-500">Node.js Backend API</td>
+                        <td class="px-6 py-4"><span
+                                class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Cancelled</span>
+                        </td>
+                        <td class="px-6 py-4 text-gray-400">Oct 22, 2023</td>
+                        <td class="px-6 py-4 text-gray-900 font-medium">$0.00</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</main>

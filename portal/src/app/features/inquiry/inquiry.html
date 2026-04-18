@@ -1,0 +1,125 @@
+<div class="p-6 bg-white space-y-3 rounded min-h-screen">
+
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-gray-800">Inquiries</h1>
+      <p class="text-gray-500 text-sm">Manage inquiries here</p>
+    </div>
+    <div>
+    
+    </div>
+  </div>
+
+  <!-- List Table -->
+  <div class="w-full  rounded-lg shadow overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>          
+            <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+              Subject
+            </th>
+            <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+              Message
+            </th>
+            <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+              Date
+            </th>
+            <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+              Inquirer
+            </th>
+            <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+              Status
+            </th>
+            <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+              Updater
+            </th>
+            <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+              Last&nbsp;Updated&nbsp;Date
+            </th>
+            <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider w-20">
+              Actions
+            </th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <tr *ngFor="let row of list(); let i = index" class="hover:bg-gray-50 transition cursor-move">
+            <td class="p-3 whitespace-nowrap">              
+              <div class="text-base font-medium text-gray-900">{{ row.subject }}</div>
+            </td>
+
+            <td class="p-3 whitespace-nowrap">
+              <div class="text-base font-medium text-gray-900">{{ row.message }}</div>
+            </td>
+            <td class="p-3 whitespace-nowrap">
+              <div class="text-base font-medium text-gray-900">{{ row.createdat | date:"dd-MMM-yyyy" }}</div>
+            </td>
+
+            <td class="p-3 whitespace-nowrap">
+              <div class="text-base font-medium text-gray-900">{{ row.creator.first_name }} {{ row.creator.last_name }}</div>
+            </td>
+
+            <td class="p-3 whitespace-nowrap text-base text-gray-500">
+              @switch (row.status) {
+                @case ('ACTIVE') {
+                  <span class="inline-flex text-base leading-5 font-semibold rounded-full bg-green-100 text-green-700">
+                  {{ row.status }}
+                </span>  
+                }
+                @case('INACTIVE'){
+                <span
+                    class="px-2 py-1 rounded-full text-base font-bold bg-gray-100 text-gray-600">Inactive</span>
+                }
+                @case('DELETED'){
+                <span
+                    class="px-2 py-1 rounded-full text-base font-bold bg-red-100 text-red-700">Deleted</span>
+                }
+              }                            
+            </td>
+            <td class="p-3 whitespace-nowrap">
+              <div class="text-base font-medium text-gray-900">{{ row.creator.first_name }} {{ row.creator.last_name }}</div>
+            </td>
+            <td class="p-3 whitespace-nowrap">
+              <div class="text-base font-medium text-gray-900">{{ row.createdat | date:"dd-MMM-yyyy" }}</div>
+            </td>
+            <td class="p-3 whitespace-nowrap text-right text-base font-medium w-20">
+              <div class="flex flex-row gap-3">                
+                <button 
+                  class="text-purple-600 hover:text-purple-900 text-base">
+                  <i class="bi bi-soundwave"></i>
+                </button>
+                <button 
+                  class="text-purple-600 hover:text-purple-900 text-base">
+                  <i class="bi bi-pencil-square"></i>
+                </button>
+                <button  class="text-purple-600 hover:text-purple-900 text-base">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      @if(list().length === 0){
+      <p class="p-6 text-center text-gray-500">No inquiries yet.</p>
+      }
+    </div>
+  </div>
+</div>
+
+
+<ng-template #formError let-control="control" let-message="message" let-validation="validation">
+  @if(control.hasError(validation) && (control.dirty || control.touched)) {
+  <ng-container>
+    <div class="fv-plugins-message-container">
+      <div class="fv-help-block mt-1">
+        <span class="error">
+          {{ message }}
+        </span>
+      </div>
+    </div>
+  </ng-container>
+  }
+</ng-template>
+<loader [isOpen]="loaderDialog"></loader>

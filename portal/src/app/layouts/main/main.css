@@ -1,0 +1,19 @@
+/* If you want to animate the sidebar slide, add this */
+@keyframes sidebarToggle {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-100%);
+  }
+}
+
+/* Simple hover states for the main content */
+/* Note: :host and ::ng-deep are Angular-specific. 
+   In standard CSS, these are often flattened or removed 
+   depending on your scoping needs. 
+*/
+main :host ::ng-deep router-outlet {
+  /* This ensures child components (like Dashboard) render correctly */
+  /* without breaking the layout */
+}

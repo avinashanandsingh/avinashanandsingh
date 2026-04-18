@@ -1,0 +1,28 @@
+ <div class="mb-6">
+                    <!-- Hidden File Input -->
+                    <input #fileInput (change)="handleFileInput($event)" accept="image/*" type="file" class="hidden" />
+
+                    <!-- Drop Zone -->
+                    <div (drop)="handleFileDrop($event)" (dragover)="handleDragOver($event)"
+                        (dragleave)="handleDragLeave($event)"
+                        class="border-2 border-dashed rounded-lg p-6 text-center hover:border-purple-300 transition-colors cursor-pointer bg-gray-50"
+                        [ngClass]="{ 
+              'bg-purple-50 border-purple-300': selectedFile(),
+              'opacity-50 cursor-not-allowed': isUploading
+            }" [ngStyle]="{'border-color': selectedFile() ? '#a855f7' : '#e5e7eb', 'cursor-pointer': !isUploading}">
+                        <div *ngIf="!selectedFile()" (click)="fileInput.click()" class="text-sm text-gray-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400 mb-2"
+                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                            <p class="text-xs text-gray-400 mb-1">Click to upload or drag and drop</p>
+                            <p class="text-xs text-purple-600 font-medium mt-1">MP4 (max. 1GB)</p>
+                        </div>
+                    </div>
+
+                    <!-- Error Message -->
+                    @if(error()){
+                    <p class="mt-2 text-xs text-red-500 font-medium">{{ error() }}</p>
+                    }
+                </div>

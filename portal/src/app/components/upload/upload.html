@@ -1,0 +1,71 @@
+<div class="upload-box" (dragover)="onFileDropped($event)" (drop)="onFileDropped($event)"
+  (click)="onFileSelected($event)" [style.backgroundColor]="blobUrl ? '#f0f2f5' : '#eef1f5'">
+
+  <!-- Hidden File Input -->
+  <input type="file" #fileInput (change)="onFileSelected($event)" [accept]="fileType" />
+
+  <!-- Content Area -->
+  <div class="content" (click)="fileInput.click()">
+    <!-- Icon or Text -->
+    <div class="upload-icon">
+      @if(fileType.indexOf("video") > -1){
+      <i class="bi bi-file-play"></i>
+      }
+      @else if(fileType.indexOf("image") > -1){
+      <i class="bi bi-image"></i>
+      }
+      @else {
+      <i class="bi bi-file"></i>
+      }
+    </div>
+    <span class="text">{{ labelText }}</span>
+    <span class="hint">Supports: {{ fileType }}</span>
+    @if(fileName()){
+    <span class="hint font-bold">File: {{ fileName() }}</span>
+    }
+  </div>
+
+  <!-- Preview Area -->
+  @if(blobUrl){
+  <div class="content w-full">
+    <!-- <img [src]="blobUrl" class="preview-image" (load)="loadComplete()" (error)="errorHandling()" /> -->
+
+    @if(fileType.indexOf("video") > -1){
+    <video [src]="blobUrl" class="preview-image" autoplay></video>
+
+    <button class="remove-btn" (click)="onRemoveFile()">
+      ✕ Remove
+    </button>
+    } @else if(fileType.indexOf("image") > -1){
+    <img [src]="blobUrl" class="preview-image" />
+    <button class="remove-btn" (click)="onRemoveFile()">
+      ✕ Remove
+    </button>
+    }
+
+  </div>
+  }
+  @if(previewUrl){
+  <div class="content w-full">
+    <!-- <img [src]="blobUrl" class="preview-image" (load)="loadComplete()" (error)="errorHandling()" /> -->
+
+    @if(fileType.indexOf("video") > -1){
+   <!--  <video [src]="previewUrl" class="preview-image" autoplay></video> -->
+    @if(safeUrl()!){
+    <iframe class="w-full h-100" [src]="safeUrl()" title="Video player" frameborder="0"
+      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen>
+    </iframe>
+    }
+    <button class="remove-btn" (click)="onRemoveFile()">
+      ✕ Remove
+    </button>
+    }@else if(fileType.indexOf("image") > -1){
+    <img [src]="previewUrl" class="preview-image" />
+    <button class="remove-btn" (click)="onRemoveFile()">
+      ✕ Remove
+    </button>
+    }
+
+  </div>
+  }
+</div>

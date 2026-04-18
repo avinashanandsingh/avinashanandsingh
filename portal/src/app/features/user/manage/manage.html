@@ -1,0 +1,268 @@
+<div class="p-6 bg-gray-50 min-h-screen">
+
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row gap-5 justify-between items-start md:items-center mb-6">
+        <div class="flex flex-col">
+            <h1 class="text-2xl font-bold text-gray-800">Users</h1>
+            <p class="text-gray-500 text-sm mt-1">Manage users, roles</p>
+        </div>
+
+        <div class="flex flex-row w-full md:w-auto  items-start md:items-center space-x-3">
+            <!-- View Toggle -->
+            <div class="flex bg-white rounded-lg p-1 shadow-sm border border-gray-200">
+                <button [class.bg-blue-50]="viewMode() === 'list'" [class.text-blue-600]="viewMode() === 'list'"
+                    [class.text-gray-500]="viewMode() === 'card'" (click)="toggleViewMode()"
+                    class="px-3 py-1.5 rounded-md text-sm font-medium transition-all" title="List View">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-list" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd"
+                            d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5" />
+                    </svg>
+                </button>
+                <button [class.bg-blue-50]="viewMode() === 'card'" [class.text-blue-600]="viewMode() === 'card'"
+                    [class.text-gray-500]="viewMode() === 'list'" (click)="toggleViewMode()"
+                    class="px-3 py-1.5 rounded-md text-sm font-medium transition-all w-full" title="Card View">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                        class="bi bi-card-list" viewBox="0 0 16 16">
+                        <path
+                            d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2z" />
+                        <path
+                            d="M5 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 5 8m0-2.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m0 5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m-1-5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0M4 8a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0m0 2.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Add Button -->
+            <button (click)="openAddEditDialog()" class="btn btn-primary flex items-center space-x-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                <span>Add User</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Search -->
+    <div class="mb-6">
+        <div class="relative">
+            <svg class="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input type="text" [value]="filterText()" (input)="filterText.set($event.target.value)"
+                (focus)="isSearchFocused.set(true)" (blur)="isSearchFocused.set(false)"
+                placeholder="Search by name, email..."
+                class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+            <button *ngIf="filterText()" (click)="clearSearch()"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 p-1">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- Content -->
+    <div class="transition-all duration-300" [class.max-w-7xl]="viewMode() === 'list'"
+        [class.grid]="viewMode() === 'card'">
+
+        <!-- List View -->
+        <div *ngIf="viewMode() === 'list'" class="space-y-3">
+            <div *ngFor="let user of filteredUsers"
+                class="bg-white p-4 rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+                <div class="flex items-center space-x-4">
+                    <img [src]="user.avatar" [alt]="user.first_name + ' ' + user.last_name"
+                        class="w-12 h-12 rounded-full object-cover" />
+                    <div class="flex-grow">
+                        <div class="flex items-center space-x-2">
+                            <h3 class="font-semibold text-gray-800">{{ user.first_name }} {{ user.last_name }}</h3>
+                            @switch (user.status) {
+                            @case ('ACTIVE') {
+                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-700">
+                                {{ user.status }}
+                            </span>
+                            }
+                            @case('PENDING') {
+                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-100 text-yellow-700">
+                                {{ user.status }}
+                            </span>
+                            }
+                            @case('INACTIVE') {
+                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-red-100 text-gray-700">
+                                {{ user.status }}
+                            </span>
+                            }
+                            @case('DELETED') {
+                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-red-700">
+                                {{ user.status }}
+                            </span>
+                            }
+                            }
+
+                            <span class="px-2 py-1 text-xs font-medium rounded-full bg-gray-100 text-gray-700">
+                                {{ user.role }}
+                            </span>
+                        </div>
+                        <p class="text-gray-500 text-sm">{{ user.email }}</p>
+                        <p class="text-gray-400 text-xs">{{ user.phone }}</p>
+                    </div>
+                    <div class="flex space-x-2">
+                        <button (click)="openStatusDialog(user)"
+                            class="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition"
+                            title="Change Status">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536l-3.536-3.536zm-6.918 8.268L12 12.5m6.918-8.268l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </button>
+                        <button (click)="openResetDialog(user)"
+                            class="p-2 text-gray-500 hover:text-purple-600 hover:bg-purple-50 rounded-full transition"
+                            title="Reset Password">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                            </svg>
+                        </button>
+                        <button (click)="openEditDialog(user)"
+                            class="p-2 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-full transition"
+                            title="Edit">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536l-3.536-3.536zm-6.918 8.268L12 12.5m6.918-8.268l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </button>
+                        <button (click)="deleteUser(user)"
+                            class="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-full transition"
+                            title="Delete">
+                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card View -->
+        <div *ngIf="viewMode() === 'card'" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div *ngFor="let user of filteredUsers"
+                class="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow">
+                <div class="p-6">
+                    <div class="flex items-center space-x-4 mb-4">
+                        <img [src]="user.avatar" [alt]="user.first_name + ' ' + user.last_name"
+                            class="w-16 h-16 rounded-full object-cover" />
+                        <div>
+                            <h3 class="font-semibold text-gray-800">{{ user.first_name }} {{ user.last_name }}</h3>
+                            <span class="text-sm text-gray-500">{{ user.email }}</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 text-sm text-gray-600 mb-4">
+                        <div class="flex justify-between">
+                            <span>Phone:</span>
+                            <span class="font-medium text-gray-800">{{ user.phone }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Role:</span>
+                            <span class="px-2 py-0.5 text-xs font-medium rounded-full bg-gray-100 text-gray-700">{{
+                                user.role }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span>Status:</span>
+                            @switch (user.status) {
+                            @case ('ACTIVE') {
+                            <span class="px-2 py-0.5 text-xs font-medium rounded-full bg-green-100 text-green-700">
+                                {{ user.status }}
+                            </span>
+                            }
+                            @case('PENDING') {
+                            <span class="px-2 py-0.5 text-xs font-medium rounded-full bg-yellow-100 text-yellow-700">
+                                {{ user.status }}
+                            </span>
+                            }
+                            @case('INACTIVE') {
+                            <span class="px-2 py-0.5 text-xs font-medium rounded-full bg-red-100 text-gray-700">
+                                {{ user.status }}
+                            </span>
+                            }
+                            @case('DELETED') {
+                            <span class="px-2 py-0.5 text-xs font-medium rounded-full bg-gray-100 text-red-700">
+                                {{ user.status }}
+                            </span>
+                            }
+                            }
+                        </div>
+                    </div>
+
+                    <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+                        <div class="flex items-center space-x-2 text-xs text-gray-400">
+                            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <span>{{ user.createdat | date:'medium' }}</span>
+                        </div>
+                        <div class="flex items-center space-x-1">
+                            <button (click)="openEditDialog(user)"
+                                class="p-1.5 text-gray-500 hover:text-green-600 rounded hover:bg-green-50 transition">
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536l-3.536-3.536zm-6.918 8.268L12 12.5m6.918-8.268l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </button>
+                            <button (click)="openStatusDialog(user)"
+                                class="p-1.5 text-gray-500 hover:text-blue-600 rounded hover:bg-blue-50 transition">
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536l-3.536-3.536zm-6.918 8.268L12 12.5m6.918-8.268l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </button>
+                            <button (click)="openResetDialog(user)"
+                                class="p-1.5 text-gray-500 hover:text-purple-600 rounded hover:bg-purple-50 transition">
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                                </svg>
+                            </button>
+                            <button (click)="deleteUser(user)"
+                                class="p-1.5 text-gray-500 hover:text-red-600 rounded hover:bg-red-50 transition">
+                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="filteredUsers.length === 0" class="text-center py-16 bg-white rounded-lg border border-gray-200">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+            </svg>
+            <h3 class="mt-4 text-lg font-medium text-gray-900">No users found</h3>
+            <p class="mt-2 text-gray-500 text-sm">Try adjusting your search or add a new user.</p>
+        </div>
+    </div>
+</div>
+
+<!-- Dialogs -->
+@if(editDialogOpen()){
+<user-edit-dialog [user]="selectedUser" (save)="saveUser($event)" (cancel)="editDialogOpen.set(false)"
+    [showPreview]="true" />
+}
+
+@if(statusDialogOpen()){
+<user-status-dialog [user]="selectedUser" (confirm)="changeStatus($event.newStatus, $event.reason)"
+    (cancel)="statusDialogOpen.set(false)"></user-status-dialog>
+}
+@if(resetDialogOpen()){
+<password-reset-dialog [user]="selectedUser" (reset)="resetPassword($event)" (cancel)="resetDialogOpen.set(false)" />
+}

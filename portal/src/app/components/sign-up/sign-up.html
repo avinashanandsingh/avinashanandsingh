@@ -1,0 +1,234 @@
+<div class="flex flex-col md:flex-row min-h-screen w-full bg-white font-sans">
+
+    <!-- LEFT SIDE: Form Section -->
+    <div class="w-full md:w-1/2 p-6 mb:p-10 flex flex-col justify-center items-start">
+
+        <!-- Header -->
+        <div class="mb-10">
+            <h1 class="md:text-4xl text-3xl font-bold text-gray-900 tracking-tight mb-2">
+                Start Your Learning
+            </h1>
+            <h1 class="md:text-4xl text-3xl font-bold text-gray-900 tracking-tight">
+                Journey.
+            </h1>
+        </div>
+
+        <!-- Form -->
+        <form method="post" class="space-y-6 w-full max-w-md">
+
+            <!-- Fisrt Name -->
+            <div class="space-y-2">
+                <label for="first_name"
+                    class="block text-base font-medium text-purple-900 uppercase tracking-wide">First
+                    Name</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="currentColor"
+                            viewBox="0 0 16 16">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z" />
+                        </svg>
+                    </div>
+                    <input id="first_name" type="text" [formField]="me.first_name" placeholder="FIRST NAME"
+                        class="block w-full text-base pl-10 px-2 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" />
+                </div>
+            </div>
+            <!-- Last Name -->
+            <div class="space-y-2">
+                <label for="last_name" class="block text-base font-medium text-purple-900 uppercase tracking-wide">Last
+                    Name</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="currentColor"
+                            viewBox="0 0 16 16">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6m2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0m4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4m-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10s-3.516.68-4.168 1.332c-.678.678-.83 1.418-.832 1.664z" />
+                        </svg>
+                    </div>
+                    <input id="last_name" type="text" [formField]="me.last_name" placeholder="LAST NAME"
+                        class="block w-full text-base pl-10 px-2 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" />
+                </div>
+            </div>
+            <!-- Email Address -->
+            <div class="space-y-2">
+                <label for="email" class="block text-base font-medium text-purple-900 uppercase tracking-wide">Email
+                    Address</label>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+                        </svg>
+                    </div>
+                    <input id="email" type="email" [formField]="me.email" placeholder="example@email.com"
+                        class="block w-full text-base pl-10 px-2 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" />
+                </div>
+                @if(!isEmailValid() && model().email){
+                <p class="text-xs text-red-500">Please enter a valid email.</p>
+                }
+
+            </div>
+
+            <!-- Password -->
+            <div class="space-y-2">
+                <div class="flex justify-between items-center">
+                    <label for="password"
+                        class="text-base font-medium text-purple-900 uppercase tracking-wide">Password</label>
+                </div>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                    </div>
+                    <input id="password" [type]="showPassword() ? 'text': 'password'" [formField]="me.password" placeholder="PASSWORD"
+                        class="block text-base w-full pl-10 px-2 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                        [class.opacity-50]="isLoading()" />
+                    <button type="button" (click)="showPassword.set(!showPassword())"
+                        class="absolute right-3 top-3 text-gray-400 hover:text-gray-600">
+                        @if(showPassword()){
+                        <i class="bi bi-eye"></i>
+                        }
+                        @else {
+                        <i class="bi bi-eye-slash"></i>
+                        }
+                    </button>
+                
+            </div>
+    </div>
+
+
+
+
+    <!-- Confirm Password -->
+    <div class="space-y-2">
+        <div class="flex justify-between items-center">
+            <label for="confirm_password" class="text-base font-medium text-purple-900 uppercase tracking-wide">Confirm
+                Password</label>
+        </div>
+        <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+            </div>
+            <input id="confirm_password" [type]="showConfirmPassword() ? 'text': 'password'"
+                [formField]="me.confirmPassword" placeholder="CONFIRM PASSWORD"
+                class="block w-full text-base pl-10 px-2 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                [class.opacity-50]="isLoading()" />
+            <button type="button" (click)="showConfirmPassword.set(!showConfirmPassword())"
+                        class="absolute right-3 top-3 text-gray-400 hover:text-gray-600">
+                        @if(showConfirmPassword()){
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-eye" viewBox="0 0 16 16">
+                            <path
+                                d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z" />
+                            <path
+                                d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0" />
+                        </svg>
+                        }
+                        @else {
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-eye-slash" viewBox="0 0 16 16">
+                            <path
+                                d="M13.359 11.238C15.06 9.72 16 8 16 8s-3-5.5-8-5.5a7 7 0 0 0-2.79.588l.77.771A6 6 0 0 1 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755q-.247.248-.517.486z" />
+                            <path
+                                d="M11.297 9.176a3.5 3.5 0 0 0-4.474-4.474l.823.823a2.5 2.5 0 0 1 2.829 2.829zm-2.943 1.299.822.822a3.5 3.5 0 0 1-4.474-4.474l.823.823a2.5 2.5 0 0 0 2.829 2.829" />
+                            <path
+                                d="M3.35 5.47q-.27.24-.518.487A13 13 0 0 0 1.172 8l.195.288c.335.48.83 1.12 1.465 1.755C4.121 11.332 5.881 12.5 8 12.5c.716 0 1.39-.133 2.02-.36l.77.772A7 7 0 0 1 8 13.5C3 13.5 0 8 0 8s.939-1.721 2.641-3.238l.708.709zm10.296 8.884-12-12 .708-.708 12 12z" />
+                        </svg>
+                        }
+                    </button>
+            
+        </div>
+    </div>
+
+    <!-- Submit Button -->
+    <div>
+        <button type="submit" [disabled]="!isPasswordValid() || isLoading()"
+            class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-base font-bold text-white bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed"
+            [class.opacity-50]="isLoading()">
+            @if(isLoading()){
+            <span>
+                <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+                    viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                    </circle>
+                    <path class="opacity-75" fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                    </path>
+                </svg>
+                Creating Account...
+            </span>
+            }
+            @if(!isLoading()){
+            <span>Create Account</span>
+            }
+        </button>
+    </div>
+    </form>
+
+    <!-- Footer Link -->
+    <div class="mt-8 text-center">
+        <p class="text-base text-gray-500">
+            Already have an account?
+            <a href="#" class="text-purple-700 font-semibold hover:underline decoration-purple-700 decoration-2">Sign
+                In</a>
+        </p>
+    </div>
+
+</div>
+
+<!-- RIGHT SIDE: Illustration & Gradient -->
+<div class="hidden md:flex md:w-1/2 relative bg-purple-700 flex-col justify-between p-12 overflow-hidden">
+
+    <!-- Decorative Gradient Mesh -->
+    <div class="absolute inset-0 bg-linear-to-br from-purple-600 via-purple-500 to-amber-500 opacity-90 z-0">
+    </div>
+    <!-- Subtle pattern overlay -->
+    <div class="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]">
+    </div>
+
+    <!-- Illustration Container -->
+    <div class="relative z-10 flex items-center justify-center h-full">
+        <!-- Placeholder for Illustration - Using SVG for portability -->
+        <svg viewBox="0 0 400 400" class="w-full max-w-md drop-shadow-2xl">
+            <!-- Abstract Learning Network SVG -->
+            <circle cx="200" cy="200" r="160" stroke="white" stroke-width="1" fill="none" stroke-opacity="0.1" />
+            <circle cx="200" cy="200" r="120" stroke="white" stroke-width="1" fill="none" stroke-opacity="0.1" />
+            <circle cx="200" cy="200" r="80" stroke="white" stroke-width="1" fill="none" stroke-opacity="0.1" />
+
+            <!-- Nodes (People Icons) -->
+            <circle cx="200" cy="200" r="40" class="fill-white opacity-20" />
+
+            <!-- Connecting Lines (Simulated) -->
+            <line x1="200" y1="200" x2="100" y2="100" stroke="white" stroke-width="1" stroke-opacity="0.2" />
+            <line x1="200" y1="200" x2="300" y2="100" stroke="white" stroke-width="1" stroke-opacity="0.2" />
+            <line x1="200" y1="200" x2="300" y2="300" stroke="white" stroke-width="1" stroke-opacity="0.2" />
+            <line x1="200" y1="200" x2="100" y2="300" stroke="white" stroke-width="1" stroke-opacity="0.2" />
+
+            <!-- User Groups (Colorful circles to represent people) -->
+            <circle cx="300" cy="200" r="30" fill="orange" />
+            <circle cx="200" cy="120" r="30" fill="yellow" />
+            <circle cx="100" cy="200" r="30" fill="indigo" />
+            <circle cx="120" cy="300" r="30" fill="blue" />
+            <circle cx="300" cy="300" r="30" fill="amber" />
+
+            <!-- Icon elements floating -->
+            <circle cx="220" cy="160" r="20" fill="#FCA5A5" opacity="0.8"> <!-- Book -->
+                <rect x="180" y="140" width="8" height="40" rx="4" fill="white" />
+            </circle>
+        </svg>
+    </div>
+
+    <!-- Overlay Text -->
+    <div class="absolute bottom-16 left-8 z-10 text-white">
+        <h3 class="text-2xl font-bold mb-2">Join thousands of learners in your community.</h3>
+        <p class="text-purple-100 text-sm font-medium">Connect, learn, and grow together.</p>
+    </div>
+
+</div>
+
+</div>

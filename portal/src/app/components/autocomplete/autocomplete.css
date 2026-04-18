@@ -1,0 +1,20 @@
+/* Custom scrollbar for dropdown */
+.autocomplete-dropdown-container ::ng-deep {
+  .max-h-60 {
+    scrollbar-width: thin;
+    scrollbar-color: #d1d5db transparent;
+  }
+  
+  .max-h-60::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .max-h-60::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .max-h-60::-webkit-scrollbar-thumb {
+    background-color: #d1d5db;
+    border-radius: 20px;
+  }
+}

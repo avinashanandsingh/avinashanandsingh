@@ -1,0 +1,172 @@
+<div class="p-6 bg-white min-h-screen space-y-3 rounded">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800">Shorts Library</h1>
+            <p class="text-gray-500 text-sm">Manage your short videos here</p>
+        </div>
+        <div>
+            <button (click)="show(isEditorOpen, 'ADD')" class="btn btn-primary text-base">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                <span>Add New Short</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+        <div *ngFor="let video of list()"
+            class="group relative bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-shadow">
+
+            <!-- Thumbnail as Video Player Trigger -->
+            <div class="relative aspect-9/6 w-full overflow-hidden cursor-pointer"
+                (click)="show(isPlayerOpen, 'PLAY', video.id!)">
+                <!-- Thumbnail with Play Icon -->
+                <div class="relative group-hover:bg-black/10 transition-all">
+                    <img [src]="video.thumbnail" [alt]="video.title"
+                        class="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-300" />
+
+                    <!-- Play Icon Overlay -->
+                    <div
+                        class="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/10 transition-all">
+                        <svg class="w-16 h-16 text-white drop-shadow-lg opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all"
+                            fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M8 5v14l11-7z" />
+                        </svg>
+                    </div>
+
+                    <!-- Duration Badge -->
+                    <!-- <div class="absolute bottom-2 left-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+                        {{ video.duration }}
+                    </div> -->
+
+                </div>
+            </div>
+
+            <!-- Content -->
+            <div class="p-4">
+                <h3 class="font-bold text-gray-800 truncate mb-1">{{ video.title }}</h3>
+                <!-- <p class="text-gray-500 text-xs truncate mb-2">{{ video.description }}</p> -->
+
+                <!-- Stats -->
+                <div class="flex flex-row items-center space-x-3 text-xs text-gray-400 mb-2">
+                    <div class="w-full">{{ video.createdat | date:'dd-MMM-yyyy HH:mm a' }}</div>
+                    <div class="flex justify-end items-center w-full">
+                    <div class="text-xs text-gray-400">
+                        <span class="text-gray-500 mr-1">Views:</span>
+                        <span class=" mr-1">{{ video?.hits }}</span>
+                        <span class="text-gray-500 mr-1">| Likes:</span>
+                        <span>{{ video?.likes }}</span>
+                    </div>
+                </div>
+                </div>
+                
+
+                <!-- Action Buttons (Hover) -->
+                <div class="flex items-center justify-between mt-3 pt-3 border-t border-gray-100">
+                    <button (click)="show(isPlayerOpen, 'PLAY', video.id!)"
+                        class="text-blue-600 hover:text-blue-700 text-sm font-medium flex items-center space-x-1">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>Play</span>
+                    </button>
+
+                    <div class="flex items-center space-x-2">
+                        <button (click)="show(isEditorOpen, 'EDIT', video.id!)"
+                            class="text-gray-600 hover:text-purple-600 p-1 rounded-full h-8 w-8 hover:bg-gray-100"
+                            title="Edit">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+                        <button (click)="delete(video.id!)"
+                            class="text-gray-600 hover:text-red-600 p-1 rounded-full h-8 w-8 hover:bg-gray-100"
+                            title="Delete">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        @if(list().length === 0){
+        <div class="col-span-full text-center py-12 bg-gray-50 rounded-xl">
+            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+            <h3 class="mt-2 text-sm font-medium text-gray-900">No shorts found</h3>
+        </div>
+        }
+    </div>
+</div>
+<loader [isOpen]="loaderDialog"></loader>
+
+<app-dialog [isOpen]="isEditorOpen" [buttons]="dialogButtons" [title]="dialogTitle()" [backdrop]="false">
+    <form [formGroup]="form">
+        <div class="mt-4 space-y-4 mb-3">
+            <div>
+                <label class="block text-base font-medium mb-2">Thumbnail</label>
+                <app-upload (fileChange)="completeHandler('I', $event)" fileType="image/*" [previewUrl]="thumbnailUrl()"
+                    info="PNG, JPG, GIF, WebP, SVG" />
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Title <span
+                        class="text-red-500">*</span></label>
+                <input type="text" formControlName="title" class="mt-1 input" placeholder="Enter video title" />
+                <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'Title is required',
+                  control: form.controls['title']
+                }">
+                </ng-container>
+            </div>
+            <div>
+                <label class="block text-base font-medium">URL</label>
+                <input class="input" formControlName="url" />
+            </div>
+            <div>
+                <label class="block text-base font-medium mb-2">Video</label>
+                <app-upload (fileChange)="completeHandler('V', $event)" fileType="video/*" info="MP4, WEBM"
+                    [previewUrl]="videoUrl()!" />
+            </div>
+        </div>
+    </form>
+</app-dialog>
+
+
+<app-dialog [isOpen]="isPlayerOpen" [title]="dialogTitle()" [backdrop]="false" [footer]="false">
+    <!-- Content -->
+    <div class="p-0">
+        <!-- Video Player -->
+        <div class="relative aspect-video w-full bg-black" [style.height]="'300px'">
+            @if(preview()){
+            <iframe class="w-full h-full aspect-video" [src]="preview()" title="Video player"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen>
+            </iframe>
+            }
+        </div>
+    </div>
+</app-dialog>
+<ng-template #formError let-control="control" let-message="message" let-validation="validation">
+    @if(control.hasError(validation) && (control.dirty || control.touched)) {
+    <ng-container>
+        <div class="fv-plugins-message-container">
+            <div class="fv-help-block mt-1">
+                <span class="error">
+                    {{ message }}
+                </span>
+            </div>
+        </div>
+    </ng-container>
+    }
+</ng-template>

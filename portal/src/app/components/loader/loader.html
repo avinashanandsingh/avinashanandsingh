@@ -1,0 +1,18 @@
+@if(isOpen()){
+<div class="dialog-overlay fixed inset-0 z-500 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity duration-300"
+    [class.pointer-events-none]="!isOpen()">
+    <!-- Animation Wrapper -->
+    <div class="dialog-box bg-white rounded-lg shadow-xl w-20 h-20 mx-4 overflow-hidden transform transition-all duration-300 ease-out"
+        [class.scale-100]="isOpen()" [class.scale-95]="!isOpen()" [class.opacity-100]="isOpen()"
+        [class.opacity-0]="!isOpen()">
+
+
+        <!-- Body -->
+        <div class="px-6 py-4">
+            <div class="loader">
+                
+            </div>
+        </div>
+    </div>
+</div>
+}

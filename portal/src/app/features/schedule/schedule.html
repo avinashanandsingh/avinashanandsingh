@@ -1,0 +1,249 @@
+<div class="p-6 bg-white space-y-3 rounded min-h-screen">
+
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800">Schedules</h1>
+            <p class="text-gray-500 text-sm">Manage course schedules here</p>
+        </div>
+        <div>
+            <button (click)="show(formDialog)" class="btn btn-primary text-base items-center">
+                <i class="bi bi-calendar-plus text-xl mr-2"></i>
+                Add New Schedule
+            </button>
+        </div>
+    </div>
+
+    <!-- List Table -->
+    <div class="w-full  rounded-lg shadow overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+                            Course
+                        </th>
+                        <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+                            Title
+                        </th>
+                        <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+                            Start Date
+                        </th>
+                        <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+                            End Date
+                        </th>
+                        <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+                            Start Time
+                        </th>
+                        <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+                            End Time
+                        </th>
+                        <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+                            Deadline
+                        </th>
+                        <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+                            Status
+                        </th>
+                        <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider w-20">
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @for(row of list(); track row.id){
+                    <tr class="hover:bg-gray-50 transition">
+                         <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ row.course?.title }}</div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ row.title }}</div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ row.start_date | date:'dd-MMM-yyyy' }}</div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ row.end_date | date:'dd-MMM-yyyy' }}</div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ row.start_time }}</div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ row.end_time }}</div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ row.deadline | date:'dd-MMM-yyyy HH:MM a' }}</div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap text-base text-gray-500">
+                            @switch (row.status) {
+                            @case ('ACTIVE') {
+                            <span
+                                class="px-2 py-1 rounded-sm text-base bg-green-100 text-green-700">
+                                {{ row.status | titlecase}}
+                            </span>
+                            }
+                            @case('INACTIVE'){
+                            <span
+                                class="px-2 py-1 rounded-sm text-base bg-gray-100 text-gray-600">Inactive</span>
+                            }
+                            @case('DELETED'){
+                            <span
+                                class="px-2 py-1 rounded-sm text-base bg-red-50 text-red-700">Deleted</span>
+                            }
+                            }
+                        </td>
+
+                        <td class="p-3 whitespace-nowrap text-right text-base font-medium w-20">
+                            <div class="flex flex-row gap-3">
+                                <button (click)="show(formDialog, row.id!)"
+                                    class="text-purple-600 hover:text-purple-900 text-base">
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
+                                <button (click)="delete(row.id!)"
+                                    class="text-purple-600 hover:text-purple-900 text-base">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+            @if(list().length === 0){
+            <p class="p-6 text-center text-gray-500">No resources added yet.</p>
+            }
+        </div>
+    </div>
+</div>
+<loader [isOpen]="loaderDialog"></loader>
+<app-dialog [buttons]="dialogButtons" [isOpen]="formDialog" [title]="dialogTitle()" [backdrop]="false"
+    (close)="hide(formDialog)">
+    <form [formGroup]="form">
+        <!-- Form Fields -->
+        <div class="space-y-4">
+            <input type="hidden" id="id" formControlName="id" />
+            <div>
+                <label class="label">Course <span class="text-red-500">*</span></label>                
+                <select class="select w-full" id="courseid" formControlName="courseid" required>
+                    <option selected value="">Select a course</option>
+                    @for(item of course_list(); track item.id){
+                        <option [value]="item.id">{{item.title}}</option>
+                    }
+                </select>
+                <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'Course is required',
+                  control: form.controls['courseid']
+                }">
+                </ng-container>
+            </div>
+            <!-- Title -->
+            <div>
+                <label class="label">Title <span class="text-red-500">*</span></label>
+                <input id="title" formControlName="title" type="text" placeholder="Title" required
+                    class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border" />
+
+                <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'Title is required',
+                  control: form.controls['title']
+                }">
+                </ng-container>
+            </div>
+            <div class="flex flex-col md:flex-row gap-3 w-full">
+                <div class="w-full">
+                    <label class="label">Start Date<span class="text-red-500">*</span></label>
+                    <input type="date" id="start_date" formControlName="start_date" class="input" [min]="minDate" />
+                    <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'Start date is required',
+                  control: form.controls['start_date']
+                }">
+                    </ng-container>
+                </div>
+                <div class="w-full">
+                    <label class="label">End Date<span class="text-red-500">*</span></label>
+                    <input type="date" id="start_date" formControlName="end_date" class="input" [min]="minDate" />
+                    <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'End date is required',
+                  control: form.controls['end_date']
+                }">
+                    </ng-container>
+                </div>
+            </div>
+            <div class="flex flex-col md:flex-row gap-3 w-full">
+                <div class="w-full">
+                    <label class="label">Start Time <span class="text-red-500">*</span></label>
+                    <input type="time" id="start_time" formControlName="start_time" class="input"/>
+                    <!-- <time-picker [required]="true" (valueChange)="timeHandler('S', $event)"></time-picker> -->
+
+                    <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'Start time is required',
+                  control: form.controls['start_time']
+                }">
+                    </ng-container>
+                </div>
+                <div class="w-full">
+                    <label class="label">End Time <span class="text-red-500">*</span></label>
+                    <input type="time" id="end_time" formControlName="end_time" class="input"/>
+                  <!--   <time-picker [required]="true" ngDefaultControl formControlName="end_time"
+                        (valueChange)="timeHandler('E', $event)"></time-picker>
+ -->
+                    <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'End time is required',
+                  control: form.controls['end_time']
+                }">
+                    </ng-container>
+                </div>
+            </div>
+
+
+            <div>
+                <label class="label">Deadline<span class="text-red-500">*</span></label>
+                <input type="date" id="deadline" formControlName="deadline" class="input" />
+                <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'Deadline is required',
+                  control: form.controls['deadline']
+                }">
+                </ng-container>
+            </div>
+            <div>
+                <label class="label">Maximum enrollment capacity<span class="text-red-500">*</span></label>
+                <input type="text" id="capacity" formControlName="capacity" class="input" inputmode="numeric"
+                    placeholder="Maximum enrollment capacity" autocomplete="off" />
+                <div class="mt-1 text-sm text-gray-500 italic">
+                    <span class="font-mono font-bold text-gray-700">Zero</span> for unlimited capacity.
+                </div>
+                <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'Maximum enrollment capacity is required',
+                  control: form.controls['capacity']
+                }">
+                </ng-container>
+                <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'pattern',
+                  message: 'Numerical figures are allowed',
+                  control: form.controls['capacity']
+                }">
+                </ng-container>
+            </div>
+        </div>
+    </form>
+</app-dialog>
+
+<ng-template #formError let-control="control" let-message="message" let-validation="validation">
+    @if(control.hasError(validation) && (control.dirty || control.touched)) {
+    <ng-container>
+        <div class="fv-plugins-message-container">
+            <div class="fv-help-block mt-1">
+                <span class="error">
+                    {{ message }}
+                </span>
+            </div>
+        </div>
+    </ng-container>
+    }
+</ng-template>

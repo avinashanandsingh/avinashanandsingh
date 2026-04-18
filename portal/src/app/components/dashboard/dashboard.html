@@ -1,0 +1,6 @@
+@if(user().role === 'ADMINISTRATOR'){
+<admin-dashboard></admin-dashboard>
+}
+@else{
+<student-dashboard></student-dashboard>
+}

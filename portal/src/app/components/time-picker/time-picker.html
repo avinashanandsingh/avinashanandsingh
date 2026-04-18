@@ -1,0 +1,111 @@
+<!-- <div class="relative">
+    <input type="time" [disabled]="disabled" [readonly]="!editable" [value]="modelValue!" (input)="onInput($event)"
+        (change)="onChange($event)"
+        class="block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 placeholder-gray-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none sm:text-sm transition-colors duration-200"
+        [class.border-red-500]="required && showError" [class.ring-2]="required && touched"
+        [placeholder]="placeholder || 'HH:MM'" [required]="required" />
+
+    @if(showPicker){
+    <div class="fixed inset-0 z-50 overflow-y-auto bg-black bg-opacity-50 flex items-center justify-center">
+        <div class="relative mx-auto rounded-lg bg-white p-8 shadow-xl max-w-md w-full" [class.opacity-0]="!showPicker">
+            <h3 class="text-lg font-medium text-gray-900 mb-4">Select Time</h3>
+            
+            <div class="grid grid-cols-4 gap-3 mb-6">
+                @for(hour of hours; track hour){
+                <button *ngFor="let hour of hours" [class.bg-indigo-600]="hour === selectedHour"
+                    [class.bg-gray-100]="hour !== selectedHour" [class.text-indigo-700]="hour === selectedHour"
+                    [class.text-gray-900]="hour !== selectedHour" (click)="selectHour(hour)"
+                    class="aspect-square rounded-lg font-medium text-sm transition-all duration-200 cursor-pointer">
+                    {{ hour }}
+                </button>
+                }
+                @for(minute of minutes; track minute){
+                <button [class.bg-indigo-600]="hour === selectedHour && minute === selectedMinutes"
+                    [class.bg-indigo-500]="hour === selectedHour && minute < selectedMinutes"
+                    [class.bg-gray-100]="hour === selectedHour && minute > selectedMinutes"
+                    [class.text-indigo-700]="hour === selectedHour && minute === selectedMinutes"
+                    [class.text-indigo-900]="hour === selectedHour && minute < selectedMinutes"
+                    [class.text-gray-900]="hour === selectedHour && minute > selectedMinutes"
+                    (click)="selectHourAndMinute(selectedHour, minute)"
+                    class="aspect-square rounded-lg font-medium text-sm transition-all duration-200 cursor-pointer">
+                    {{ formatMinute(minute) }}
+                </button>
+                }
+            </div>
+
+            <div class="flex justify-end gap-3 border-t pt-4">
+                <button type="button" (click)="closePicker()"
+                    class="inline-flex items-center justify-center rounded-md bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200">Cancel</button>
+                <button type="button" [disabled]="disabled" (click)="confirmTime()"
+                    class="inline-flex items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:bg-gray-300">Confirm</button>
+            </div>
+        </div>
+    </div>
+    }
+</div> -->
+<div class="flex flex-row">
+    <select class="select" (change)="change($event,'HH')" [disabled]="disabled">
+        <option value="">HH</option>
+        @for(h of hours; track h){
+
+        @if(hour && h===hour){
+        <option [value]="h" selected>{{h.toString().padStart(2, "0")}}</option>
+        }
+        @if(hour && h!==hour){
+        <option [value]="h">{{h.toString().padStart(2, "0")}}</option>
+        }
+        @if(hour === undefined){
+        <option [value]="h">{{h.toString().padStart(2, "0")}}</option>
+        }
+        }
+    </select>
+     <select class="select"  (change)="change($event,'MM')"  [disabled]="disabled">
+    <option value="">MM</option>
+    @for(m of minutes; track m){
+        @if(minute && m=== minute){
+         <option [value]="m" selected>{{m.toString().padStart(2, "0")}}</option>
+        }
+        @if(minute && m!== minute){
+         <option [value]="m">{{m.toString().padStart(2, "0")}}</option>
+        }
+     @if(minute === undefined){
+         <option [value]="m">{{m.toString().padStart(2, "0")}}</option>
+        }
+      
+
+}
+  </select>
+</div>
+<!-- <div class="sm:flex rounded-lg border-2 border-gray-300">
+    <select class="py-2 sm:py-3 px-4 pe-11 block w-full bg-layer border-layer-line -mt-px sm:-ms-px first:rounded-t-lg last:rounded-b-lg sm:first:rounded-s-lg sm:mt-0 sm:first:ms-0 sm:first:rounded-se-none sm:last:rounded-es-none sm:last:rounded-e-lg sm:text-sm text-foreground placeholder:text-muted-foreground-1 focus:z-10 focus:border-primary-focus focus:ring-primary-focus disabled:opacity-50 disabled:pointer-events-none" (change)="change($event,'HH')" [disabled]="disabled">
+        <option value="">HH</option>
+        @for(h of hours; track h){
+
+        @if(hour && h===hour){
+        <option [value]="h" selected>{{h}}</option>
+        }
+        @if(hour && h!==hour){
+        <option [value]="h">{{h}}</option>
+        }
+        @if(hour === undefined){
+        <option [value]="h">{{h}}</option>
+        }
+        }
+    </select>
+     <select class="py-2 sm:py-3 px-4 pe-11 block w-full bg-layer border-layer-line -mt-px sm:-ms-px first:rounded-t-lg last:rounded-b-lg sm:first:rounded-s-lg sm:mt-0 sm:first:ms-0 sm:first:rounded-se-none sm:last:rounded-es-none sm:last:rounded-e-lg sm:text-sm text-foreground placeholder:text-muted-foreground-1 focus:z-10 focus:border-primary-focus focus:ring-primary-focus disabled:opacity-50 disabled:pointer-events-none"  (change)="change($event,'MM')"  [disabled]="disabled">
+    <option value="">MM</option>
+    @for(m of minutes; track m){
+        @if(minute && m=== minute){
+         <option [value]="m" selected>{{m}}</option>
+        }
+        @if(minute && m!== minute){
+         <option [value]="m">{{m}}</option>
+        }
+     @if(minute === undefined){
+         <option [value]="m">{{m}}</option>
+        }
+      
+
+}
+  </select>     
+    </div> -->

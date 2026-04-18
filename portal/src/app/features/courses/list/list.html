@@ -1,0 +1,310 @@
+<div class="p-6 bg-white space-y-3 rounded min-h-screen">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-800">Courses</h2>
+            <p class="text-sm text-gray-500">Manage your courses here</p>
+        </div>
+        <div>
+            <button (click)="show(formDialog, 'ADD')" class="btn btn-primary">
+                <i class="bi bi-plus text-xl mr-2"></i>
+                Add Course
+            </button>
+        </div>
+    </div>
+
+
+    <!-- Listing Table -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-base text-gray-600">
+                <thead class="bg-gray-50 text-base uppercase text-gray-500 border-b border-gray-100">
+                    <tr>
+                        <th class="px-6 py-4 font-semibold">Title</th>
+                        <th class="py-4 font-semibold  text-start">Category</th>
+                       <!--  <th class="py-4 font-semibold">Description</th> -->
+                        <th class="py-4 font-semibold">Short</th>
+                        <th class="py-4 font-semibold">Level</th>
+                        <th class="py-4 font-semibold">Free</th>
+                        <th class="py-4 font-semibold text-start">Price</th>
+                        <th class="py-4 font-semibold  text-start">Offer</th>
+                        <th class="py-4 font-semibold  text-start">Status</th>
+                        <th class="py-4 font-semibold">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    <tr *ngFor="let c of list()">
+                        <!-- Thumbnail/Preview -->
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="shrink-0 h-10 w-10 rounded bg-gray-100 flex items-center justify-center overflow-hidden"
+                                    [ngClass]="{ 'bg-purple-50': c.thumbnail }">
+                                    <img *ngIf="c.thumbnail" [src]="c.thumbnail" class="h-full w-full object-cover" />
+                                    <svg *ngIf="!c.thumbnail" xmlns="http://www.w3.org/2000/svg"
+                                        class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                    </svg>
+                                </div>
+                                <div class="ml-4">
+                                    <div class="font-bold text-gray-900">{{ c.title }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="py-4 whitespace-nowrap text-start">
+
+                            @if(c.category){
+                            <div class="font-bold text-gray-900">{{ c.category!.name! }}</div>
+                            }@else{
+                            <div class="font-bold text-gray-900">N/A</div>
+                            }
+                        </td>
+                        <!-- <td class="py-4 whitespace-nowrap text-start">
+
+                            <div class="font-bold text-gray-900">{{ c.description }}</div>
+
+                        </td> -->
+                        <td class="py-4 whitespace-nowrap text-start">
+
+                            <div class="font-bold text-gray-900">{{ c.short ? 'Yes' :'No' }}</div>
+
+                        </td>
+                        <td class="py-4 whitespace-nowrap text-start">
+
+                            <div class="font-bold text-gray-900">{{ c.level }}</div>
+
+                        </td>
+                        <td class="py-4 whitespace-nowrap text-start">
+
+                            <div class="font-bold text-gray-900">{{ c.free ? 'Yes' :'No' }}</div>
+
+                        </td>
+                        <td class="py-4 whitespace-nowrap text-start">
+
+                            <div class="font-bold text-gray-900">{{ c.price | currency: 'INR' :'symbol':'1.2-2' }}
+                            </div>
+
+                        </td>
+                        <td class="py-4 whitespace-nowrap text-start">
+                            <div class="font-bold text-gray-900">{{ c.offer | currency: 'INR' :'symbol':'1.2-2'}}
+                            </div>
+                        </td>
+                        <!-- Status Badges -->
+                        <td class="py-4 whitespace-nowrap">
+                            @switch (c.status) {
+                            @case ('PUBLISHED') {
+                            <span
+                                class="px-2 py-1 rounded-full text-base font-bold bg-green-100 text-green-700">Published</span>
+                            }
+                            @case('ARCHIVED'){
+                            <span
+                                class="px-2 py-1 rounded-full text-base font-bold bg-gray-100 text-gray-600">Archived</span>
+                            }
+                            @case('DRAFT'){
+                            <span
+                                class="px-2 py-1 rounded-full text-base font-bold bg-yellow-100 text-yellow-700">Draft</span>
+                            }
+                            }
+                        </td>
+
+                        <!-- Actions -->
+                        <td class="py-4 whitespace-nowrap font-medium">
+                            <div class="flex flex-row gap-3">
+                                <button (click)="show(playerDialog, 'PLAY', c.id!)"
+                                    class="text-purple-600 hover:text-purple-900 text-base" title="Play">
+                                    <i class="bi bi-play-circle"></i>
+                                </button>
+                                <button (click)="show(formDialog, 'EDIT', c.id!)"
+                                    class="text-purple-600 hover:text-purple-900 text-base" title="Edit">
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
+                                <button class="text-purple-600 hover:text-purple-900 text-base" title="Publish">
+                                    <i class="bi bi-cloud-upload"></i>
+                                </button>
+                               <button class="text-purple-600 hover:text-purple-900 text-base" title="Archive">
+                                    <i class="bi bi-archive"></i>
+                                </button>
+                            </div>
+
+
+                            <!--  <div class="relative group inline-block">
+                                <button class="text-gray-400 hover:text-gray-600" (click)="togglePublish(c.id!)">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                    <span
+                                        class="absolute right-0 mt-2 w-52 p-2 bg-white shadow-lg rounded-md z-10 hidden group-hover:block border border-gray-100">
+                                        <p class="text-sm font-bold text-gray-800">{{ c.status === 'ARCHIVED' ?
+                                            'Unarchive' : c.status === 'PUBLISHED' ? 'Archive' : 'Publish' }}</p>
+                                        <button (click)="toggleArchive(c.id!)"
+                                            class="text-xs text-red-500 hover:text-red-700 mt-1">Archive/Unarchive</button>
+                                    </span>
+                                </button>
+                            </div> -->
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Course Add/Edit Modal -->
+
+
+<loader [isOpen]="loaderDialog"></loader>
+
+<app-dialog [isOpen]="formDialog" [backdrop]="false" [buttons]="dialogButtons" [title]="dialogTitle()">
+    <form [formGroup]="form">
+        <input type="hidden" id="id" formControlName="id" />
+        <div class="w-full mb-3">
+            <label class="block mb-2.5 text-base  text-heading">Thumbnail</label>
+            @if(thumbnailUrl()){
+                <app-upload [fileType]="'image/*'" (fileChange)="changeHandler('I', $event)" [previewUrl]="thumbnailUrl()!"></app-upload>
+            }@else {
+                <app-upload [fileType]="'image/*'" (fileChange)="changeHandler('I', $event)"></app-upload>
+            }
+        </div>
+
+        <div class="w-full mb-3">
+            <label for="categoryid" class="block mb-2.5 text-base  text-heading">Category</label>
+            <select id="categoryid" formControlName="categoryid" class="select">
+                <option selected value="">Select a category</option>
+                @for(item of category_list(); track item.id){
+                <option selected [value]="item.id">{{item.name}}</option>
+                }
+            </select>
+        </div>
+
+        <div class="w-full mb-3">
+            <label for="title" class="block mb-2.5 text-base font-medium text-heading">Title</label>
+            <input type="text" id="title" formControlName="title" class="input" placeholder="Title" required />
+            <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'Title is required',
+                  control: form.controls['title']
+                }"></ng-container>
+        </div>
+
+
+        <div class="w-full mb-3">
+            <label for="description" class="block mb-2.5 text-base font-medium text-heading">Description</label>
+            <textarea type="text" id="description" formControlName="description" class="input" placeholder="Description"
+                required rows="2"></textarea>
+            <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'Description is required',
+                  control: form.controls['description']
+                }"></ng-container>
+        </div>
+
+        <div class="mb-3">
+            <div class="flex flex-col md:flex-row gap-3 w-full">
+                <div class="w-full">
+                    <label class="flex items-center space-x-3 cursor-pointer">
+                        <input type="checkbox" id="free" formControlName="free" (change)="showPrice.set(!showPrice());"
+                            class="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500" />
+                        <span class="text-base">Is it free?</span>
+                    </label>
+                </div>
+                <div class="w-full">
+                    <label class="flex items-center space-x-3 cursor-pointer">
+                        <input type="checkbox" id="short" formControlName="short"
+                            (change)="showLevel.set(!showLevel());"
+                            class="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500" />
+                        <span class="text-base">Is this a short course?</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+        @if(!showLevel()){
+        <div class="mb-3">
+            <label for="level" class="block mb-2.5 text-base font-medium text-heading">Level</label>
+            <select id="level" formControlName="level" class="input">
+                <option value="">Select a level</option>
+                <option value="L0">L0</option>
+                <option value="L1">L1</option>
+                <option value="L2">L2</option>
+            </select>
+
+            <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'Description is required',
+                  control: form.controls['level']
+                }"></ng-container>
+            @if(form.controls['level'].value && form.controls['level'].value!.length<=0){ <span class="error">
+                Level is required in case, this is a short course
+                </span>
+                }
+
+        </div>
+        }
+        @if(!showPrice()){
+        <div class="mb-3">
+            <div class="flex flex-col md:flex-row gap-3 w-full">
+                <div class="w-full flex-row">
+                    <label for="price" class="block mb-2.5 text-base font-medium text-heading">Price</label>
+                    <input type="text" id="price" placeholder="0.00" formControlName="price" class="input text-end"
+                        inputmode="numeric" autocomplete="off" />
+                    <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'pattern',
+                  message: 'Valid numerical figure required',
+                  control: form.controls['price']
+                }"></ng-container>
+                </div>
+                <div class="w-full">
+                    <label for="offer" class="block mb-2.5 text-base font-medium text-heading">Offer</label>
+                    <input type="text" id="offer" placeholder="0.00" formControlName="offer" class="input text-end"
+                        inputmode="numeric" autocomplete="off" />
+                    <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'pattern',
+                  message: 'Valid numerical figure required',
+                  control: form.controls['offer']
+                }"></ng-container>
+                </div>
+            </div>
+        </div>
+        }
+        <div class="w-full mb-3">
+            <label for="url" class="block mb-2.5 text-base font-medium text-heading">Video Url</label>
+            <input type="text" id="url" formControlName="url" class="input" placeholder="Video Url" />
+        </div>
+        <div class="w-full">
+            <label class="block mb-2.5 text-base  text-heading">Introductory Video</label>
+            @if(videoUrl()){
+                <app-upload [fileType]="'video/*'" (fileChange)="changeHandler('V', $event)" [previewUrl]="videoUrl()"></app-upload>
+            }@else{
+                <app-upload [fileType]="'video/*'" (fileChange)="changeHandler('V', $event)"></app-upload>
+            }
+        </div>
+    </form>
+</app-dialog>
+
+
+<app-dialog [isOpen]="playerDialog" [backdrop]="false" [footer]="false" title="Watch Video">
+    @if(safeVideoUrl()){
+    <iframe class="w-full h-100" [src]="safeVideoUrl()" title="YouTube video player" frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen>
+    </iframe>
+    }
+</app-dialog>
+
+<ng-template #formError let-control="control" let-message="message" let-validation="validation">
+    @if(control.hasError(validation) && (control.dirty || control.touched)){
+    <ng-container>
+        <div class="fv-plugins-message-container">
+            <div class="fv-help-block mt-1">
+                <span class="error">
+                    {{ message }}
+                </span>
+            </div>
+        </div>
+    </ng-container>
+    }
+</ng-template>

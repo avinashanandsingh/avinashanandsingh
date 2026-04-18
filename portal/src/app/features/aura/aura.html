@@ -1,0 +1,162 @@
+<div class="p-6 bg-white space-y-3 rounded min-h-screen">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800">Aura Services</h1>
+            <p class="text-gray-500 text-sm">Manage Aura services here</p>
+        </div>
+        <div>
+            <button (click)="show(formDialog)" class="btn btn-primary text-base items-center">
+                <i class="bi bi-calendar-plus text-xl mr-2"></i>
+                Add New Aura Service
+            </button>
+        </div>
+    </div>
+
+    <div class="w-full mx-auto overflow-hidden bg-white border border-gray-200 rounded-xl shadow-sm">
+        <table class="w-full text-left border-collapse">
+            <thead class="bg-gray-100 border-b border-gray-200 text-gray-600 uppercase text-base font-semibold">
+                <tr>
+                    <th class="px-6 py-4">Name</th>
+                    <th class="px-6 py-4">Price</th>
+                    <th class="px-6 py-4">Offer</th>
+                    <th class="px-6 py-4">Status</th>
+                    <th class="px-6 py-4 text-right">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @for (row of list(); track row.id) {
+                <tr (click)="toggleRow(row.id!)"
+                    class="group cursor-pointer hover:bg-blue-50/50 transition-colors border-b border-gray-100 last:border-0" [class.bg-purple-100]="expandedRowId() === row.id">
+                    <td class="px-6 py-4 font-medium text-gray-900">{{ row.name }}</td>
+                    <td class="px-6 py-4 text-gray-600">{{ row.price }}</td>
+                    <td class="px-6 py-4 text-gray-600">{{ row.offer }}</td>
+                    <td class="px-6 py-4 text-gray-600">{{ row.status }}</td>
+                    <td class="px-6 py-4 text-right">
+                        <button class="text-purple-600 hover:text-purple-900 text-base pr-3">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                        <span class="inline-block transition-transform duration-300"
+                            [class.rotate-180]="expandedRowId() === row.id">
+                            <i class="bi bi-caret-down text-xl"></i>
+                        </span>
+
+                    </td>
+                </tr>
+
+                @if (expandedRowId() === row.id) {
+                <tr>
+                    <td colspan="5" class="p-0 bg-gray-50">
+                        <div class="px-6 py-2 border-l-4 border-blue-500 animate-fadeIn">
+                            <h4 class="text-xs font-bold uppercase text-gray-400 mb-1">Timeslots</h4>
+
+                            <table class="w-full text-left border-collapse">
+                                <thead
+                                    class="bg-gray-100 border-b border-gray-200 text-gray-600 uppercase text-base font-semibold">
+                                    <tr>
+                                        <th class="px-6 py-4">Name</th>
+                                        <th class="px-6 py-4">Start Time</th>
+                                        <th class="px-6 py-4">End Time</th>
+                                        <th class="px-6 py-4 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                @for (slot of row.timeslots?.sort((a,b)=> a.id!.localeCompare(b.id!)); track slot.id) {
+                                <tr>
+                                    <td class="px-6 py-4 font-medium text-gray-900">{{ slot.name }}</td>
+                                    <td class="px-6 py-4 text-gray-600">{{ slot.start_time }}</td>
+                                    <td class="px-6 py-4 text-gray-600">{{ slot.end_time }}</td>
+                                    <td class="px-6 py-4 text-right">
+                                        <button class="text-purple-600 hover:text-purple-900 text-base pr-3">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                }
+                            </table>
+
+                        </div>
+                    </td>
+                </tr>
+                }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<loader [isOpen]="loaderDialog"></loader>
+<app-dialog [buttons]="dialogButtons" [isOpen]="formDialog" [title]="dialogTitle()" [backdrop]="false"
+    (close)="hide(formDialog)">
+    <form [formGroup]="parentForm">
+        <div class="mb-3">
+            <label class="label">Name <span class="text-red-500">*</span></label>
+            <input id="name" formControlName="name" type="text" placeholder="Name" required
+                class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border" />
+            <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'Name is required',
+                  control: parentForm.controls['name']
+                }">
+            </ng-container>
+        </div>
+        <div class="flex flex-row gap-3 w-full mb-3">
+            <div class="w-full">
+                <label class="label">Price</label>
+                <input id="price" formControlName="price" type="text" inputmode="numeric" placeholder="0.00"
+                    class="input text-right" autocomplete="off" />
+                <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'Price is required',
+                  control: parentForm.controls['price']
+                }">
+                </ng-container>
+            </div>
+            <div class="w-full">
+                <label class="label">Offer</label>
+                <input id="offer" formControlName="offer" type="text" inputmode="numeric" placeholder="0.00"
+                    class="input text-right" autocomplete="off" />
+                <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'Offer is required',
+                  control: parentForm.controls['offer']
+                }">
+                </ng-container>
+            </div>
+        </div>
+
+
+        <fieldset class="border border-gray-300 p-4 rounded-md">
+            <legend class="px-2 text-base font-semibold text-gray-700">Timeslots</legend>
+            <div formArrayName="timeslots" class="mb-3">
+                <div *ngFor="let row of timeslots.controls; let i=index" [formGroupName]="i" class="mb-3">
+                    <div class="flex flex-row gap-3 mb-3">
+                        <input type="text" formControlName="name" placeholder="Name" class="input">
+                    </div>
+                    <div class="flex flex-row gap-3">
+                        <input type="time" formControlName="start_time" placeholder="Start Time" class="input">
+                        <input type="time" formControlName="end_time" placeholder="End Time" class="input">
+                        <button type="button" (click)="removeRow(i)" class="btn btn-danger"><i
+                                class="bi bi-trash"></i></button>
+                    </div>
+
+                </div>
+            </div>
+            <button type="button" (click)="addRow()" class="btn btn-primary justify-end">Add New Timeslot</button>
+        </fieldset>
+
+    </form>
+</app-dialog>
+<ng-template #formError let-control="control" let-message="message" let-validation="validation">
+    @if(control.hasError(validation) && (control.dirty || control.touched)) {
+    <ng-container>
+        <div class="fv-plugins-message-container">
+            <div class="fv-help-block mt-1">
+                <span class="error">
+                    {{ message }}
+                </span>
+            </div>
+        </div>
+    </ng-container>
+    }
+</ng-template>

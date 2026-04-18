@@ -1,0 +1,174 @@
+<!-- templates/smtp-settings.component.html -->
+<div class="p-6 bg-white h-full space-y-3 rounded">
+    <!-- Header -->
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800">SMTP</h1>
+            <p class="text-gray-500 text-sm">Manage your SMTP settings</p>
+        </div>
+    </div>
+
+    <div class="settings-container">
+
+        <div *ngIf="saving()" class="loading-overlay">
+            <p>Saving...</p>
+        </div>
+
+        <div *ngIf="error()" class="error-message">
+            <span>{{ error() }}</span>
+        </div>
+
+        <form (ngSubmit)="save()" [formGroup]="form">
+            <input type="hidden" id="id" formControlName="id"/>
+            <!-- Host -->
+            <div class="form-group mb-3">
+                <label>Host</label>
+                <input id="host" type="text" formControlName="host" class="input" />
+            </div>
+
+            <!-- Port -->
+            <div class="form-group mb-3">
+                <label>Port</label>
+                <select id="port" formControlName="port" class="input">
+                    <option value="">Select a port</option>
+                    <option value="25">25</option>
+                    <option value="465">465</option>
+                    <option value="587">587</option>
+                </select>
+                  <ng-container
+                [ngTemplateOutlet]="formError"
+                [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'Port is required',
+                  control: form.controls['port']
+                }"
+              ></ng-container>
+            </div>
+
+
+            <!-- Username -->
+            <div class="form-group mb-3">
+                <label>Username</label>
+                <input id="username" type="email" formControlName="username" class="input" />
+                 <ng-container
+                [ngTemplateOutlet]="formError"
+                [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'Username is required',
+                  control: form.controls['username']
+                }"
+              ></ng-container>
+              <ng-container
+                [ngTemplateOutlet]="formError"
+                [ngTemplateOutletContext]="{
+                  validation: 'email',
+                  message: 'Username must be valid email address',
+                  control: form.controls['username']
+                }"
+              ></ng-container>
+            </div>
+
+            <!-- Password -->
+            <div class="space-y-2 mb-5">
+                <div class="flex justify-between items-center">
+                    <label for="password"
+                        class="text-base font-medium text-purple-900 uppercase tracking-wide">Password</label>
+                </div>
+                <div class="relative">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                    </div>
+                    <input id="password" [type]="showPassword() ? 'text': 'password'" formControlName="password"
+                        placeholder="PASSWORD"
+                        class="pl-10 block w-full p-2 text-base border-2 border-gray-300 rounded-md transition-colors" />
+                    <button type="button" (click)="showPassword.set(!showPassword())"
+                        class="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600">
+                        @if(showPassword()){
+                        <i class="bi bi-eye h-5 w-5"></i>
+                        }
+                        @else {
+                        <i class="bi bi-eye-slash h-5 w-5"></i>
+                        }
+                    </button>
+                </div>
+                 <ng-container
+                [ngTemplateOutlet]="formError"
+                [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'Password is required',
+                  control: form.controls['password']
+                }"
+              ></ng-container>
+            </div>
+
+            <!-- From Email -->
+            <div class="form-group mb-3">
+                <label for="sender_name">Sender Name</label>
+                <input id="sender_name" type="text" formControlName="sender_name" class="input" />
+                 <ng-container
+                [ngTemplateOutlet]="formError"
+                [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'Sender name is required',
+                  control: form.controls['sender_name']
+                }"
+              ></ng-container>           
+            </div>
+
+            <!-- From Email -->
+            <div class="form-group mb-3">
+                <label for="sender_email">Sender Email</label>
+                <input id="sender_email" type="email" formControlName="sender_email" class="input" />
+                 <ng-container
+                [ngTemplateOutlet]="formError"
+                [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'Sender Email is required',
+                  control: form.controls['sender_email']
+                }"
+              ></ng-container>
+            <ng-container
+                [ngTemplateOutlet]="formError"
+                [ngTemplateOutletContext]="{
+                  validation: 'email',
+                  message: 'Not a valid email address',
+                  control: form.controls['sender_email']
+                }"
+              ></ng-container>
+            </div>
+
+            <!-- Save Button -->
+            <div class="actions flex flex-row gap-3">
+                <button type="submit" class="btn btn-primary w-full" [disabled]="saving()">
+                    Save Configuration
+                </button>
+                <button type="button" class="btn btn-secondary w-full" (click)="save()">
+                    Reset
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<ng-template #formError let-control="control" let-message="message" let-validation="validation">
+    @if(control.hasError(validation) && (control.dirty || control.touched)){
+    <ng-container>
+        <div class="fv-plugins-message-container">
+            <div class="fv-help-block mt-1">
+                <span class="error">
+                    {{ message }}
+                </span>
+            </div>
+        </div>
+    </ng-container>
+    }
+</ng-template>
+
+<loader [isOpen]="loaderDialog"/>
+<app-dialog [isOpen]="confirmDialog" [buttons]="dialogButtons" title="Confirm">
+    Are you sure, you want to update settings?
+</app-dialog>

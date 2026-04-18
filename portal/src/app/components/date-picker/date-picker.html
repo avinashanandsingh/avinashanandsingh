@@ -1,0 +1,101 @@
+<div class="relative" [ngClass]="{'opacity-50': disabled}">
+    <!-- Date Input -->
+    <div class="relative">
+        <input #dateInput type="text" [disabled]="disabled" [max]="maxDate" [min]="minDate"
+            [value]="modelValue()!" class="block w-full rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-gray-900 placeholder-gray-400 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 focus:outline-none sm:text-sm transition-colors duration-200"
+            [class.border-red-500]="showError" [class.ring-2]="showError && touched"
+            [class.ring-red-500]="showError && !touched" [placeholder]="placeholder || 'YYYY-MM-DD'"
+            [readonly]="false" />
+
+        <!-- Calendar Icon -->
+        <button type="button" (click)="toggleCalendar()"
+            class="absolute inset-y-0 right-0 flex items-center px-3 text-gray-400 hover:text-gray-600"
+            [disabled]="disabled">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+        </button>
+
+        <!-- Helper Text -->
+        <div *ngIf="showHelperText" class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3">
+            <span *ngIf="touched && !showError && minDate" class="text-gray-400 text-xs">
+                Min: {{ minDate }}
+            </span>
+            <span *ngIf="touched && !showError && maxDate" class="text-gray-400 text-xs">
+                Max: {{ maxDate }}
+            </span>
+            <span *ngIf="showError" class="text-red-600 text-xs">
+                {{ getErrorMessage() }}
+            </span>
+        </div>
+    </div>
+
+    <!-- Calendar Modal -->
+    @if(showCalendar){
+    <div class="fixed inset-0 z-50 overflow-y-auto" [class.bg-black-50]="showCalendar">
+        <div class="flex min-h-screen items-center justify-center px-4 py-6 text-center sm:px-6">
+            <div class="relative mx-auto rounded-lg bg-white p-6 shadow-xl max-w-4xl w-full"
+                [class.opacity-0]="!showCalendar">
+
+                <!-- Calendar Header -->
+                <div class="flex items-center justify-between border-b pb-4">
+                    <button type="button" (click)="prevMonth()"
+                        class="p-2 text-gray-600 hover:bg-gray-100 rounded-full">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                    <h3 class="text-lg font-medium text-gray-900">{{ getMonthName(currentMonth) }} {{ currentYear }}
+                    </h3>
+                    <button type="button" (click)="nextMonth()"
+                        class="p-2 text-gray-600 hover:bg-gray-100 rounded-full">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Weekday Headers -->
+                <div class="grid grid-cols-7 gap-1 text-center text-sm font-medium text-gray-500">
+                    <span *ngFor="let day of weekdays">
+                        {{ day }}
+                    </span>
+                </div>
+
+                <!-- Days Grid -->
+                <div class="grid grid-cols-7 gap-1 mt-2">
+                    <!-- Empty days for first month -->
+                    <button *ngFor="let emptyDay of emptyDays" type="button" class="h-10 w-full rounded-full"></button>
+
+                    <!-- Days -->
+                    @for(day of calendarDays; track day){
+                    <button [disabled]="isDayDisabled(day)" [class.bg-indigo-600]="day === selectedDate()?.getDate()"
+                        [class.bg-gray-50]="day === selectedDate()?.getDate() && day < selectedDate()?.getDate()!"
+                        [class.bg-gray-100]="day === selectedDate()?.getDate() && day > selectedDate()?.getDate()!"
+                        [class.text-indigo-700]="day === selectedDate()?.getDate()"
+                        [class.text-indigo-900]="day === selectedDate()?.getDate() && day < selectedDate()?.getDate()!"
+                        [class.text-gray-900]="day === selectedDate()?.getDate() && day > selectedDate()?.getDate()!"
+                        [class.text-gray-400]="day < 1 || day > 31" [class.cursor-pointer]="day >= 1 && day <= 31"
+                        (click)="selectDate(day)" class="h-10 w-10 rounded-full text-sm transition-all duration-200 hover:bg-purple-100 hover:text-purple-700">
+                        {{ day }}
+                    </button>
+                    }
+                </div>
+
+                <!-- Footer Actions -->
+                <div class="flex justify-between items-center border-t pt-4 mt-4">
+                    <button type="button" (click)="closeCalendar()"
+                        class="inline-flex items-center justify-center rounded-md bg-gray-100 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-200">
+                        Clear
+                    </button>
+                    <button type="button" [disabled]="!hasSelectedDate" (click)="confirmDate()"
+                        class="inline-flex items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:bg-gray-300 disabled:text-gray-500">
+                        Select
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    }
+</div>

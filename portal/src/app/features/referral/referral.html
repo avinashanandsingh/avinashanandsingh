@@ -1,0 +1,79 @@
+<div class="p-6 bg-white space-y-3 rounded min-h-screen">
+
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800">Referrals</h1>
+            <p class="text-gray-500 text-sm">Manage referrals here</p>
+        </div>        
+    </div>
+
+    <!-- List Table -->
+    <div class="w-full  rounded-lg shadow overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+                            First&nbsp;Name
+                        </th>
+                        <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+                            Last&nbsp;Name
+                        </th>
+                        <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+                            Email
+                        </th>
+                        <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+                            Refered By
+                        </th>
+                        <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+                            Referred&nbsp;Date
+                        </th>
+                        <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+                            Accepted&nbsp;Date
+                        </th>                        
+                        <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider w-20">
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    @for(item of list(); track item.id){
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ item.first_name }}</div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ item.last_name }}</div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ item.email }}</div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ item.referby.first_name }} {{ item.referby.last_name }}</div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ item.referredat! | date: 'dd-MMM-yyyy' }}</div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ item.acceptedat | date:'dd-MMM-yyyy' }}</div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap text-right text-base font-medium w-20">
+                            <div class="flex flex-row gap-3">
+                                <button (click)="delete(item.id!)"
+                                    class="text-purple-600 hover:text-purple-900 text-base">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+            @if(list().length === 0){
+            <p class="p-6 text-center text-gray-500">No one has referred yet.</p>
+            }
+        </div>
+    </div>
+</div>
+<loader [isOpen]="loaderDialog"></loader>

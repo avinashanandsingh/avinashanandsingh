@@ -1,0 +1,52 @@
+<html>
+
+<head>
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <script>
+   
+    // 2. This function creates an <iframe> (and YouTube player)
+    //    after the API code downloads.
+    var player;
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('player', {
+        height: '360',
+        width: '640',
+        videoId: 'dQw4w9WgXcQ', // Replace with your video ID
+        events: {
+          'onReady': onPlayerReady
+        }
+      });
+    }
+
+    function onPlayerReady(event) {
+      console.log("Player is ready!");
+    }
+
+    // 3. Custom functions to control the player
+    function playVideo() {
+      player.playVideo();
+    }
+
+    function pauseVideo() {
+      player.pauseVideo();
+    }
+  </script>
+</head>
+
+<body>
+  <iframe width="420" height="345" src="https://www.youtube.com/embed/tgbNymZ7vqY"
+allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+  allowfullscreen>
+</iframe>
+
+<iframe width="560" height="315" 
+  src="https://www.w3schools.com/html/mov_bbb.mp4" 
+  title="YouTube video player" 
+  frameborder="0" 
+  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+  allowfullscreen>
+</iframe>
+  
+</body>
+
+</html>

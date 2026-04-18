@@ -1,0 +1,27 @@
+/* 
+  Optional Custom CSS 
+  Tailwind classes cover most needs, 
+  but if you need specific custom animations:
+*/
+
+/* Smooth fade for overlay */
+.dialog-overlay {
+  will-change: opacity;
+}
+
+/* Dialog Box Box Shadow */
+.dialog-box {
+  box-shadow:
+    0 10px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Scrollable Body */
+.dialog-body {
+  max-height: 75vh;
+  overflow-y: auto;
+  /* Custom scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 transparent;
+}
+

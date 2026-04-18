@@ -1,0 +1,125 @@
+Form(
+                      key: _formKey,
+                      child: Column(
+                        children: [
+                          CustomFormField(
+                            hintText: "Username",
+                            isRequired: true,
+                            type: FieldType.text,
+                            prefixIcon: Icons.person,
+                          ),
+                          const SizedBox(height: 16),
+                          // Email Field
+                          _buildTextField(
+                            label: 'Email Address',
+                            prefixIcon: Icons.email_outlined,
+                            hintText: 'Enter your email',
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Password Field
+                          _buildPasswordField(
+                            label: 'Password',
+                            prefixIcon: Icons.lock_outline,
+                            onToggle: onShowPasswordToggle,
+                          ),
+                          const SizedBox(height: 12),
+
+                          // Remember Me & Forgot Password
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Checkbox(
+                                    value: false,
+                                    onChanged: (value) {},
+                                    checkColor:
+                                        AppColors.primary, // Purple check
+                                    materialTapTargetSize:
+                                        MaterialTapTargetSize.shrinkWrap,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                  ),
+                                  Text(
+                                    'Remember me',
+                                    style: TextStyle(
+                                      color: AppColors.textSecondary,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              TextButton(
+                                onPressed: onForgotPassword,
+                                child: Text(
+                                  'Forgot Password?',
+                                  style: TextStyle(
+                                    color: AppColors.secondary, // Gold text
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 24),
+
+                          // Sign In Button - Golden Gradient
+                          ElevatedButton(
+                            onPressed: onLogin,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.secondary,
+                              foregroundColor: AppColors.surfaceTertiary,
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 18,
+                                horizontal: 32,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 0,
+                              shadowColor: AppColors.secondary.withValues(
+                                alpha: 0.4,
+                              ),
+                            ),
+                            child: const Text(
+                              'Sign In',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+
+                          // Sign Up Link
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'Don\'t have an account?',
+                                style: TextStyle(
+                                  color: AppColors.textSecondary,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  // Navigate to sign up
+                                },
+                                child: const Text(
+                                  'Sign Up',
+                                  style: TextStyle(
+                                    color: AppColors.primary,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),

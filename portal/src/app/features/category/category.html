@@ -1,0 +1,238 @@
+<div class="p-6 bg-white h-full space-y-3 rounded">
+
+    <!-- Header & Add Button -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-800">Categories</h2>
+            <p class="text-sm text-gray-500">Manage your course categories</p>
+        </div>
+
+        <button
+            (click)="closeModal(); this.model().name= ''; this.model().slug= ''; this.isEditing.set(false); this.openModal()"
+            class="flex items-center justify-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors shadow-md shadow-purple-100 font-medium">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            Add Category
+        </button>
+    </div>
+
+    <!-- Action Bar (Filter/Search) -->
+    <div
+        class="bg-white p-3 rounded-sm shadow-sm border border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4">
+        <div class="relative w-full sm:w-64">
+            <input type="text" placeholder="Search categories..."
+                class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent" />
+            <svg class="absolute left-3 top-2.5 h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24"
+                stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+        </div>
+        <div class="flex gap-2">
+            <button
+                class="px-4 py-2 text-sm bg-gray-50 text-gray-600 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors">
+                Reset Filter
+            </button>
+        </div>
+    </div>
+
+    <!-- Categories Grid -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+
+        <!-- Empty State -->
+        <div *ngIf="list().length === 0" class="p-12 text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-300 mb-4" fill="none"
+                viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12v-1.2c0-.546.447-1.011.985-1.011h6.028c.538 0 .985.465.985 1.011v4.25c0 .546-.447 1.011-.985 1.011H6.985A1.994 1.994 0 015 16.985v-1.2C4.453 15.7 4 15.245 4 14.699V6.7" />
+            </svg>
+            <h3 class="text-lg font-semibold text-gray-700">No categories found</h3>
+            <p class="text-gray-500 mt-1">Create your first category to get started.</p>
+        </div>
+
+        <!-- Content List -->
+        <div class="divide-y divide-gray-100">
+
+            <!-- Loading State -->
+            <div *ngIf="isLoading()" class="p-8 flex justify-center">
+                <svg class="animate-spin h-8 w-8 text-purple-600" xmlns="http://www.w3.org/2000/svg" fill="none"
+                    viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                    </path>
+                </svg>
+            </div>
+
+            <!-- Error Alert -->
+            <div *ngIf="error()" class="bg-red-50 border-l-4 border-red-500 p-4">
+                <p class="text-sm text-red-700">{{ error() }}</p>
+            </div>
+
+            <!-- Category List -->
+            <div *ngIf="list().length > 0 && !isLoading()" class="divide-y divide-gray-100">
+                <div *ngFor="let cat of list()">
+                    <div class="p-6 hover:bg-gray-50 transition-colors">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-4">
+                                <!-- Category Thumbnail -->
+                                <div
+                                    class="h-16 w-16 rounded-lg overflow-hidden border border-gray-200 shrink-0 bg-gray-50">
+                                    <img *ngIf="cat.icon" [src]="cat.icon" alt="{{ cat.name }}"
+                                        class="h-full w-full object-cover" />
+                                    <div *ngIf="!cat.icon"
+                                        class="h-full w-full flex items-center justify-center text-gray-400">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                        </svg>
+                                    </div>
+                                </div>
+
+                                <div class="flex-1 min-w-0">
+                                    <h3 class="text-lg font-semibold text-gray-900 truncate" [title]="cat.name">{{
+                                        cat.name }}</h3>
+                                    <p class="text-sm text-gray-500 truncate">{{ cat.slug }}</p>
+                                    <div class="flex items-center mt-1 gap-2">
+                                        @if(cat.status ==='ACTIVE'){
+                                            <span class="px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-700">Active</span>
+                                        }
+                                        @if(cat.status === 'INACTIVE'){
+                                            <span 
+                                            class="px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">Inactive</span>
+                                        }
+                                        @if(cat.status ==='DELETED'){
+                                            <span 
+                                            class="px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-gray-600">Deleted</span>
+                                        }
+                                        <span class="text-xs text-gray-400">{{ cat.createdat | date: 'dd-MM-yyyy HH:mm a' }}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex items-center gap-3">
+                                <!-- Edit Button -->
+                                <button (click)="editCategory(cat)"
+                                    class="p-2 text-gray-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                                    title="Edit">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536l-3.536-3.536M6.5 12H12M5.5 13.5C4.5 13.5 4 12 4 12s1.5-1.5 3.5-1.5M4.5 14.5v1a2 2 0 002 2h1a2 2 0 002-2v-1m0 0a2.5 2.5 0 104 0M12 14.5v1a2 2 0 002 2h1a2 2 0 002-2v-1m0 0a2.5 2.5 0 104 0" />
+                                    </svg>
+                                </button>
+
+                                <!-- Delete Button -->
+                                <button (click)="delete(cat.id!)"
+                                    class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                    title="Delete">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add/Edit Modal -->
+
+
+<category-dialog [show]="showModal()" (close)="this.closeModal()" [edit]="isEditing()">
+    <form method="post">
+        <!-- Modal Body -->
+        <div class="px-6 py-4">
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Name</label>
+                <input id="name" [formField]="me.name" type="text"
+                    class="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="e.g. Advanced React" />
+                @if (nameError()) {
+                <div class="error">
+                    {{ nameError() }}
+                </div>
+                }
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Slug</label>
+                <input id="slug" [formField]="me.slug" type="text"
+                    class="input"
+                    placeholder="e.g. advanced-react" />
+                <p class="text-xs text-gray-400 mt-1">This will be the URL-friendly name (without spaces)</p>
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                <textarea id="description" [formField]="me.description" type="text"
+                    class="block w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                    placeholder="e.g. advanced-react"></textarea>
+                <p class="text-xs text-gray-400 mt-1">This will be the URL-friendly name (without spaces)</p>
+            </div>
+
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Category Cover Image</label>
+
+                <!-- Hidden File Input -->
+                <input #fileInput (change)="handleFileInput($event)" accept="image/*" type="file" class="hidden" />
+
+                <!-- Drop Zone -->
+                <div (drop)="handleFileDrop($event)" (dragover)="handleDragOver($event)"
+                    (dragleave)="handleDragLeave($event)"
+                    class="border-2 border-dashed rounded-lg p-6 text-center hover:border-purple-300 transition-colors cursor-pointer bg-gray-50"
+                    [ngClass]="{ 
+              'bg-purple-50 border-purple-300': selectedFile(),
+              'opacity-50 cursor-not-allowed': isLoading()
+            }" [ngStyle]="{'border-color': selectedFile() ? '#a855f7' : '#e5e7eb', 'cursor-pointer': !isLoading()}">
+                    <div *ngIf="!selectedFile()" (click)="fileInput.click()" class="text-sm text-gray-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-400 mb-2" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                        <p class="text-xs text-gray-400 mb-1">Click to upload</p>
+                        <p class="text-xs text-gray-400">or drag and drop</p>
+                        <p class="text-xs text-purple-600 font-medium mt-1">SVG, PNG, JPG (max. 100KB)</p>
+                    </div>
+
+                    <div *ngIf="selectedFile()" class="relative">
+                        <img [src]="previewImage()" class="h-32 w-48 object-contain rounded-md shadow-sm">
+                        <button (click)="clearImage()"
+                            class="absolute top-2 right-2 h-6 w-6 bg-gray-800 text-white rounded-full flex items-center justify-center hover:bg-gray-700 shadow">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Error Message -->
+                @if(error()){
+                <p class="mt-2 text-xs text-red-500 font-medium">{{ error() }}</p>
+                }
+            </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="flex items-center justify-end px-6 py-4 border-t border-gray-100">
+            <button type="button" (click)="closeModal()"
+                class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors mr-3">
+                Cancel
+            </button>
+            <button type="submit" [disabled]="this.me().invalid()" (click)="onSubmit($event)"
+                class="px-4 py-2 text-sm font-bold text-white bg-purple-600 hover:bg-purple-700 rounded-lg shadow-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                {{ isLoading() ? 'Saving...' : 'Save' }}
+            </button>
+        </div>
+    </form>
+</category-dialog>
