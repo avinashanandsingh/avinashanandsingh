@@ -27,7 +27,7 @@ export class IdentityService implements CanActivate {
       },
     };
     let header = this.header.api();
-    let result: any = await this.api.post(this.url, header, body);    
+    let result: any = await this.api.post(this.url, header, body);
     return result?.data?.exist;
   }
 
@@ -98,8 +98,34 @@ export class IdentityService implements CanActivate {
           last_name: entity.last_name,
           email: entity.email,
           phone: entity.phone,
-          password:  'V2JkMjk0NCM=',
+          password: 'V2JkMjk0NCM=',
         },
+      },
+    };
+    let header = this.header.api();
+    delete header['authorization'];
+    return await this.api.post(this.url, header, body);
+  }
+
+  async fogot(email: string): Promise<any> {
+    let body = {
+      query: 'mutation fogot ($email: String!){ forgot(email: $email) { succeed message } }',
+      variables: {
+        email: email,
+      },
+    };
+    let header = this.header.api();
+    delete header['authorization'];
+    return await this.api.post(this.url, header, body);
+  }
+
+  async reset(otp: string, password: string): Promise<any> {
+    let body = {
+      query:
+        'mutation reset ($otp: String!, $password:String!) { reset (otp: $otp, password: $password) { succeed message } }',
+      variables: {
+        otp: otp,
+        password: password,
       },
     };
     let header = this.header.api();

@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { EditDialog } from './edit-dialog';
+import { Template } from './template';
 
-describe('EditDialog', () => {
-  let component: EditDialog;
-  let fixture: ComponentFixture<EditDialog>;
+describe('Template', () => {
+  let component: Template;
+  let fixture: ComponentFixture<Template>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [EditDialog],
+      imports: [Template],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(EditDialog);
+    fixture = TestBed.createComponent(Template);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

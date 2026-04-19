@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { CoursePlayer } from './course-player';
+import { TabNav } from './tab-nav';
 
-describe('CoursePlayer', () => {
-  let component: CoursePlayer;
-  let fixture: ComponentFixture<CoursePlayer>;
+describe('TabNav', () => {
+  let component: TabNav;
+  let fixture: ComponentFixture<TabNav>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [CoursePlayer],
+      imports: [TabNav],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(CoursePlayer);
+    fixture = TestBed.createComponent(TabNav);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

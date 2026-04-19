@@ -8,7 +8,7 @@ import { Dashboard } from './components/dashboard/dashboard';
 import CourseList from './features/courses/list/list';
 //import { CoursePlayer } from './core/components/course-player/course-player';
 import EnrollmentList from './features/enrollment/list/list';
-import { Profile } from './core/components/profile/profile';
+import { Profile } from './features/profile/profile';
 import { GuestLayout } from './layouts/guest/guest';
 import { UserRole } from './models/enum';
 import { Unauthorized } from './components/unauthorized/unauthorized';
@@ -34,8 +34,9 @@ import { Module } from './features/module/module';
 import { Referral } from './features/referral/referral';
 import { Orders } from './features/orders/orders';
 import { Inquiry } from './features/inquiry/inquiry';
+import { Template } from './features/template/template';
 
-export const routes: Routes = [  
+export const routes: Routes = [
   {
     path: '',
     component: MainLayout,
@@ -53,14 +54,14 @@ export const routes: Routes = [
         component: CourseList,
         canActivate: [IdentityService],
         data: { roles: [UserRole.ADMINISTRATOR] },
-      },      
+      },
       {
         path: 'schedules',
         component: Schedule,
         canActivate: [IdentityService],
         data: { roles: [UserRole.ADMINISTRATOR] },
       },
-       {
+      {
         path: 'modules',
         component: Module,
         canActivate: [IdentityService],
@@ -96,7 +97,7 @@ export const routes: Routes = [
         component: Meditation,
         canActivate: [IdentityService],
         data: { roles: [UserRole.ADMINISTRATOR] },
-      },      
+      },
       {
         path: 'scare-vibes',
         component: Scarevibes,
@@ -140,6 +141,12 @@ export const routes: Routes = [
         data: { roles: [UserRole.ADMINISTRATOR] },
       },
       {
+        path: 'templates',
+        component: Template,
+        canActivate: [IdentityService],
+        data: { roles: [UserRole.ADMINISTRATOR] },
+      },
+      {
         path: 'users',
         component: ManageUser,
         canActivate: [IdentityService],
@@ -162,7 +169,7 @@ export const routes: Routes = [
       { path: 'signin', component: SignIn },
       { path: 'signup', component: SignUp },
       { path: 'forgot', component: ForgotPassword },
-      { path: 'reset-password/:token', component: ResetPassword },
+      { path: 'reset', component: ResetPassword },
       { path: 'privacy', component: Privacy },
       { path: 'terms', component: Terms },
       { path: 'support', component: Support },

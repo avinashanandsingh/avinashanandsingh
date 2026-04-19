@@ -33,7 +33,7 @@
             </div>
 
             <!-- Add Button -->
-            <button (click)="openAddEditDialog()" class="btn btn-primary flex items-center space-x-2">
+            <button (click)="show(editDialogOpen, 'ADD')" class="btn btn-primary flex items-center space-x-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -66,7 +66,7 @@
     </div>
 
     <!-- Content -->
-    <div class="transition-all duration-300" [class.max-w-7xl]="viewMode() === 'list'"
+    <div class="transition-all duration-300" 
         [class.grid]="viewMode() === 'card'">
 
         <!-- List View -->
@@ -76,7 +76,7 @@
                 <div class="flex items-center space-x-4">
                     <img [src]="user.avatar" [alt]="user.first_name + ' ' + user.last_name"
                         class="w-12 h-12 rounded-full object-cover" />
-                    <div class="flex-grow">
+                    <div class="grow">
                         <div class="flex items-center space-x-2">
                             <h3 class="font-semibold text-gray-800">{{ user.first_name }} {{ user.last_name }}</h3>
                             @switch (user.status) {
@@ -110,37 +110,25 @@
                         <p class="text-gray-400 text-xs">{{ user.phone }}</p>
                     </div>
                     <div class="flex space-x-2">
+                        <button (click)="show(editDialogOpen, 'EDIT', user.id)"
+                            class="w-8 h-8 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded transition cursor-pointer"
+                            title="Edit">
+                           <i class="bi bi-pencil-square"></i>
+                        </button>
                         <button (click)="openStatusDialog(user)"
-                            class="p-2 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded-full transition"
+                            class="w-8 h-8 text-gray-500 hover:text-blue-600 hover:bg-blue-50 rounded transition cursor-pointer"
                             title="Change Status">
-                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536l-3.536-3.536zm-6.918 8.268L12 12.5m6.918-8.268l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
+                            <i class="bi bi-person-gear"></i>
                         </button>
                         <button (click)="openResetDialog(user)"
-                            class="p-2 text-gray-500 hover:text-purple-600 hover:bg-purple-50 rounded-full transition"
+                            class="w-8 h-8 text-gray-500 hover:text-purple-600 hover:bg-purple-50 rounded transition cursor-pointer"
                             title="Reset Password">
-                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-                            </svg>
-                        </button>
-                        <button (click)="openEditDialog(user)"
-                            class="p-2 text-gray-500 hover:text-green-600 hover:bg-green-50 rounded-full transition"
-                            title="Edit">
-                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536l-3.536-3.536zm-6.918 8.268L12 12.5m6.918-8.268l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                        </button>
+                            <i class="bi bi-key"></i>
+                        </button>                        
                         <button (click)="deleteUser(user)"
-                            class="p-2 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded-full transition"
+                            class="w-8 h-8 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition cursor-pointer"
                             title="Delete">
-                            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
+                           <i class="bi bi-trash"></i>
                         </button>
                     </div>
                 </div>
@@ -207,33 +195,21 @@
                             <span>{{ user.createdat | date:'medium' }}</span>
                         </div>
                         <div class="flex items-center space-x-1">
-                            <button (click)="openEditDialog(user)"
-                                class="p-1.5 text-gray-500 hover:text-green-600 rounded hover:bg-green-50 transition">
-                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536l-3.536-3.536zm-6.918 8.268L12 12.5m6.918-8.268l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
+                            <button (click)="show(editDialogOpen,'EDIT', user.id)"
+                                class="w-8 h-8 text-gray-500 hover:text-green-600 rounded hover:bg-green-50 transition cursor-pointer">
+                                <i class="bi bi-pencil-square"></i>
                             </button>
                             <button (click)="openStatusDialog(user)"
-                                class="p-1.5 text-gray-500 hover:text-blue-600 rounded hover:bg-blue-50 transition">
-                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536l-3.536-3.536zm-6.918 8.268L12 12.5m6.918-8.268l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
+                                class="w-8 h-8 text-gray-500 hover:text-blue-600 rounded hover:bg-blue-50 transition cursor-pointer">
+                                <i class="bi bi-person-gear"></i>
                             </button>
                             <button (click)="openResetDialog(user)"
-                                class="p-1.5 text-gray-500 hover:text-purple-600 rounded hover:bg-purple-50 transition">
-                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
-                                </svg>
+                                class="w-8 h-8 text-gray-500 hover:text-purple-600 rounded hover:bg-purple-50 transition cursor-pointer">
+                                <i class="bi bi-key"></i>
                             </button>
                             <button (click)="deleteUser(user)"
-                                class="p-1.5 text-gray-500 hover:text-red-600 rounded hover:bg-red-50 transition">
-                                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                </svg>
+                                class="w-8 h-8 text-gray-500 hover:text-red-600 rounded hover:bg-red-50 transition cursor-pointer">
+                               <i class="bi bi-trash"></i>
                             </button>
                         </div>
                     </div>
@@ -254,10 +230,89 @@
 </div>
 
 <!-- Dialogs -->
-@if(editDialogOpen()){
-<user-edit-dialog [user]="selectedUser" (save)="saveUser($event)" (cancel)="editDialogOpen.set(false)"
-    [showPreview]="true" />
-}
+<app-dialog [isOpen]="editDialogOpen" [title]="dialogTitle()" [buttons]="dialogButtons" [backdrop]="false">
+    <form [formGroup]="form">
+        <input type="hidden" formControlName="id"/>
+        <div title="Type" class="mb-3">
+            <label class="block text-base font-medium text-gray-700 mb-2">Role <span
+                    class="text-red-500">*</span></label>
+            <select id="role" formControlName="role" class="select">
+                <option selected value="">Select a Type</option>
+                @for(item of rolelist(); track $index){
+                <option [value]="item.value">{{item.value | titlecase}}</option>
+                }
+            </select>
+            <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'Role is required',
+                  control: form.controls['role']
+                }">
+            </ng-container>
+        </div>
+        
+        <div title="First Name" class="mb-3">
+            <label class="block text-base font-medium text-gray-700 mb-2">First Name <span
+                    class="text-red-500">*</span></label>
+            <input type="text" formControlName="first_name" class="mt-1 input" placeholder="First Name" />
+            <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'First Name is required',
+                  control: form.controls['first_name']
+                }">
+            </ng-container>
+        </div>
+        <div title="Last Name" class="mb-3">
+            <label class="block text-base font-medium text-gray-700 mb-2">Last Name <span
+                    class="text-red-500">*</span></label>
+            <input type="text" formControlName="last_name" class="mt-1 input" placeholder="Last Name" />
+            <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'Last Name is required',
+                  control: form.controls['last_name']
+                }">
+            </ng-container>
+        </div>
+        <div title="Last Name" class="mb-3">
+            <label for="email" class="block text-base font-medium text-gray-700 mb-2">Email Address <span
+                    class="text-red-500">*</span></label>
+            <input id="email" type="text" formControlName="email" class="mt-1 input" placeholder="Email Address" />
+            <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'Email Address is required',
+                  control: form.controls['email']
+                }">
+            </ng-container>
+            <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'pattern',
+                  message: 'Invalid email address',
+                  control: form.controls['email']
+                }">
+            </ng-container>
+        </div>
+        <div title="Phone" class="mb-3">
+            <label for="phone" class="block text-base font-medium text-gray-700 mb-2">Phone <span
+                    class="text-red-500">*</span></label>
+            <input id="phone" type="text" formControlName="phone" class="mt-1 input" placeholder="+919999999999" />
+            <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'Phone is required',
+                  control: form.controls['phone']
+                }">
+            </ng-container>
+            <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'pattern',
+                  message: 'Invalid phone number',
+                  control: form.controls['phone']
+                }">
+            </ng-container>           
+        </div>
+        <div title="Avatar" class="mb-3">
+            <label for="phone" class="block text-base font-medium text-gray-700 mb-2">Avatar</label>
+            <app-upload fileType="image/*" (fileChange)="fileChange($event)"></app-upload>            
+        </div>
+    </form>
+</app-dialog>
+
 
 @if(statusDialogOpen()){
 <user-status-dialog [user]="selectedUser" (confirm)="changeStatus($event.newStatus, $event.reason)"
@@ -266,3 +321,18 @@
 @if(resetDialogOpen()){
 <password-reset-dialog [user]="selectedUser" (reset)="resetPassword($event)" (cancel)="resetDialogOpen.set(false)" />
 }
+
+<ng-template #formError let-control="control" let-message="message" let-validation="validation">
+    @if(control.hasError(validation) && (control.dirty || control.touched)) {
+    <ng-container>
+        <div class="fv-plugins-message-container">
+            <div class="fv-help-block mt-1">
+                <span class="error">
+                    {{ message }}
+                </span>
+            </div>
+        </div>
+    </ng-container>
+    }
+</ng-template>
+<loader [isOpen]="loaderDialog"></loader>

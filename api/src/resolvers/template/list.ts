@@ -6,45 +6,35 @@ import Filter from "../../models/filter";
 export default async (
   _: any,
   args: { filter: Filter },
-  ctx: any
+  _ctx: any,
 ): Promise<any> => {
   let list: any;
   let filter = args.filter;
-  try {
-    let fields = await helper.data.columns([{ name: "themes" }]);
-    let input: Select = {
-      tables: [
-        {
-          name: "templates",
-          columns: fields.map((x: any) => {
-            return { name: x.name };
-          }),
-        },
-      ],
-      criteria: filter?.criteria,
-      orderBy: filter?.orderBy,
-      offset: filter?.offset,
-      limit: filter?.limit,
-    };
-    list = await helper.data.select(input);
-    if (list !== undefined) {
-      return list;
-    } else {
-      throw new GraphQLError("An error occured", {
-        extensions: {
-          originalError: {
-            code: 1234,
-            message: "unable to retrieve templates",
-          },
-        },
-      });
-    }
-  } catch (e: any) {
-    throw new GraphQLError("Unable to retrieve templates", {
+  let table = "view_templates";
+  let fields = await helper.data.columns([{ name: table }]);
+  let input: Select = {
+    tables: [
+      {
+        name: table,
+        columns: fields.map((x: any) => {
+          return { name: x.name };
+        }),
+      },
+    ],
+    criteria: filter?.criteria,
+    orderBy: filter?.orderBy,
+    offset: filter?.offset,
+    limit: filter?.limit,
+  };
+  list = await helper.data.select(input);
+  if (list !== undefined) {
+    return list;
+  } else {
+    throw new GraphQLError("An error occured", {
       extensions: {
         originalError: {
-          code: 500,
-          message: e.message,
+          code: 1234,
+          message: "unable to retrieve templates",
         },
       },
     });

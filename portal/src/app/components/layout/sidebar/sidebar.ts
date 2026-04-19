@@ -1,22 +1,27 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
-import { Router } from '@angular/router';
+import { NavigationEnd, Router, RouterLink } from '@angular/router';
+import { filter } from 'rxjs';
 
 @Component({
   selector: 'app-sidebar',
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.css',
 })
 export class Sidebar {
+  currentUrl: string = '';
   /* @Input({ required: false }) isOpen: boolean = true; */
   @Input({ required: false }) activeLink: string = '';
-  userName = 'Alex Morgan';
-  userRole = 'Admin';    
-  constructor(private router: Router) {    
+  constructor(private router: Router) { 
+       this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd)
+    ).subscribe((event: NavigationEnd) => {
+      this.currentUrl = event.urlAfterRedirects;
+    });
   }
 
-  get currentRoute(): string {
-    return this.router.url;
+  isLinkActive(url: string): boolean {
+    return this.currentUrl.includes(url);
   }
 }

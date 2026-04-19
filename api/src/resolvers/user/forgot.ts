@@ -25,11 +25,11 @@ export default async (
       if (user.status === "ACTIVE") {
         let now = new Date(); //;
         let active = await helper.otp.active(user?.id!);
-        let created = new Date(active?.createdat);        
+        let created = new Date(active?.createdat);
         let diff = Math.abs(now.getTime() - created.getTime());
         let minutes = Math.floor(diff / 1000 / 60);
         if (active && minutes <= 10) {
-          return { succeed: true, message: "OTP available after 10 minutes" };
+          return { succeed: false, message: "OTP available after 10 minutes" };
         }
         let otp: string = helper.otp.generate();
         let input: Insert = {
@@ -38,10 +38,27 @@ export default async (
         };
         let row = await helper.data.insert(input, [user.id, otp, now]);
         if (row !== undefined) {
-          let templateId = process.env
-            .PASSWORD_RESET_REQUEST_TEMPLATEID as string;
-          helper.email.send(args.email, templateId, { otp: otp });
-          return { succeed: true, message: "OTP sent to your email" };
+        let template: any = await helper.template.get("EMAIL", "RESET_PASSWORD_REQUEST");
+            let to = {
+              address: user.email!,
+              name: `${user.first_name} ${user.last_name}`,
+            };
+        
+            template.body = template.body.replace(
+              "{{first_name}}",
+              user.first_name
+            );
+            template.body = template.body.replace(
+              "{{last_name}}",
+              user.last_name
+            );
+            template.body = template.body.replace("{{otp}}", otp);
+            let state = await helper.send.mail(to, template);
+            if(state?.messageId){
+              return { succeed: true, message: "OTP sent to your email" };
+            }else{
+              return { succeed: false, message: "Unable to send email" };
+            }
         } else {
           return { succeed: true, message: "Unable to generate OTP" };
         }

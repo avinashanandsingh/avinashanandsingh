@@ -8,12 +8,18 @@ import cache from "./cache";
 import geo from "./geo";
 import log from "./log";
 import otp from "./otp";
-import email from "./email";
 import s3 from "./s3";
 import video from "./video";
+import send from "./send";
+import _enum from "./enum";
+import template from "./template"
+import smtp from "./smtp"
 export default {
+  enum: _enum,
   otp: otp,
-  email: email,
+  smtp,
+  template,
+  send: send,
   geo: geo,
   cache: cache,
   data: data,

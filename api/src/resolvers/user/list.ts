@@ -8,7 +8,7 @@ import Result from "../../models/result";
 export default async (
   _: any,
   args: { filter: Filter },
-  ctx: any,
+  _ctx: any,
 ): Promise<Result<User> | null> => {
   let result: Result<User> | null = null;
   let filter = args.filter;

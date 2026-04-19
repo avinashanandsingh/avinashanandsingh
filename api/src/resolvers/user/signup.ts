@@ -6,7 +6,10 @@ import User from "../../models/user";
 import dotenv from "dotenv";
 import { COP } from "../../models/enum";
 dotenv.config();
-export default async (_: any, args: { input: User }): Promise<Partial<User> | null> => {
+export default async (
+  _: any,
+  args: { input: User },
+): Promise<Partial<User> | null> => {
   let row: Partial<User> | null = null;
   let valid = await validate.signup(args.input);
   //console.log("valid: ", valid);
@@ -67,6 +70,28 @@ export default async (_: any, args: { input: User }): Promise<Partial<User> | nu
   }
   row = await helper.data.insert(input, values);
   //await helper.data.raw('COMMIT',[]);
-
+  if (row) {
+    let template: any = await helper.template.get(
+      "EMAIL",
+      "EMAIL_VERIFICATION",
+    );
+    let to = {
+      address: args.input.email!,
+      name: `${args.input.first_name} ${args.input.last_name}`,
+    };
+    template.body = template.body.replace(
+      "{{first_name}}",
+      args.input.first_name
+    );
+    template.body = template.body.replace(
+      "{{last_name}}",
+      args.input.last_name
+    );
+    template.body = template.body.replace(
+      "{{year}}",
+      (new Date()).getFullYear()
+    );
+    await helper.send.mail(to, template);
+  }
   return row;
 };

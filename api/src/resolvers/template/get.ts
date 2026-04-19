@@ -3,9 +3,9 @@ import helper from "../../helper/index";
 import Select from "../../models/select";
 import { COP } from "../../models/enum";
 
-export default async (_: any, args: any, ctx: any): Promise<any> => {
+export default async (_: any, args: any, _ctx: any): Promise<any> => {
   let row: any;
-  let table = "templates";
+  let table = "view_templates";
 
   let fields = await helper.data.columns([{ name: table }]);
   let input: Select = {

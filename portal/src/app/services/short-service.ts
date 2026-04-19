@@ -14,27 +14,28 @@ export class ShortService {
   constructor(
     private api: ApiService,
     private header: Header,
-    private store:StorageService
+    private store: StorageService,
   ) {}
 
   async list(filter: Filter): Promise<Data<IShortData>> {
-      let body = {
-        query:
-          'query list ($filter: Filter!) { shorts(filter: $filter) { count rows { id title thumbnail url status likes hits createdat } } }',
-        variables: {
-          filter: {
-            ...filter,
-          },
+    let body = {
+      query:
+        'query list ($filter: Filter!) { shorts(filter: $filter) { count rows { id title thumbnail url status likes hits createdat } } }',
+      variables: {
+        filter: {
+          ...filter,
         },
-      };
-      let header = this.header.api();
-      let result = await this.api.post(this.url, header, body);
-      return result?.data?.shorts!;
-    }
+      },
+    };
+    let header = this.header.api();
+    let result = await this.api.post(this.url, header, body);
+    return result?.data?.shorts!;
+  }
 
   async get(id: String) {
     let body = {
-      query: 'query get($id: String!) { short(id: $id) { id title thumbnail url status likes hits createdat } }',
+      query:
+        'query get($id: String!) { short(id: $id) { id title thumbnail url status likes hits createdat } }',
       variables: {
         id: id,
       },
@@ -42,7 +43,7 @@ export class ShortService {
     let header = this.header.api();
     return await this.api.post(this.url, header, body);
   }
-   async saveFormData(body: FormData): Promise<any> {
+  async saveFormData(body: FormData): Promise<any> {
     //let header = this.header.api();
     let token = this.store!.get('xt');
     return await this.api.postForm(this.url, { authorization: token }, body);

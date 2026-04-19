@@ -45,6 +45,9 @@ input UserIn {
       pattern: "^(?:\\+?[1-9]\\d{0,3}[-\\s]?)?(?:\\(\\d{1,5}\\)|\\d{1,5})?[-\\s]?(?:\\d[-\\s]?){6,19}\\d$"
       maxLength: 20
     )
+  file: File
+  profession: String
+  income: Float
 }
 
 input CategoryIn {
@@ -196,4 +199,11 @@ input MeditationIn {
   thumbnail: File!
   file: File
   url: String
+}
+
+input TemplateIn {
+  type: String!  
+  category: String!
+  subject: String!
+  body: String!
 }

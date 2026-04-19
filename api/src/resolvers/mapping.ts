@@ -17,7 +17,8 @@ import review from "./review";
 import inquiry from "./inquiry";
 import log from "./log";
 import smtp from "./smtp";
-
+import template from "./template";
+import _enum from "./enum";
 /* Chat Feature */
 import message from "./message";
 
@@ -72,6 +73,12 @@ const mapping = [
     execute: log.list,
     include: true,
     role: UserRole.ADMINISTRATOR,
+  },
+  {
+    name: "enums",
+    execute: _enum,
+    include: false,
+    role: UserRole.ANONYMOUS,
   },
   {
     name: "addUser",
@@ -499,7 +506,7 @@ const mapping = [
     include: true,
     role: UserRole.ADMINISTRATOR,
   },
-   {
+  {
     name: "referrals",
     execute: referral.list,
     include: true,
@@ -516,7 +523,7 @@ const mapping = [
     execute: referral.refer,
     include: true,
     role: UserRole.ADMINISTRATOR,
-  }, 
+  },
   {
     name: "deleteReferral",
     execute: referral.delete,
@@ -568,6 +575,36 @@ const mapping = [
   {
     name: "updateSmtp",
     execute: smtp.update,
+    include: true,
+    role: UserRole.ADMINISTRATOR,
+  },
+  {
+    name: "template",
+    execute: template.get,
+    include: true,
+    role: UserRole.ANONYMOUS,
+  },
+  {
+    name: "templates",
+    execute: template.list,
+    include: true,
+    role: UserRole.ANONYMOUS,
+  },
+  {
+    name: "newTemplate",
+    execute: template.add,
+    include: true,
+    role: UserRole.ADMINISTRATOR,
+  },
+  {
+    name: "updateTemplate",
+    execute: template.update,
+    include: true,
+    role: UserRole.ADMINISTRATOR,
+  },
+  {
+    name: "deleteTemplate",
+    execute: template.delete,
     include: true,
     role: UserRole.ADMINISTRATOR,
   },

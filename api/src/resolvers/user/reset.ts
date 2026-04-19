@@ -16,7 +16,9 @@ export default async (
     let otp: any = await helper.otp.verify(args.otp);
     if (otp) {
       let salt: number = Number(process.env.SALT);
-      let encrypted = bcrypt.hashSync(args.password, salt);
+       let pwd: any = Buffer.from(args.password!, "base64").toString();
+      console.log("pwd: ", pwd);
+      let encrypted = bcrypt.hashSync(pwd, salt);
       let input: Update = {
         table: table,
         columns: ["password"],
@@ -33,9 +35,9 @@ export default async (
       if (row !== undefined) {        
         await helper.otp.delete(args.otp);
         let user = await helper.user.get(otp.userid);
-         let templateId = process.env
+         /* let templateId = process.env
                     .PASSWORD_RESET_CONFIRM_TEMPLATEID as string;
-                  helper.email.send(user?.email!, templateId, { name: user?.first_name! });
+                  helper.send.mail(user?.email!, templateId, { name: user?.first_name! }); */
         return { succeed: true, message: "Password reset successful" };
       } else {
         return { succeed: false, message: "Unable to reset your password" };        

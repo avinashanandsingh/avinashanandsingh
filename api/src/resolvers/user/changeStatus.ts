@@ -3,7 +3,7 @@ import helper from "../../helper/index";
 import Update from "../../models/update";
 import { COP } from "../../models/enum";
 
-export default async (_: any, args: any, ctx: any): Promise<any> => {
+export default async (_: any, args: any, _ctx: any): Promise<any> => {
   let table: string = "users";
   try {
     let input: Update = {

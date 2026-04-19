@@ -11,8 +11,8 @@ dotenv.config();
 export default async (
   _: any,
   args: { input: SignIn },
-  ctx: any,
-  info: any,
+  _ctx: any,
+  _info: any,
 ): Promise<any> => {
   let valid = await validate.signin(args.input);
   //console.log("valid: ", valid);
@@ -84,7 +84,7 @@ export default async (
           },
         });
     }
-    let pwd = Buffer.from(args.input.password!, "base64").toString();    
+    let pwd = Buffer.from(args.input.password!, "base64").toString();
     console.log(pwd);
     let compared = await bcrypt.compare(pwd, user?.password!);
     if (compared) {
@@ -94,6 +94,9 @@ export default async (
       //user["access"] = await helper.access.get(user.roleid);
       let token = jwt.sign(user!, process.env.JWT_SECRET!, {
         expiresIn: "2h",
+      });
+      helper.user.update(user?.id!, {
+        last_login_at: helper.date.utcTimeStamp(),
       });
       return token;
     } else {

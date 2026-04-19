@@ -10,8 +10,11 @@ body {
 .btn-primary {
   @apply w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-base font-bold text-white bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed
 }
-.side-bar-item {
+.side-bar-item {  
   @apply flex items-center gap-3 px-4 py-2 rounded-md text-purple-700 hover:bg-purple-100 hover:text-purple-700 transition-colors
+}
+.side-bar-item-active {
+  @apply flex items-center gap-3 px-4 py-2 rounded-md text-purple-700 bg-purple-100 transition-colors
 }
 .menu-item {
   @apply block w-full text-left px-4 py-2 text-base text-purple-700 hover:bg-purple-50 hover:text-purple-700 transition-colors focus:outline-none
@@ -165,3 +168,14 @@ body {
 
 
 
+.active-tab {
+  @apply border-b-2 border-blue-500 text-blue-600 bg-white shadow-sm;
+}
+/* Smooth transition for content */
+.fade-enter {
+  @apply opacity-0;
+  animation: fadeIn 0.3s ease-out;
+}
+.fade-enter-active {
+  @apply opacity-100;
+}

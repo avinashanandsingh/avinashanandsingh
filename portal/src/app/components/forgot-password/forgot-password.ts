@@ -1,50 +1,54 @@
-import { NgClass } from '@angular/common';
+import { CommonModule, NgClass } from '@angular/common';
 import { Component, effect, signal } from '@angular/core';
-import { FormField } from "@angular/forms/signals";
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { Loader } from '../loader/loader';
+import { IdentityService } from '../../services/identity-service';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-forgot-password',
-  imports: [NgClass],
+  imports: [CommonModule, ReactiveFormsModule, Loader],
   templateUrl: './forgot-password.html',
   styleUrl: './forgot-password.css',
 })
 export class ForgotPassword {
   email = signal<string>('');
-  isLoading = signal<boolean>(false);
+  loaderDialog = signal<boolean>(false);
   isSuccess = signal<boolean>(false);
   errorMessage = signal<string>('');
   showBackLink = signal<boolean>(true);
-  
+
   // Validation
   isValidEmail = signal<boolean>(false);
+  form: FormGroup = new FormGroup({
+    email: new FormControl('', [Validators.required, Validators.email]),
+  });
+  constructor(
+    private router: Router,
+    private service: IdentityService,
+  ) {}
 
-  constructor() {
-    // Email Validation Effect
-    effect(() => {
-      const currentEmail = this.email();
-      this.isValidEmail.set(currentEmail.includes('@') && currentEmail.includes('.'));
-    });
-  }
-
-  onSubmit() {
-    if (!this.isValidEmail()) return;
-    
-    this.isLoading.set(true);
-    this.errorMessage.set('');
-    this.showBackLink.set(false);
-
-    // Simulate API Call
-    setTimeout(() => {
-      this.isLoading.set(false);
-      this.isSuccess.set(true);
-      
-      // Reset form
-      this.email.set('');
-      this.isValidEmail.set(false);
-    }, 2000);
+  async onSubmit(): Promise<void> {
+    if (this.form.invalid) return;
+    let email = this.form.getRawValue().email;
+    this.loaderDialog.set(true);
+    let result: any = await this.service.fogot(email);    
+    if (result?.data?.forgot?.succeed) {
+      this.router.navigateByUrl('/reset');
+    } else {
+        Swal.fire({
+          title: 'Failed',
+          html: result?.data?.forgot?.message,
+          icon: 'error',
+          timer: 3000,
+        });
+    }
+    this.loaderDialog.set(false);
+    //this.showBackLink.set(false);
   }
 
   goBackToLogin() {
-    window.location.href = '/login'; // Adjust path as needed
+    this.router.navigateByUrl('/signin');
   }
 }

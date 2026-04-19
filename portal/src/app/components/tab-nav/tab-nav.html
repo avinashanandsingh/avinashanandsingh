@@ -1,0 +1,30 @@
+<div class="flex flex-col md:flex-row w-full overflow-x-auto bg-white border rounded-lg shadow-sm h-full">
+
+    <!-- Tab List -->
+    <div class="flex md:flex-nowrap w-full pb-1 md:pb-3 bg-gray-50">
+        <button *ngFor="let tab of tabs"
+            [class]="activeTabId === tab.id ? 'border-blue-500 text-blue-600 bg-white shadow-sm rounded-tl-lg md:rounded-tr-none' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-100'"
+            [class.active-tab]="activeTabId === tab.id" (click)="onTabClick(tab.id)"
+            class="shrink-0 flex md:flex items-center justify-center px-4 py-3 md:py-2 md:px-4 min-w-[120px] md:min-w-0 border-b-2 border-gray-200 md:border-b-0 md:border-l-0 md:border-t-0 md:rounded-t-lg md:border-l-0 md:border-t-0 md:border-b-0 md:rounded-t-lg transition-colors duration-200">
+            <span class="font-medium text-sm md:text-base">{{ tab.title }}</span>
+            <span *ngIf="tab.icon" class="ml-2 text-xs text-gray-400">{{ tab.icon }}</span>
+        </button>
+    </div>
+
+    <!-- Content Area with Dynamic Component Rendering -->
+    <div class="flex-1 p-6 md:p-8 overflow-y-auto">
+        <!-- Only render the component if it is active -->
+        <div *ngIf="activeTab">
+            <div *ngIf="activeTab.component">
+                <ng-container [ngComponentOutlet]="activeTab.component" class="h-full"></ng-container>
+            </div>
+            <!-- Fallback if component is not found or optional -->
+            <div *ngIf="!activeTab.component" class="text-center text-gray-500 mt-2">
+                <p>No content defined for {{ activeTab.title }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Spacer for mobile scrolling feel -->
+    <div class="hidden md:block w-10"></div>
+</div>

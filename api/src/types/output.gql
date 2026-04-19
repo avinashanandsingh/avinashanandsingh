@@ -23,6 +23,16 @@ type UserResult {
   rows:[User]
 }
 
+type Forgot {
+  succeed: Boolean
+  message: String
+}
+
+type Reset {
+  succeed: Boolean
+  message: String
+}
+
 type Category {
   id: UUID!
   name: String
@@ -415,4 +425,26 @@ type Inquiry {
 type InquiryResult {
   count: Int
   rows: [Inquiry]
+}
+
+type Template {
+  id: UUID  
+  type: String
+  category: String
+  subject: String
+  body: String  
+  creator: User
+  createdat: DateTime
+  updater: User
+  updatedat: DateTime
+}
+
+type TemplateResult {
+  count: Int
+  rows: [Template]
+}
+
+type Enum {
+  name: String
+  value: String
 }

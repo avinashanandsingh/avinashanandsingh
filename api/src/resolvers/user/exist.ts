@@ -8,8 +8,8 @@ dotenv.config();
 export default async (
   _: any,
   args: { username: string },
-  ctx: any,
-  info: any,
+  _ctx: any,
+  _info: any,
 ): Promise<any> => {
   let flag: boolean = true;
   let user: Partial<User> | null = null;

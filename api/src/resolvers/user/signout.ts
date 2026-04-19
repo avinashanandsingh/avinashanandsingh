@@ -1,9 +1,9 @@
 import Cache from "node-cache";
 export default async (
   _: any,
-  args: any,
+  _args: any,
   ctx: any,
-  info: any,
+  _info: any,
 ): Promise<boolean> => {
   let cache = new Cache();
   let authorization = ctx.req.headers["authorization"];
