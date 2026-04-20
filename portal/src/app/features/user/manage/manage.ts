@@ -10,6 +10,7 @@ import { Loader } from '../../../components/loader/loader';
 import { Upload } from '../../../components/upload/upload';
 import Filter from '../../../models/filter';
 import Swal from 'sweetalert2';
+import { TitleService } from '../../../services/title-service';
 
 @Component({
   selector: 'manage-user',
@@ -145,12 +146,15 @@ export default class Manage {
   ]);
 
   // --- Constructor ---
-  constructor(private service: UserService) {}
+  constructor(
+    private service: UserService,
+    private titleService: TitleService,
+  ) {}
 
   // --- Lifecycle ---
   async ngOnInit(): Promise<void> {
     // Load initial data
-
+    this.titleService.title = 'Users';
     this.show(this.loaderDialog);
     await this.load({});
     this.rolelist.set(await this.service.rolelist());

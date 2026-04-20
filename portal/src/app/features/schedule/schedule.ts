@@ -9,6 +9,7 @@ import { Dialog } from '../../components/dialog/dialog';
 import { Loader } from '../../components/loader/loader';
 import { CourseService } from '../../services/course-service';
 import { ICourseData } from '../../models/course-model';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-schedule',
@@ -19,7 +20,7 @@ import { ICourseData } from '../../models/course-model';
 export class Schedule implements OnInit {
   rowCount = signal<number>(1);
   list = signal<ISchdeuleData[]>([]);
-  course_list=signal<ICourseData[]>([]);
+  course_list = signal<ICourseData[]>([]);
   loaderDialog = signal<boolean>(false);
   formDialog = signal<boolean>(false);
   mode = signal<'ADD' | 'EDIT'>('ADD');
@@ -34,9 +35,9 @@ export class Schedule implements OnInit {
     start_time: new FormControl(undefined, [Validators.required]),
     end_time: new FormControl(undefined, [Validators.required]),
     deadline: new FormControl(undefined, [Validators.required]),
-    capacity: new FormControl(undefined, [Validators.required, Validators.pattern("^[0-9]*$")]),
+    capacity: new FormControl(undefined, [Validators.required, Validators.pattern('^[0-9]*$')]),
   });
-  dialogButtons = signal<Array<{ label: string; action: any; type: any, disabled?:boolean }>>([
+  dialogButtons = signal<Array<{ label: string; action: any; type: any; disabled?: boolean }>>([
     {
       label: 'Close',
       action: () => {
@@ -60,21 +61,50 @@ export class Schedule implements OnInit {
         switch (this.mode()) {
           case 'ADD':
             result = await this.service.add(body);
-            if (result?.data?.addSchedule) {
-              alert('Schedule saved successfully');
+            if (result?.data?.addSchedule) {              
+               Swal.fire({
+                title: 'Success',
+                html: 'Schedule saved successfully',
+                icon: 'success',
+                timer: 3000,
+              });
+            } else {
+              let error = result?.errors?.shift();
+              let msg = error?.extensions?.originalError?.message;
+              Swal.fire({
+                title: 'Failed',
+                html: msg,
+                icon: 'error',
+                timer: 3000,
+              });
             }
             break;
           case 'EDIT':
             result = await this.service.update(body);
-            if (result?.data?.updateSchedule) {
-              alert('Schedule updated successfully');
+            if (result?.data?.updateSchedule) {              
+              Swal.fire({
+                title: 'Success',
+                html: 'Schedule updated successfully',
+                icon: 'success',
+                timer: 3000,
+              });
+            }else{
+              let error = result?.errors?.shift();
+              let msg = error?.extensions?.originalError?.message;
+              Swal.fire({
+                title: 'Failed',
+                html: msg,
+                icon: 'error',
+                timer: 3000,
+              });
             }
             break;
         }
+        this.load({});
         this.hide(this.loaderDialog);
         this.hide(this.formDialog);
       },
-      type: 'btn btn-primary w-full'      
+      type: 'btn btn-primary w-full',
     },
   ]);
 
@@ -86,7 +116,7 @@ export class Schedule implements OnInit {
   async ngOnInit(): Promise<void> {
     this.titleService.title = 'Schedules';
     let result = await this.course.list({});
-    if(result){
+    if (result) {
       this.course_list.set(result.rows!);
     }
     await this.load({});
@@ -111,7 +141,7 @@ export class Schedule implements OnInit {
         break;
       case 'EDIT':
         let row = this.list().find((x) => x.id === id);
-        this.form.patchValue(row!);        
+        this.form.patchValue(row!);
         this.dialogTitle.set('Update Schedule');
         me.set(true);
         break;
@@ -138,10 +168,10 @@ export class Schedule implements OnInit {
   }
   dateHandler(type: 'S' | 'E' | 'D', $event: Date | null) {
     console.log(type, $event);
-    switch(type){
+    switch (type) {
       case 'S':
         this.form.controls['start_date'].setValue($event);
-        break
+        break;
     }
   }
 

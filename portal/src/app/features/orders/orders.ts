@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, signal } from '@angular/core';
+import { TitleService } from '../../services/title-service';
 
 @Component({
   selector: 'app-orders',
@@ -10,11 +11,11 @@ import { Component, OnInit, signal } from '@angular/core';
 export class Orders implements OnInit {
   list = signal<any[]>([]);
 
-  constructor(){
+  constructor(private titleService: TitleService){
 
   }
 
   async ngOnInit(): Promise<void> {
-    
+    this.titleService.title ="Orders"
   }
 }

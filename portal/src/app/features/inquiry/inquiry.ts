@@ -1,9 +1,10 @@
 import { Component, OnInit, signal } from '@angular/core';
-import { Loader } from "../../components/loader/loader";
+import { Loader } from '../../components/loader/loader';
 import { InquiryService } from '../../services/inquiry-service';
 import { CommonModule } from '@angular/common';
 import { IInquiryData } from '../../models/inquiry';
 import Filter from '../../models/filter';
+import { TitleService } from '../../services/title-service';
 
 @Component({
   selector: 'app-inquiry',
@@ -14,15 +15,17 @@ import Filter from '../../models/filter';
 export class Inquiry implements OnInit {
   list = signal<IInquiryData[]>([]);
   loaderDialog = signal<boolean>(false);
-  constructor(private service: InquiryService){
-
-  }
+  constructor(
+    private service: InquiryService,
+    private titleService: TitleService,
+  ) {}
   async ngOnInit(): Promise<void> {
+    this.titleService.title = 'Inquiries';
     await this.load({});
   }
-  async load(filter:Filter){
+  async load(filter: Filter) {
     let result = await this.service.list(filter);
-    if(result){
+    if (result) {
       this.list.set(result.rows!);
     }
   }

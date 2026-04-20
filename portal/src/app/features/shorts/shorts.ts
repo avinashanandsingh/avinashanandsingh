@@ -9,6 +9,7 @@ import Filter from '../../models/filter';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { TitleService } from '../../services/title-service';
 
 // --- Interface ---
 interface Video {
@@ -168,11 +169,15 @@ export class Shorts {
   ]);
   constructor(
     private service: ShortService,
+    private titleService: TitleService,
     private sanitizer: DomSanitizer,
   ) {}
   // --- Methods ---
   async ngOnInit(): Promise<void> {
+    this.titleService.title = 'Shorts';
+    this.show(this.loaderDialog);
     await this.load({});
+    this.hide(this.loaderDialog);
   }
 
   ngOnDestroy(): void {
@@ -204,7 +209,7 @@ export class Shorts {
         case 'EDIT':
           let erow = this.list().find((x) => x.id === id);
           this.thumbnailUrl.set(erow!.thumbnail);
-          this.videoUrl.set(erow?.url!);       
+          this.videoUrl.set(erow?.url!);
           this.form.patchValue(erow!);
           this.dialogTitle.set('Update Short');
           break;
@@ -221,7 +226,7 @@ export class Shorts {
   completeHandler(type: 'I' | 'V', $event: File | null) {
     if (type === 'I') {
       this.thumbnail.set($event);
-    } else if (type === 'V') {      
+    } else if (type === 'V') {
       this.video.set($event);
     }
   }
@@ -230,8 +235,8 @@ export class Shorts {
     if (confirm('Are you sure you want to delete this short?')) {
       this.show(this.loaderDialog);
       let result = await this.service.delete(id);
-      if(result){
-        await this.load({})
+      if (result) {
+        await this.load({});
       }
       this.hide(this.loaderDialog);
     }

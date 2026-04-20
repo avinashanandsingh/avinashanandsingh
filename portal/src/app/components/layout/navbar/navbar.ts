@@ -54,4 +54,9 @@ export class Navbar {
     this.isMenuOpen.set(false);
     console.log('Open settings modal');
   }
+
+  handleDialog() {
+    this.isMenuOpen.set(false);
+    console.log('Open settings modal');
+  }
 }

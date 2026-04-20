@@ -27,6 +27,7 @@ export class Upload implements OnInit {
    
   }
   ngOnInit(): void {
+    console.log(this.previewUrl);
      let url = this.sanitizer.bypassSecurityTrustResourceUrl(this.previewUrl!);    
     this.safeUrl.set(url!);
   }

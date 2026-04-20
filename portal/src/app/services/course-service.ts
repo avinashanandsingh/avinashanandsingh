@@ -79,4 +79,25 @@ export class CourseService {
     let header = this.header.api();
     return await this.api.post(this.url, header, body);
   }
+
+   async publish(id: String) {
+    let body = {
+      query: 'mutation publish($id: UUID!) { publishCourse(id: $id) { id } }',
+      variables: {
+        id: id,
+      },
+    };
+    let header = this.header.api();
+    return await this.api.post(this.url, header, body);
+  }
+   async archive(id: String) {
+    let body = {
+      query: 'mutation archive($id: UUID!) { archiveCourse(id: $id) { id } }',
+      variables: {
+        id: id,
+      },
+    };
+    let header = this.header.api();
+    return await this.api.post(this.url, header, body);
+  }
 }

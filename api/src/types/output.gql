@@ -336,6 +336,7 @@ type Meditation {
   courseid: String
   course: Course
   title: String
+  thumbnail: String
   url: String
   status: String
   sort: Int	
@@ -447,4 +448,20 @@ type TemplateResult {
 type Enum {
   name: String
   value: String
+}
+
+type Page {
+  id: UUID  
+  type: String
+  title: String  
+  body: String  
+  creator: User
+  createdat: DateTime
+  updater: User
+  updatedat: DateTime
+}
+
+type PageResult {
+  count: Int
+  rows: [Page]
 }

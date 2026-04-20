@@ -44,15 +44,10 @@ export default async (
               name: `${user.first_name} ${user.last_name}`,
             };
         
-            template.body = template.body.replace(
-              "{{first_name}}",
-              user.first_name
-            );
-            template.body = template.body.replace(
-              "{{last_name}}",
-              user.last_name
-            );
+            template.body = template.body.replace("{{first_name}}", user.first_name);
+            template.body = template.body.replace("{{last_name}}", user.last_name);
             template.body = template.body.replace("{{otp}}", otp);
+            template.body = template.body.replace("{{year}}", (new Date()).getFullYear());
             let state = await helper.send.mail(to, template);
             if(state?.messageId){
               return { succeed: true, message: "OTP sent to your email" };

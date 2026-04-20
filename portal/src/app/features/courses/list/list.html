@@ -99,7 +99,7 @@
                             }
                             @case('ARCHIVED'){
                             <span
-                                class="px-2 py-1 rounded-full text-base font-bold bg-gray-100 text-gray-600">Archived</span>
+                                class="px-2 py-1 rounded-full text-base font-bold bg-gray-100 text-red-600">Archived</span>
                             }
                             @case('DRAFT'){
                             <span
@@ -119,10 +119,10 @@
                                     class="text-purple-600 hover:text-purple-900 text-base" title="Edit">
                                     <i class="bi bi-pencil-square"></i>
                                 </button>
-                                <button class="text-purple-600 hover:text-purple-900 text-base" title="Publish">
+                                <button (click)="publish(c.id!)" class="text-purple-600 hover:text-purple-900 text-base" title="Publish">
                                     <i class="bi bi-cloud-upload"></i>
                                 </button>
-                               <button class="text-purple-600 hover:text-purple-900 text-base" title="Archive">
+                               <button (click)="archive(c.id!)" class="text-purple-600 hover:text-purple-900 text-base" title="Archive">
                                     <i class="bi bi-archive"></i>
                                 </button>
                             </div>

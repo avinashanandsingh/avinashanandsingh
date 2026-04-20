@@ -132,4 +132,17 @@ export class IdentityService implements CanActivate {
     delete header['authorization'];
     return await this.api.post(this.url, header, body);
   }
+
+  // Change password
+  async change(password: string): Promise<any> {
+    let body = {
+      query:
+        'mutation change ($password:String!) { changePassword (password: $password) { succeed message } }',
+      variables: {      
+        password: password,
+      },
+    };
+    let header = this.header.api();    
+    return await this.api.post(this.url, header, body);
+  }
 }

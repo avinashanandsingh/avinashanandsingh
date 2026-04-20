@@ -18,6 +18,7 @@ import inquiry from "./inquiry";
 import log from "./log";
 import smtp from "./smtp";
 import template from "./template";
+import page from "./page";
 import _enum from "./enum";
 /* Chat Feature */
 import message from "./message";
@@ -138,6 +139,12 @@ const mapping = [
     name: "reset",
     execute: user.reset,
     include: false,
+    role: UserRole.ANONYMOUS,
+  },
+  {
+    name: "changePassword",
+    execute: user.changePassword,
+    include: true,
     role: UserRole.ANONYMOUS,
   },
   {
@@ -605,6 +612,36 @@ const mapping = [
   {
     name: "deleteTemplate",
     execute: template.delete,
+    include: true,
+    role: UserRole.ADMINISTRATOR,
+  },
+  {
+    name: "page",
+    execute: page.get,
+    include: false,
+    role: UserRole.ANONYMOUS,
+  },
+  {
+    name: "pages",
+    execute: page.list,
+    include: false,
+    role: UserRole.ANONYMOUS,
+  },
+  {
+    name: "newPage",
+    execute: page.add,
+    include: true,
+    role: UserRole.ADMINISTRATOR,
+  },
+  {
+    name: "updatePage",
+    execute: page.update,
+    include: true,
+    role: UserRole.ADMINISTRATOR,
+  },
+  {
+    name: "deletePage",
+    execute: page.delete,
     include: true,
     role: UserRole.ADMINISTRATOR,
   },

@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { OtpComponent } from './otp.component';
+import { OtpComponent } from './otp';
 
 describe('OtpComponent', () => {
   let component: OtpComponent;

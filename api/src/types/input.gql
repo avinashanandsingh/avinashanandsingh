@@ -167,8 +167,7 @@ input ServiceIn {
   timeslots: [TimeslotIn!]!
 }
 
-input ScaredvibeIn {
-  courseid: UUID!
+input ScaredvibeIn {  
   title: String!
   url: String
   file: File
@@ -195,15 +194,27 @@ input InquiryIn {
 }
 
 input MeditationIn {
+  courseid: UUID!
   title: String!
   thumbnail: File!
-  file: File
+  audio: File
   url: String
 }
 
 input TemplateIn {
-  type: String!  
+  type: String!
   category: String!
   subject: String!
   body: String!
+}
+
+input PageIn {
+  type: String!
+  title: String!
+  body: String!
+}
+
+input PageFilter {
+  id: String
+  type: String
 }

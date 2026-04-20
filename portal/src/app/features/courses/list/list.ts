@@ -10,7 +10,9 @@ import Filter from '../../../models/filter';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Upload } from '../../../components/upload/upload';
 import { CategoryService } from '../../../services/category-service';
-import { Loader } from "../../../components/loader/loader";
+import { Loader } from '../../../components/loader/loader';
+import Swal from 'sweetalert2';
+import { TitleService } from '../../../services/title-service';
 
 @Component({
   selector: 'app-course',
@@ -65,7 +67,7 @@ export default class Course implements OnInit {
             categoryid: formData.categoryid!.length > 0 ? formData.categoryid : null,
             title: formData.title,
             description: formData.description,
-            url: formData.url!.length > 0 ? formData.url : null,
+            url: formData.url ? formData.url : null,
             short: formData.short,
             level: formData.level,
             free: formData.free,
@@ -120,7 +122,7 @@ export default class Course implements OnInit {
           if (result?.data?.UpdateCourse) {
             alert('Successfully updated');
           }
-          
+
           this.form.reset();
           this.hide(this.formDialog);
           this.load({});
@@ -149,11 +151,13 @@ export default class Course implements OnInit {
   constructor(
     private service: CourseService,
     private categoryService: CategoryService,
+    private titleService: TitleService,
     private router: Router,
     private sanitizer: DomSanitizer,
   ) {}
 
   async ngOnInit(): Promise<void> {
+    this.titleService.title = 'Courses';
     let result = await this.categoryService.list({});
     this.category_list.set(result?.rows);
     this.load({});
@@ -167,14 +171,60 @@ export default class Course implements OnInit {
       this.list.set(result.rows!);
     }
   }
+  async archive(id: string): Promise<void> {
+    this.show(this.loaderDialog);
+    let result = await this.service.archive(id);
+    if (result?.data?.archiveCourse) {
+      Swal.fire({
+        title: 'Success',
+        html: 'Course archived successfully',
+        icon: 'success',
+        timer: 3000,
+      });
+    } else {
+      let error = result?.errors?.shift();
+      let msg = error?.extensions?.originalError?.message;
+      Swal.fire({
+        title: 'Failed',
+        html: msg,
+        icon: 'error',
+        timer: 3000,
+      });
+    }
+    this.load({});
+    this.hide(this.loaderDialog);
+  }
+  async publish(id: string): Promise<void> {
+    this.show(this.loaderDialog);
+    let result = await this.service.publish(id);
+    if (result?.data?.publishCourse) {
+      Swal.fire({
+        title: 'Success',
+        html: 'Course published successfully',
+        icon: 'success',
+        timer: 3000,
+      });
+    } else {
+      let error = result?.errors?.shift();
+      let msg = error?.extensions?.originalError?.message;
+      Swal.fire({
+        title: 'Failed',
+        html: msg,
+        icon: 'error',
+        timer: 3000,
+      });
+    }
+    this.load({});
+    this.hide(this.loaderDialog);
+  }
 
   changeHandler(type: 'I' | 'V', $event: File | null) {
-    switch(type){
+    switch (type) {
       case 'I':
         this.thumbnail.set($event);
         break;
       case 'V':
-        this.thumbnail.set($event);
+        this.video.set($event);
         break;
     }
   }
@@ -188,16 +238,19 @@ export default class Course implements OnInit {
     switch (this.mode()) {
       case 'PLAY':
         row = this.list().find((x) => x.id === id);
-        const rawUrl = row.url;
-        const url = this.sanitizer.bypassSecurityTrustResourceUrl(rawUrl!);
-        this.safeVideoUrl.set(url);
-        this.dialogTitle.set('Watch Video');
+        const rawUrl = row?.url!;
+        if (rawUrl) {
+          const url = this.sanitizer.bypassSecurityTrustResourceUrl(rawUrl!);
+          this.safeVideoUrl.set(url);
+          this.dialogTitle.set('Watch Video');
+        }
         break;
       case 'EDIT':
         row = this.list().find((x) => x.id === id);
         this.form.patchValue(row!);
-        this.thumbnailUrl.set(row!.thumbnail!);
-        this.videoUrl.set(row!.url!);
+        console.log(row);
+        this.thumbnailUrl.set(row?.thumbnail!);
+        this.videoUrl.set(row?.url!);
         this.dialogTitle.set('Update Module');
         break;
     }

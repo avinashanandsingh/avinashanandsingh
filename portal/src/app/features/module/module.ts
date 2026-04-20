@@ -13,6 +13,7 @@ import { ScheduleService } from '../../services/schedule-service';
 import { COP } from '../../models/enum';
 import { Upload } from '../../components/upload/upload';
 import Swal from 'sweetalert2';
+import { TitleService } from '../../services/title-service';
 
 @Component({
   selector: 'app-module',
@@ -155,10 +156,12 @@ export class Module implements OnInit {
     private service: ModuleService,
     private course: CourseService,
     private schedule: ScheduleService,
+    private titleService: TitleService
   ) {}
   async ngOnInit(): Promise<void> {
+    this.titleService.title ="Modules";
     this.show(this.loaderDialog);
-    await this.load({});
+    await this.load({});    
     let result = await this.course.list({});
     if (result) {
       this.course_list.set(result.rows!);

@@ -7,6 +7,7 @@ import { IResourceData } from '../../../models/resource';
 import { ResourceService } from '../../../services/resource-service';
 import Filter from '../../../models/filter';
 import { Loader } from '../../../components/loader/loader';
+import { TitleService } from '../../../services/title-service';
 
 @Component({
   selector: 'resource-list',
@@ -16,7 +17,7 @@ import { Loader } from '../../../components/loader/loader';
 })
 export default class List implements OnInit {
   rowCount = signal<number>(0);
-  list = signal<IResourceData[]>([]);  
+  list = signal<IResourceData[]>([]);
   loaderDialog = signal<boolean>(false);
   formDialog = signal<boolean>(false);
   mode = signal<'ADD' | 'EDIT'>('ADD');
@@ -92,7 +93,7 @@ export default class List implements OnInit {
             result = await this.service.saveFormData(fd);
             if (result?.data?.addResource) {
               alert('Resource saved successfully');
-            }            
+            }
             break;
           case 'EDIT':
             console.log('id: ', formData.id);
@@ -109,17 +110,21 @@ export default class List implements OnInit {
     },
   ]);
 
-  constructor(private service: ResourceService) {}
+  constructor(
+    private service: ResourceService,
+    private titleService: TitleService,
+  ) {}
   async ngOnInit(): Promise<void> {
+    this.titleService.title = 'Resources';
     await this.load({});
   }
 
-  async load(filter: Filter): Promise<void> {    
+  async load(filter: Filter): Promise<void> {
     let result = await this.service.list(filter);
     if (result) {
       this.rowCount.set(result.count!);
       this.list.set(result.rows!);
-    }    
+    }
   }
 
   /* show(mode: 'ADD' | 'EDIT', id?: string) {
@@ -170,11 +175,11 @@ export default class List implements OnInit {
     console.log(this.file());
   }
 
-  async delete(id: string):Promise<void> {
+  async delete(id: string): Promise<void> {
     this.show(this.loaderDialog);
     let result = await this.service.delete(id);
     this.hide(this.loaderDialog);
-    this.load({});    
+    this.load({});
   }
 
   // --- Drag and Drop Logic ---

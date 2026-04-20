@@ -111,6 +111,11 @@
                     <i class="bi bi-file-earmark-richtext"></i>
                     Templates
                 </a>
+                <a [routerLink]="['/pages']" [class.side-bar-item-active]="isLinkActive('/pages')"
+                    class="side-bar-item">
+                    <i class="bi bi-file-text"></i>
+                    Pages
+                </a>
                 <a [routerLink]="['/users']" [class.side-bar-item-active]="isLinkActive('/users')"
                     class="side-bar-item">
                     <i class="bi bi-people"></i>

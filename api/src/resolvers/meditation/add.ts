@@ -7,8 +7,8 @@ export default async (_: any, args: { input: any }, ctx: any): Promise<any> => {
   let user: any = ctx.user;  
   let thumbnail = args.input.thumbnail;
   delete args.input.thumbnail;
-  let video = args.input.video;
-  delete args.input.video;
+  let audio = args.input.audio;
+  delete args.input.audio;
 
   if (thumbnail) {
     const { name, type } = thumbnail!;
@@ -21,19 +21,19 @@ export default async (_: any, args: { input: any }, ctx: any): Promise<any> => {
     }
   }
 
-  if (video) {
-    const { name, type } = video!;
+  if (audio) {
+    const { name, type } = audio!;
     // Process the file content
-    const arrayBuffer = await video!.arrayBuffer();
+    const arrayBuffer = await audio!.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
-    let result = await helper.s3.upload("videos", name, type, buffer);
+    let result = await helper.s3.upload("audios", name, type, buffer);
     if (result) {
-      args.input["url"] = `${process.env.AWS_CDN}/videos/${name}`;
+      args.input["url"] = `${process.env.AWS_CDN}/audios/${name}`;
     }
   }
 
   let input: Insert = {
-    table: "shorts",
+    table: "meditations",
     columns: Object.keys(args.input).map((x) => {
       return { name: x };
     }),
@@ -51,7 +51,7 @@ export default async (_: any, args: { input: any }, ctx: any): Promise<any> => {
       extensions: {
         originalError: {
           code: 1234,
-          message: "unable to create short",
+          message: "unable to add meditation",
         },
       },
     });

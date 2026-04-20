@@ -3,7 +3,8 @@ import { ReferralService } from '../../services/referral-service';
 import Filter from '../../models/filter';
 import { IReferralData } from '../../models/referral';
 import { CommonModule } from '@angular/common';
-import { Loader } from "../../components/loader/loader";
+import { Loader } from '../../components/loader/loader';
+import { TitleService } from '../../services/title-service';
 
 @Component({
   selector: 'app-referral',
@@ -15,8 +16,12 @@ export class Referral implements OnInit {
   rowCount = signal<number>(1);
   list = signal<IReferralData[]>([]);
   loaderDialog = signal<boolean>(false);
-  constructor(private service: ReferralService) {}
+  constructor(
+    private service: ReferralService,
+    private titleService: TitleService,
+  ) {}
   async ngOnInit(): Promise<void> {
+    this.titleService.title = 'Referrals';
     await this.load({});
   }
   async load(filter: Filter): Promise<void> {
@@ -28,15 +33,15 @@ export class Referral implements OnInit {
   }
 
   async show() {
-    this.loaderDialog.set(true);    
+    this.loaderDialog.set(true);
   }
-  hide() {    
+  hide() {
     this.loaderDialog.set(false);
   }
   async delete(id: string): Promise<void> {
     this.show();
     let result = await this.service.delete(id);
     this.load({});
-    this.hide();    
+    this.hide();
   }
 }

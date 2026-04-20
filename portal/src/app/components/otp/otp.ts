@@ -1,13 +1,20 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, Output, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Output,
+  ViewChild,
+} from '@angular/core';
 import { FormControl } from '@angular/forms';
 
 @Component({
-  selector: 'app-otp',
+  selector: 'otp',
   imports: [],
-  templateUrl: './otp.component.html',
-  styleUrl: './otp.component.scss'
+  templateUrl: './otp.html',
+  styleUrl: './otp.css',
 })
-export class OtpComponent implements AfterViewInit {
+export class Otp implements AfterViewInit {
   @ViewChild('one') irOne!: ElementRef;
   @Output() onOtpChange = new EventEmitter<string>();
   one = new FormControl('');
@@ -21,7 +28,7 @@ export class OtpComponent implements AfterViewInit {
     this.irOne.nativeElement.focus();
   }
 
-  onKeyUp($event: any) {    
+  onKeyUp($event: any) {
     let el = $event.target as HTMLInputElement;
     let key = $event.key;
     let nums = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
@@ -49,26 +56,26 @@ export class OtpComponent implements AfterViewInit {
           el.focus();
           break;
       }
-    }else if(key==="Backspace"){
+    } else if (key === 'Backspace') {
       switch (el.id) {
-        case "two":
-          el = document.querySelector("#one") as HTMLInputElement;
+        case 'two':
+          el = document.querySelector('#one') as HTMLInputElement;
           el.focus();
           break;
-        case "three":
-          el = document.querySelector("#two") as HTMLInputElement;
+        case 'three':
+          el = document.querySelector('#two') as HTMLInputElement;
           el.focus();
           break;
-        case "four":
-          el = document.querySelector("#three") as HTMLInputElement;
+        case 'four':
+          el = document.querySelector('#three') as HTMLInputElement;
           el.focus();
           break;
-        case "five":
-          el = document.querySelector("#four") as HTMLInputElement;
+        case 'five':
+          el = document.querySelector('#four') as HTMLInputElement;
           el.focus();
           break;
-        case "six":
-          el = document.querySelector("#five") as HTMLInputElement;
+        case 'six':
+          el = document.querySelector('#five') as HTMLInputElement;
           el.focus();
           break;
       }

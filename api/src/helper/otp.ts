@@ -52,7 +52,7 @@ export default {
   verify: async (otp?: string): Promise<Partial<User> | null> => {
     let row: Partial<User> | null = null;
     try {
-      let table = "password_resets";
+      let table = "view_password_resets";
       let columns = await data.columns([{ name: table }]);
       let input: Select = {
         tables: [

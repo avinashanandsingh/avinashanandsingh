@@ -63,8 +63,11 @@ type Query {
 
   smtp: Smtp!
 
-  template(id: UUID!): Template!
+  template(filter: PageFilter!): Template!
   templates(filter: Filter!): TemplateResult!
+
+  page(id: UUID!): Page!
+  pages(filter: Filter!): PageResult!
 }
 
 type Mutation {
@@ -73,6 +76,7 @@ type Mutation {
   updateUser(id:UUID!, input: UserIn!): User!
   forgot(email:String!): Forgot
   reset(otp:String!, password:String!): Reset
+  changePassword(password: String!): Reset
 
   addCategory(input: CategoryIn!): Category!
   updateCategory(id:UUID!, input: CategoryIn!): Category!
@@ -128,6 +132,10 @@ type Mutation {
   newTemplate(input: TemplateIn!): Template!
   updateTemplate(id:UUID!, input: TemplateIn!): Template!
   deleteTemplate(id:UUID!): Template!
+
+  newPage(input: PageIn!): Page!
+  updatePage(id:UUID!, input: PageIn!): Page!
+  deletePage(id:UUID!): Page!
 
   addSmtp(input: SmtpIn!): Smtp!
   updateSmtp(id:UUID!, input: SmtpIn!): Smtp!

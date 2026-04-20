@@ -37,7 +37,7 @@
                 @if(isMenuOpen()){
                 <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50"
                     [class.hidden]="!isMenuOpen()">
-                    <a href="javascript:void(0)" class="menu-item">
+                    <a href="/profile" class="menu-item">
                         <div class="flex items-center gap-2">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
                                 class="bi bi-person" viewBox="0 0 16 16">
@@ -47,16 +47,10 @@
                             <span>{{user().name}}</span>
                         </div>
                     </a>
-                    <a href="javascript:void(0)" (click)="handleSettings()" class="menu-item">
+                    <a href="javascript:void(0)" (click)="dialog.set(true)" class="menu-item">
                         <div class="flex items-center gap-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
-                                class="bi bi-gear" viewBox="0 0 16 16">
-                                <path
-                                    d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492M5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0" />
-                                <path
-                                    d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115z" />
-                            </svg>
-                            <span>Settings</span>
+                            <i class="bi bi-key"></i>
+                            <span>Change Password</span>
                         </div>
                     </a>
                     <a href="javascript:void(0)" (click)="handleLogout()" class="menu-item">
@@ -78,3 +72,113 @@
         </div>
     </div>
 </header>
+<app-dialog [isOpen]="dialog" title="Change Password" [backdrop]="false" [buttons]="dialogButtons">
+    <div class="bg-indigo-100 border border-indigo-300 rounded p-3 text-indigo-900 mb-5">
+        <b>Password Requirements</b>
+        <ul>
+            <li>At least 1 uppercase letter</li>
+            <li>At least 1 lowercase letter</li>
+            <li>At least 1 digit</li>
+            <li>At least 1 special character (e.g., !&#64;#$%^&*.)</li>
+            <li>Minimum 8 characters</li>
+        </ul>
+    </div>
+    <form [formGroup]="form">        
+        <div class="space-y-2 mb-3">
+            <div class="flex justify-between items-center">
+                <label for="newPassword" class="text-base font-medium text-purple-900 uppercase tracking-wide">New
+                    Password</label>
+            </div>
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                </div>
+                <input id="newPassword" [type]="newPass() ? 'text': 'password'" formControlName="newPassword"
+                    placeholder="New Password"
+                    class="block text-base w-full pl-10 px-2 py-2 border border-gray-300 rounded text-gray-900 placeholder-gray-400 bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    [class.opacity-50]="loader()" />
+                <button type="button" (click)="togglePassword('NEW')"
+                    class="absolute inset-y-0 right-0 pr-3 text-gray-400 hover:text-gray-600">
+                    @if(newPass()){
+                    <i class="bi bi-eye"></i>
+                    }
+                    @else {
+                    <i class="bi bi-eye-slash"></i>
+                    }
+                </button>
+            </div>
+            <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                    validation: 'required',
+                    message: 'New Password is required',
+                    control: form.controls['newPassword']
+                  }"></ng-container>
+            <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                    validation: 'pattern',
+                    message: 'Invalid new password',
+                    control: form.controls['newPassword']
+                  }"></ng-container>
+        </div>
+        <div class="space-y-2 mb-3">
+            <div class="flex justify-between items-center">
+                <label for="confirmPassword"
+                    class="text-base font-medium text-purple-900 uppercase tracking-wide">Confirm
+                    Password</label>
+            </div>
+            <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                    </svg>
+                </div>
+                <input id="confirmPassword" [type]="confirmPass() ? 'text': 'password'"
+                    formControlName="confirmPassword" placeholder="Confirm Password"
+                    class="block text-base w-full pl-10 px-2 py-2 border border-gray-300 rounded text-gray-900 placeholder-gray-400 bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    [class.opacity-50]="loader()" />
+                <button type="button" (click)="togglePassword('CONFIRM')"
+                    class="absolute inset-y-0 right-0 pr-3 text-gray-400 hover:text-gray-600">
+                    @if(confirmPass()){
+                    <i class="bi bi-eye"></i>
+                    }
+                    @else {
+                    <i class="bi bi-eye-slash"></i>
+                    }
+                </button>
+            </div>
+            <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                    validation: 'required',
+                    message: 'Confirm Password is required',
+                    control: form.controls['confirmPassword']
+                  }"></ng-container>
+            <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                    validation: 'pattern',
+                    message: 'Invalid confirm password',
+                    control: form.controls['confirmPassword']
+                  }"></ng-container>
+        </div>
+
+        @if(form.hasError('equal') && form.get('confirmPassword')?.touched){
+        <div class="space-y-2">
+            <span class="error">Passwords must match!</span>
+        </div>
+        }
+    </form>
+</app-dialog>
+
+<ng-template #formError let-control="control" let-message="message" let-validation="validation">
+    @if(control.hasError(validation) && (control.dirty || control.touched)) {
+    <ng-container>
+        <div class="fv-plugins-message-container">
+            <div class="fv-help-block mt-1">
+                <span class="error">
+                    {{ message }}
+                </span>
+            </div>
+        </div>
+    </ng-container>
+    }
+</ng-template>
+<loader [isOpen]="loader"></loader>

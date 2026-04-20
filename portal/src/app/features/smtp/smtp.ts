@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Loader } from '../../components/loader/loader';
 import { Dialog } from '../../components/dialog/dialog';
+import { TitleService } from '../../services/title-service';
 
 @Component({
   selector: 'app-smtp',
@@ -51,9 +52,13 @@ export class Smtp implements OnInit {
     sender_email: new FormControl('', [Validators.required, Validators.email]),
   });
 
-  constructor(private service: SmtpService) {}
+  constructor(
+    private service: SmtpService,
+    private titleService: TitleService,
+  ) {}
 
   async ngOnInit(): Promise<void> {
+    this.titleService.title = 'Smtp Settings';
     this.load();
   }
   async load() {

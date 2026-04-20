@@ -14,6 +14,7 @@ import {
   Validators,
 } from '@angular/forms';
 import Swal from 'sweetalert2';
+import { TitleService } from '../../services/title-service';
 
 @Component({
   selector: 'app-aura',
@@ -101,6 +102,7 @@ export class Aura implements OnInit {
 
   constructor(
     private service: AuraService,
+    private titleService: TitleService,
     private fb: FormBuilder,
   ) {
     this.parentForm = new FormGroup({
@@ -112,6 +114,7 @@ export class Aura implements OnInit {
     });
   }
   async ngOnInit(): Promise<void> {
+    this.titleService.title = 'Aura Services';
     if (this.timeslots.length == 0) {
       const row = this.fb.group({
         name: ['', Validators.required],

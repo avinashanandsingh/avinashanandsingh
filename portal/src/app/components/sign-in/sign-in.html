@@ -8,15 +8,9 @@
       </h1>
       <p class="mt-2 text-purple-700 text-sm">Sign in to continue</p>
     </div>
-    <div class="pt-10 pb-6 px-4 md:px-8">
-      @if(showError()){
-      <div class="bg-red-50 border-l-4 border-red-500 p-4 rounded-r mb-6">
-        <p class="text-sm text-red-700">{{ errorMessage() }}</p>
-      </div>
-      }
-
+    <div class="pt-10 pb-6 px-4 md:px-8">     
       <!-- Form Container -->
-      <form method="post" class="space-y-6 mb-3">
+      <form [formGroup]="form" class="space-y-6 mb-3">
 
         <!-- Username -->
         <div class="space-y-2">
@@ -29,11 +23,17 @@
                   d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
               </svg>
             </div>
-            <input id="username" type="text" [formField]="me.username" placeholder="USERNAME"
+            <input id="username" type="text" formControlName="username" placeholder="USERNAME"
               class="pl-10 block w-full px-2 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
               [class.opacity-50]="isLoading()" />
               
           </div>
+          <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'Username is required',
+                  control: form.controls['username']
+                }">
+            </ng-container>
         </div>
 
 
@@ -51,7 +51,7 @@
                   d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
             </div>
-            <input id="password" [type]="showPassword() ? 'text': 'password'" [formField]="me.password" placeholder="PASSWORD"
+            <input id="password" [type]="showPassword() ? 'text': 'password'" formControlName="password" placeholder="PASSWORD"
               class="block text-base w-full pl-10 px-2 py-2 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 bg-white focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
               [class.opacity-50]="isLoading()" />
               <button type="button" (click)="showPassword.set(!showPassword())"
@@ -77,6 +77,12 @@
             }
           </button>
           </div>
+          <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'Password is required',
+                  control: form.controls['password']
+                }">
+            </ng-container>
         </div>
 
         <!-- Remember Me -->
@@ -96,7 +102,7 @@
 
         <!-- Primary Button -->
         <div>
-          <button type="submit" [disabled]="isLoading()" (click)="onSubmit($event)" class="btn-primary">
+          <button [disabled]="isLoading()" (click)="submit($event)" class="btn-primary">
 
             @if(isLoading()){
             <svg class="animate-spin -ml-1 mr-2 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
@@ -146,16 +152,17 @@
   </div>
 
 </div>
-
-@if(isOpenSignal()){
-  <app-dialog
-        [isOpen]="isOpenSignal"
-        [backdrop]="false",
-        [title]="'Authentication Failed'",              
-        [buttons]="dialogButtons"
-        (close)="closeDialog()"
-      >
-      <span class="text-md text-red-600">{{this.errorMessage()}}</span>
-    </app-dialog>
-  }
-
+<ng-template #formError let-control="control" let-message="message" let-validation="validation">
+    @if(control.hasError(validation) && (control.dirty || control.touched)) {
+    <ng-container>
+        <div class="fv-plugins-message-container">
+            <div class="fv-help-block mt-1">
+                <span class="error">
+                    {{ message }}
+                </span>
+            </div>
+        </div>
+    </ng-container>
+    }
+</ng-template>
+<loader [isOpen]="isLoading"></loader>

@@ -23,10 +23,13 @@
           <!-- Dropdown Menu -->
           <div *ngIf="isMenuOpen()" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50" [class.hidden]="!isMenuOpen()">
             <button 
-              (click)="handleSettings()" 
+              (click)="handleDialog()" 
               class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 focus:outline-none"
             >
-              ⚙️ Settings
+            <div class="flex flex-row gap-1">
+              <i class="bi bi-key"></i>
+              <span>Change Password</span>
+            </div>              
             </button>
             <button 
               (click)="handleLogout()" 

@@ -18,7 +18,7 @@ export default {
     return flag;
   },
 
-  get: async (id?: number): Promise<Partial<User> | null> => {
+  get: async (id?: string): Promise<Partial<User> | null> => {
     let row: Partial<User> | null = null;
     try {
       let columns = await data.columns([{ name: "view_users" }]);
@@ -27,12 +27,7 @@ export default {
           {
             name: "view_users",
             columns: columns.map((x: any) => {
-              return {
-                name: x.name,
-                value: x.value,
-                alias: x.alias,
-                function: x.function,
-              };
+              return { name: x.name };
             }),
           },
         ],
@@ -59,12 +54,7 @@ export default {
           {
             name: "view_users",
             columns: columns.map((x: any) => {
-              return {
-                name: x.name,
-                value: x.value,
-                alias: x.alias,
-                function: x.function,
-              };
+              return { name: x.name };
             }),
           },
         ],

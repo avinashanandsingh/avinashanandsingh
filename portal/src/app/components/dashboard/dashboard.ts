@@ -1,8 +1,9 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { StorageService } from '../../services/storage-service';
 import { jwtDecode } from 'jwt-decode';
-import { Admin } from "./admin/admin";
+import { Admin } from './admin/admin';
 import { Student } from './student/student';
+import { TitleService } from '../../services/title-service';
 
 @Component({
   selector: 'app-dashboard',
@@ -12,9 +13,13 @@ import { Student } from './student/student';
 })
 export class Dashboard implements OnInit {
   user = signal<any>({});
-  constructor(private store: StorageService) {}
+  constructor(
+    private store: StorageService,
+    private titleService: TitleService,
+  ) {}
 
   ngOnInit(): void {
+    this.titleService.title = 'Dashboard';
     let token = this.store.get('xt');
     if (token) {
       let decoded: any = jwtDecode(token);

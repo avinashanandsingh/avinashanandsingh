@@ -9,6 +9,7 @@ import { Dialog } from '../../components/dialog/dialog';
 import { Upload } from '../../components/upload/upload';
 import { TitleService } from '../../services/title-service';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-scarevibes',
@@ -21,7 +22,7 @@ export class Scarevibes implements OnInit {
   list = signal<IScarevibeData[]>([]);
   loaderDialog = signal<boolean>(false);
   formDialog = signal<boolean>(false);
-  playerDialog =signal<boolean>(false);
+  playerDialog = signal<boolean>(false);
   preview = signal<SafeResourceUrl | null>(null);
   mode = signal<'ADD' | 'EDIT'>('ADD');
   dialogTitle = signal<string>('Add New Resource');
@@ -30,7 +31,7 @@ export class Scarevibes implements OnInit {
   file = signal<File | null>(null);
   msg?: string;
   form: FormGroup = new FormGroup({
-    id: new FormControl(undefined),    
+    id: new FormControl(undefined),
     title: new FormControl('', [Validators.required]),
     url: new FormControl(''),
   });
@@ -52,7 +53,7 @@ export class Scarevibes implements OnInit {
           this.msg = 'Either upload file or provide url';
         }
         var fd = new FormData();
-        let input: any = {        
+        let input: any = {
           title: formData.title,
           url: formData.url!.length > 0 ? formData.url : null,
           file: null,
@@ -94,17 +95,46 @@ export class Scarevibes implements OnInit {
           case 'ADD':
             result = await this.service.saveFormData(fd);
             if (result?.data?.addScaredvibe) {
-              alert('Resource saved successfully');
+              Swal.fire({
+                title: 'Success',
+                html: 'Scaredvibe saved successfully',
+                icon: 'success',
+                timer: 3000,
+              });
+            } else {
+              let error = result?.errors?.shift();
+              let msg = error?.extensions?.originalError?.message;
+              Swal.fire({
+                title: 'Failed',
+                html: msg,
+                icon: 'error',
+                timer: 3000,
+              });
             }
             break;
           case 'EDIT':
             console.log('id: ', formData.id);
             result = await this.service.saveFormData(fd);
             if (result?.data?.updateScaredvibe) {
-              alert('Resource updated successfully');
+              Swal.fire({
+                title: 'Success',
+                html: 'Scaredvibe updated successfully',
+                icon: 'success',
+                timer: 3000,
+              });
+            } else {
+              let error = result?.errors?.shift();
+              let msg = error?.extensions?.originalError?.message;
+              Swal.fire({
+                title: 'Failed',
+                html: msg,
+                icon: 'error',
+                timer: 3000,
+              });
             }
             break;
         }
+        this.load({});
         this.hide(this.loaderDialog);
         this.hide(this.formDialog);
       },
@@ -118,9 +148,11 @@ export class Scarevibes implements OnInit {
     private sanitizer: DomSanitizer,
   ) {}
   async ngOnInit(): Promise<void> {
-    this.titleService.title = 'Schedules';
-    this.preview.set(this.sanitizer.bypassSecurityTrustResourceUrl('https://samplelib.com/mp3/sample-6s.mp3'));
-    
+    this.titleService.title = 'Scarevibes';
+    this.preview.set(
+      this.sanitizer.bypassSecurityTrustResourceUrl('https://samplelib.com/mp3/sample-6s.mp3'),
+    );
+
     await this.load({});
   }
 
@@ -131,8 +163,8 @@ export class Scarevibes implements OnInit {
       this.list.set(result.rows!);
     }
   }
-  async showPlayer(id:string){
-    let row = this.list().find((x) => x.id === id);    
+  async showPlayer(id: string) {
+    let row = this.list().find((x) => x.id === id);
     const url = this.sanitizer.bypassSecurityTrustResourceUrl(row?.url!);
     this.preview.set(url);
     this.playerDialog.set(true);

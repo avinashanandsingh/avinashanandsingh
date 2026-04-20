@@ -35,6 +35,7 @@ import { Referral } from './features/referral/referral';
 import { Orders } from './features/orders/orders';
 import { Inquiry } from './features/inquiry/inquiry';
 import { Template } from './features/template/template';
+import { Page } from './features/page/page';
 
 export const routes: Routes = [
   {
@@ -143,6 +144,12 @@ export const routes: Routes = [
       {
         path: 'templates',
         component: Template,
+        canActivate: [IdentityService],
+        data: { roles: [UserRole.ADMINISTRATOR] },
+      },
+      {
+        path: 'pages',
+        component: Page,
         canActivate: [IdentityService],
         data: { roles: [UserRole.ADMINISTRATOR] },
       },

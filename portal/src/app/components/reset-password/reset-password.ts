@@ -1,15 +1,16 @@
 import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { OtpComponent } from '../otp/otp.component';
+import { Otp } from '../otp/otp';
 import { Loader } from '../loader/loader';
 import { IdentityService } from '../../services/identity-service';
 import { Router } from '@angular/router';
 import Swal from 'sweetalert2';
+import { equals } from '../../validator/equals';
 
 @Component({
   selector: 'app-reset-password',
-  imports: [CommonModule, ReactiveFormsModule, OtpComponent, Loader],
+  imports: [CommonModule, ReactiveFormsModule, Otp, Loader],
   templateUrl: './reset-password.html',
   styleUrl: './reset-password.css',
 })
@@ -18,11 +19,27 @@ export class ResetPassword {
   newPass = signal<boolean>(false);
   confirmPass = signal<boolean>(false);
 
-  form: FormGroup = new FormGroup({
-    otp: new FormControl('', [Validators.required]),
-    newPassword: new FormControl('', [Validators.required]),
-    confirmPassword: new FormControl('', [Validators.required]),
-  });
+  form: FormGroup = new FormGroup(
+    {
+      otp: new FormControl('', [Validators.required]),
+      newPassword: new FormControl('', [
+        Validators.required,
+        Validators.pattern(
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!#.%*?&])[A-Za-z\d@$.!#%*?&]{8,}$/,
+        ),
+      ]),
+      confirmPassword: new FormControl('', [
+        Validators.required,
+        Validators.pattern(
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!#.%*?&])[A-Za-z\d@$.!#%*?&]{8,}$/,
+        ),
+      ]),
+    },
+    {
+      // Apply cross-field validator at the group level
+      validators: [equals('newPassword', 'confirmPassword')],
+    },
+  );
 
   constructor(
     private service: IdentityService,
@@ -49,16 +66,6 @@ export class ResetPassword {
     }
   }
 
-  compare() {
-    let formData = this.form.getRawValue();
-    let newPassword = formData['newPassword'];
-    let confirmPassword = formData['confirmPassword'];
-    if (newPassword?.trim()?.length > 0 && confirmPassword?.trim()?.length > 0) {
-      return !(newPassword === confirmPassword);
-    } else {
-      return false;
-    }
-  }
   async save(): Promise<void> {
     if (this.form.invalid) return;
     let formData = this.form.getRawValue();

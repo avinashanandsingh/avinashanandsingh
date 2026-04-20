@@ -20,6 +20,6 @@ export default async (to: { address: string, name: string }, template: ITemplate
     html: template.body!, // I like sending my email as html, you can send \
     // emails as html or as plain text    
   });
-  console.log(result);
+  //console.log(result);
   return result;
 };

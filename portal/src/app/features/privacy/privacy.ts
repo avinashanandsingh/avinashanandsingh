@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
+import { TitleService } from '../../services/title-service';
 
 @Component({
   selector: 'app-privacy',
@@ -6,4 +7,9 @@ import { Component } from '@angular/core';
   templateUrl: './privacy.html',
   styleUrl: './privacy.css',
 })
-export class Privacy {}
+export class Privacy implements OnInit {
+  constructor(private titleService: TitleService) {}
+  ngOnInit(): void {
+    this.titleService.title = 'Privacy Policy';
+  }
+}

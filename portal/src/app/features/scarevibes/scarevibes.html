@@ -46,7 +46,7 @@
 
             <td class="p-3 whitespace-nowrap">
               @if(row.url){
-              <a [href]="row.url" target="_blank" class="text-blue-600 hover:underline text-base">
+              <a href="javascript:void()" (click)="showPlayer(row.id!)"  class="text-blue-600 hover:underline text-base">
                 {{ row.url }}</a>
               } @else {
                 <span class="text-gray-400 text-base">-</span>
