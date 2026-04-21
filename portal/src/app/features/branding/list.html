@@ -1,0 +1,171 @@
+<div class="p-6 bg-white space-y-3 rounded min-h-screen">
+
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800">Branding</h1>
+            <p class="text-gray-500 text-sm">Manage your personal branding here</p>
+        </div>
+        <div>
+            <button (click)="show(dialog,'ADD')" class="btn btn-primary text-base">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                <span>New Branding Content</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- List Table -->
+    <div class="w-full  rounded-lg shadow overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+                            Type
+                        </th>
+                        <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+                            Title
+                        </th>
+                        <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+                            Url
+                        </th>
+                        <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+                            Created&nbsp;By
+                        </th>
+                        <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+                            Date
+                        </th>
+
+                        <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+                            Updated&nbsp;By
+                        </th>
+                        <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+                            Last&nbsp;Updated&nbsp;Date
+                        </th>
+                        <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider w-20">
+                            Actions
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    <tr *ngFor="let row of list(); let i = index" class="hover:bg-gray-50 transition">
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ row.type }}</div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ row.title }}</div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ row.url ? row.url : "--" }}</div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ row.creator?.first_name }} {{
+                                row.creator?.last_name }}</div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ row.createdat | date:"dd-MMM-yyyy" }}
+                            </div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ row.updater?.first_name }} {{
+                                row.updater?.last_name }}</div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ row.updatedat| date:"dd-MMM-yyyy" }}
+                            </div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap text-right text-base font-medium w-20">
+                            <div class="flex flex-row gap-3">
+                                <button (click)="show(dialog, 'EDIT', row.id)"
+                                    class="text-purple-600 hover:text-purple-900 text-base">
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
+                                <button (click)="delete(row.id!)"
+                                    class="text-purple-600 hover:text-purple-900 text-base">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            @if(list()){
+            <p class="p-6 text-center text-gray-500">No branding content added yet.</p>
+            }
+        </div>
+    </div>
+</div>
+
+<app-dialog [isOpen]="dialog" [title]="title()" [backdrop]="false" [buttons]="actions">
+    <form [formGroup]="form">
+        <input type="hidden" formControlName="id" />
+        <div title="Type" class="mb-3">
+            <label class="block text-base font-medium text-gray-700 mb-2">Type <span
+                    class="text-red-500">*</span></label>
+            <select id="type" formControlName="type" class="select">
+                <option selected value="">Select a Type</option>
+                @for(item of typelist(); track $index){
+                <option [value]="item.value">{{item.value}}</option>
+                }
+            </select>
+            <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'Type is required',
+                  control: form.controls['type']
+                }">
+            </ng-container>
+        </div>
+
+        <div title="Title" class="mb-3">
+            <label class="block text-base font-medium text-gray-700 mb-2">Title <span
+                    class="text-red-500">*</span></label>
+            <input type="text" formControlName="title" class="mt-1 input" placeholder="Title" />
+            <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'Title is required',
+                  control: form.controls['title']
+                }">
+            </ng-container>
+        </div>
+        @if(form.controls['type'].getRawValue()==="TEXT"){
+        <div title="Content" class="mb-3">
+            <label class="block text-base font-medium text-gray-700 mb-2">Content</label>
+            <textarea type="text" formControlName="content" class="mt-1 input h-50" placeholder="Content"></textarea>
+        </div>
+        }
+        @if(form.controls['type'].getRawValue()!=="TEXT"){
+        <div title="URL" class="mb-3">
+            <label class="block text-base font-medium text-gray-700 mb-2">URL</label>
+            <input type="text" formControlName="url" class="mt-1 input" placeholder="URL" />
+        </div>
+        <div title="Upload" class="mb-3">
+            <label for="upload" class="block text-base font-medium text-gray-700 mb-2">Don't have url?</label>
+            <input id="upload" type="file" class="border border-violet-700 w-full rounded text-base text-slate-500
+            file:mr-4 file:py-2 file:px-4
+            file:border-r
+            file:text-sm file:font-semibold
+            file:bg-violet-50 file:text-violet-700
+            hover:file:bg-violet-100" (change)="fileChange($event)" />
+        </div>
+        }
+    </form>
+</app-dialog>
+
+<ng-template #formError let-control="control" let-message="message" let-validation="validation">
+    @if(control.hasError(validation) && (control.dirty || control.touched)) {
+    <ng-container>
+        <div class="fv-plugins-message-container">
+            <div class="fv-help-block mt-1">
+                <span class="error">
+                    {{ message }}
+                </span>
+            </div>
+        </div>
+    </ng-container>
+    }
+</ng-template>
+<loader [isOpen]="loader"></loader>

@@ -20,47 +20,37 @@ class SecureRoute extends StatefulWidget {
 }
 
 class SecureRouteState extends State<SecureRoute> {
-  bool _isAuthenticated = false;
   @override
   void initState() {
     super.initState();
-    _initAuth();
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _initAuth();
-  }
-
-  Future<void> _initAuth() async {
-    final isAuth = await Identity.instance.isLoggedIn();
-    setState(() {
-      _isAuthenticated = isAuth;
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    print("secure route called ${_isAuthenticated}");
-    if (!_isAuthenticated) {
-      // If not authenticated, navigate to sign in
-      /* Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const SignIn()),
-      ); */
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.of(
-          context,
-          rootNavigator: true,
-        ).pushReplacementNamed("/signin");
-      });
+    return FutureBuilder<bool>(
+      future: Identity.instance.isLoggedIn(),
+      builder: (context, snapshot) {
+        // 1. While the check is running
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
 
-      // Show loading indicator
-      return const Center(child: CircularProgressIndicator());
-    }
+        // 2. If authenticated, show the target screen
+        if (snapshot.hasData && snapshot.data == true) {
+          return widget.child;
+        }
 
-    // If authenticated, show child widget
-    return widget.child;
+        // 3. If not authenticated (or error), show Login
+        return const SignIn();
+      },
+    );
   }
 
   @override

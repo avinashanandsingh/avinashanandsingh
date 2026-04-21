@@ -48,6 +48,9 @@ input UserIn {
   file: File
   profession: String
   income: Float
+  countryid: Int
+  stateid: Int
+  cityid: Int
 }
 
 input CategoryIn {
@@ -217,4 +220,12 @@ input PageIn {
 input PageFilter {
   id: String
   type: String
+}
+
+input BrandingIn {
+  type: String!
+  title: String!
+  content: String
+  url: String
+  file: File
 }

@@ -3,25 +3,28 @@ import { ApiService } from './api-service';
 import { Header } from './header';
 import Filter from '../models/filter';
 import Data from '../models/data';
-import { IUser } from '../models/user';
+import { IBrandingData } from '../models/branding';
 import { StorageService } from './storage-service';
+
 
 @Injectable({
   providedIn: 'root',
 })
-export class UserService {
+export class BrandingService {
   url: string = import.meta.env.NG_APP_API;
   constructor(
     private api: ApiService,
-    private header: Header,
     private store: StorageService,
+    private header: Header,
   ) {}
 
-  async rolelist(): Promise<{ name: string; value: string }[]> {
+
+  async typelist(): Promise<{name:string, value: string}[]> {
     let body = {
-      query: 'query list ($name: String!) { enums (name: $name) { name value } }',
+      query:
+        'query list ($name: String!) { enums (name: $name) { name value } }',
       variables: {
-        name: 'role',
+        name: "content_type",
       },
     };
     let header = this.header.api();
@@ -29,10 +32,10 @@ export class UserService {
     return result?.data?.enums!;
   }
 
-  async list(filter: Filter): Promise<Data<IUser>> {
+  async list(filter: Filter): Promise<Data<IBrandingData>> {
     let body = {
       query:
-        'query list ($filter: Filter!) { users(filter: $filter) { count rows { id role first_name last_name email phone countryid country { id name } stateid state { id, name } cityid city { id name } avatar status createdat creator { id first_name last_name email phone } updatedat updater { id first_name last_name email phone } } } }',
+        'query list ($filter: Filter!) { brandings(filter: $filter) { count rows { id type title url content createdat creator { id first_name last_name email phone } updatedat updater { id first_name last_name email phone }  } } }',
       variables: {
         filter: {
           ...filter,
@@ -41,13 +44,13 @@ export class UserService {
     };
     let header = this.header.api();
     let result = await this.api.post(this.url, header, body);
-    return result?.data?.users!;
+    return result?.data?.brandings!;
   }
 
   async get(id: String) {
     let body = {
       query:
-        'query get($id: UUID!) { user (id: $id) { id role first_name last_name email phone countryid stateid cityid avatar status profession income createdat creator { id first_name last_name email phone } updatedat updater { id first_name last_name email phone } } }',
+        'query get($id: UUID!) { branding (id: $id) { id type title url content creator { id first_name last_name email phone } updater { id first_name last_name email phone } } }',
       variables: {
         id: id,
       },
@@ -56,7 +59,7 @@ export class UserService {
     return await this.api.post(this.url, header, body);
   }
 
-  async saveFormData(body: FormData): Promise<any> {
+  async save(body: FormData): Promise<any> {
     //let header = this.header.api();
     let token = this.store!.get('xt');
     return await this.api.postForm(this.url, { authorization: token }, body);
@@ -64,7 +67,7 @@ export class UserService {
 
   async delete(id: String) {
     let body = {
-      query: 'mutation delete($id: UUID!) { deleteTemplate (id: $id) { id } }',
+      query: 'mutation delete($id: UUID!) { deleteBranding (id: $id) { id } }',
       variables: {
         id: id,
       },

@@ -116,7 +116,7 @@
         </div>
     </div>
 </div>
-<loader [isOpen]="loaderDialog"></loader>
+<loader [isOpen]="loader"></loader>
 <app-dialog [buttons]="dialogButtons" [isOpen]="formDialog" [title]="dialogTitle()" [backdrop]="false"
     (close)="hide(formDialog)">
     <form [formGroup]="form">

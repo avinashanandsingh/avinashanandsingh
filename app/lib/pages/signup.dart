@@ -1,3 +1,4 @@
+import 'package:app/main.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/theme.dart';
@@ -51,7 +52,7 @@ class _SignUpState extends State<SignUp> {
   Widget _buildLeftPanel(BuildContext context) {
     return Container(
       color: Colors.white,
-      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 8),
       child: Center(
         child: SingleChildScrollView(
           child: ConstrainedBox(
@@ -61,29 +62,29 @@ class _SignUpState extends State<SignUp> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  'Start Your Learning\nJourney.',
-                  style: GoogleFonts.inter(
+                  'Start Your Learning Journey.',
+                  style: GoogleFonts.cinzel(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
                     color: AppColors.textPrimary,
                     height: 1.2,
                   ),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 15),
                 _buildLabel('First Name'),
                 TextField(decoration: _inputDecoration(hint: 'First Name')),
-                const SizedBox(height: 20),
+                const SizedBox(height: 15),
                 _buildLabel('Last Name'),
                 TextField(decoration: _inputDecoration(hint: 'Last Name')),
-                const SizedBox(height: 20),
+                const SizedBox(height: 15),
                 _buildLabel('Phone'),
                 TextField(decoration: _inputDecoration(hint: 'Phone')),
-                const SizedBox(height: 20),
+                const SizedBox(height: 15),
                 _buildLabel('Email'),
                 TextField(
                   decoration: _inputDecoration(hint: 'example@email.com'),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 15),
                 _buildLabel('Password'),
                 TextField(
                   obscureText: _obscurePassword,
@@ -103,13 +104,13 @@ class _SignUpState extends State<SignUp> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 15),
                 _buildLabel('Confirm Password'),
                 TextField(
                   obscureText: true,
                   decoration: _inputDecoration(hint: 'Confirm Password'),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 15),
                 _buildLabel('Creating account, you are agree to terms'),
 
                 const SizedBox(height: 8),
@@ -120,9 +121,9 @@ class _SignUpState extends State<SignUp> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.gradientTop,
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      padding: const EdgeInsets.symmetric(vertical: 10),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                       elevation: 0,
                     ),
@@ -154,7 +155,7 @@ class _SignUpState extends State<SignUp> {
                         children: [
                           TextSpan(
                             text: 'Sign In',
-                            style: GoogleFonts.inter(
+                            style: GoogleFonts.montserrat(
                               color: AppColors.gradientTop,
                               fontWeight: FontWeight.bold,
                             ),
@@ -230,14 +231,7 @@ class _SignUpState extends State<SignUp> {
   Widget _buildLabel(String text) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
-      child: Text(
-        text,
-        style: GoogleFonts.inter(
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-          color: Colors.black87,
-        ),
-      ),
+      child: Text(text, style: TextTheme.of(context).labelSmall),
     );
   }
 

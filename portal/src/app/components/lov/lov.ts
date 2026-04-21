@@ -3,35 +3,36 @@ import {
   EventEmitter,
   Input,
   OnChanges,
+  OnInit,
   Output,
   signal,
   SimpleChanges,
 } from '@angular/core';
-import { IAutocompleteConfig, IAutocompleteItem } from '../../models/autocomplete';
+import { ILovConfig, IListItem } from '../../models/lov';
 import { form, FormField } from '@angular/forms/signals';
 import { CommonModule, NgClass } from '@angular/common';
 
 @Component({
-  selector: 'app-autocomplete',
+  selector: 'app-lov',
   imports: [CommonModule, FormField, NgClass],
-  templateUrl: './autocomplete.html',
-  styleUrl: './autocomplete.css',
+  templateUrl: './lov.html',
+  styleUrl: './lov.css',
 })
-export class Autocomplete implements OnChanges {
+export class Lov implements OnInit, OnChanges {
   // --- Input Signals ---
-  @Input() config!: IAutocompleteConfig;
-  @Input() searchItems!: (searchTerm: string) => Promise<IAutocompleteItem[]>;
+  @Input() config!: ILovConfig;
+  @Input() searchItems!: (term: string) => IListItem[];
   @Input() filterOptions!: { field: string; value: string }[];
-  @Input() items!: IAutocompleteItem[];
+  @Input() items!: IListItem[];
   @Input() clearButtonMode?: 'always' | 'focus';
-
+  @Input() itemId: any;
   // --- Output Signals ---
-  @Output() selected = new EventEmitter<IAutocompleteItem>();
+  @Output() selected = new EventEmitter<IListItem | null>();
   @Output() searchChange = new EventEmitter<string>();
 
   // --- State Signals ---
   searchValue = signal<string>('');
-  filteredItems = signal<IAutocompleteItem[]>([]);
+  filteredItems = signal<IListItem[]>([]);
   showDropdown = signal<boolean>(false);
   isLoading = signal<boolean>(false);
   errorMessage = signal<string>('');
@@ -44,22 +45,29 @@ export class Autocomplete implements OnChanges {
   });
 
   searchForm = form(this.searchModel);
-  term:string = '';
+  term: string = '';
   constructor() {
     // Initialize with provided items
-    this.filteredItems.set(this.items);  
+    this.filteredItems.set(this.items);
   }
+  ngOnInit(): void {}
   // --- Private Methods ---
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['items']) {
       this.updateFilteredItems();
     }
+    if (changes['itemId']) {
+      let item = this.items.find((x) => x.id === this.itemId);      
+      if(item){
+        this.selectItem(item!);
+      }
+    }
   }
 
   updateFilteredItems() {
     const opts = this.filterOptions || ([] as any[]);
-    const currentFilter = opts.find((f) => f.field === 'status')?.value;
+    const currentFilter = opts.find((f) => f.field === 'status')?.value!;
     this.filteredItems.set(
       this.items.filter((item) => (currentFilter ? item.status === currentFilter : true)),
     );
@@ -95,16 +103,19 @@ export class Autocomplete implements OnChanges {
       this.filteredItems.set([]);
       this.showDropdown.set(false);
     }
-    this.searchItems(value).then((results) => {
-      this.isLoading.set(false);
-      this.filteredItems.set(results);
-      this.showDropdown.set(results.length > 0);
-    });
+    //this.searchItems(value);
+    this.filter(value);
   }
 
+  filter(term: string) {
+    let items = this.items?.filter((x) => x.value.toLowerCase().includes(term.toLowerCase()));
+    this.filteredItems.set(items);
+    this.showDropdown.set(items?.length > 0);
+    //return items;
+  }
   // Search Logic with Debouncing
-  /* search() {
-    //if (this.filteredItems().length === 0) return;
+  search() {
+    if (this.filteredItems().length === 0) return;
 
     const term = this.searchForm.search().value();
     if (term.length < this.config.minLength! || !term) {
@@ -121,21 +132,15 @@ export class Autocomplete implements OnChanges {
     // Debounce for async search
     this.isLoading.set(true);
     this.errorMessage.set('');
+    this.filter(this.term);
+  }
 
-    // Simulate API call or filter local items
-    this.searchItems(this.term).then((results) => {
-      this.isLoading.set(false);
-      this.filteredItems.set(results);
-      this.showDropdown.set(results.length > 0);
-    });
-  } */
-
-  selectItem(item: IAutocompleteItem) {
+  selectItem(item: IListItem) {    
     this.selected.emit(item);
-    this.selectedId.set(item.id);
-    this.selectedLabel.set(item.label);
+    this.selectedId.set(item?.id!);
+    this.selectedLabel.set(item?.label);
     // this.searchValue.set(item.label);
-    this.searchForm().value.set({ search: item.label });
+    this.searchForm().value.set({ search: item?.label });
     this.closeDropdown();
   }
 
@@ -176,13 +181,14 @@ export class Autocomplete implements OnChanges {
     this.selectedId.set(null);
     this.selectedLabel.set('');
     this.closeDropdown();
+    this.selected.emit(null);
   }
 
   // Format label with status if enabled
-  formatLabel(item: IAutocompleteItem): string {
+  formatLabel(item: IListItem): string {
     //if (this.config.showStatus) {
-     // const statusText = item.status ? ` • ${item.status.toUpperCase()}` : '';
-      //return `${item.label}`;
+    // const statusText = item.status ? ` • ${item.status.toUpperCase()}` : '';
+    //return `${item.label}`;
     //}
     return item.label;
   }
@@ -196,4 +202,3 @@ export class Autocomplete implements OnChanges {
 function effert(arg0: () => void) {
   throw new Error('Function not implemented.');
 }
-

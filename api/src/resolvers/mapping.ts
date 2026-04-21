@@ -19,6 +19,7 @@ import log from "./log";
 import smtp from "./smtp";
 import template from "./template";
 import page from "./page";
+import branding from "./branding";
 import _enum from "./enum";
 /* Chat Feature */
 import message from "./message";
@@ -642,6 +643,36 @@ const mapping = [
   {
     name: "deletePage",
     execute: page.delete,
+    include: true,
+    role: UserRole.ADMINISTRATOR,
+  },
+  {
+    name: "branding",
+    execute: branding.get,
+    include: false,
+    role: UserRole.ANONYMOUS,
+  },
+  {
+    name: "brandings",
+    execute: branding.list,
+    include: false,
+    role: UserRole.ANONYMOUS,
+  },
+  {
+    name: "newBranding",
+    execute: branding.add,
+    include: true,
+    role: UserRole.ADMINISTRATOR,
+  },
+  {
+    name: "updateBranding",
+    execute: branding.update,
+    include: true,
+    role: UserRole.ADMINISTRATOR,
+  },
+  {
+    name: "deleteBranding",
+    execute: branding.delete,
     include: true,
     role: UserRole.ADMINISTRATOR,
   },

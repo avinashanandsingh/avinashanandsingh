@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:app/components/connection_wrapper.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:app/components/secure_route.dart';
 import 'package:app/pages/dashboard.dart';
@@ -20,7 +21,7 @@ Future<Widget> _resolveInitialScreen() async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: "assets/.env");
+  await dotenv.load(fileName: ".env");
   runApp(const MyApp());
 }
 
@@ -34,6 +35,9 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       themeMode: themeProvider.themeMode,
       debugShowCheckedModeBanner: false,
+      builder: (context, widget) {
+        return ConnectionWrapper(child: widget!);
+      },
       home: FutureBuilder<Widget>(
         future: _resolveInitialScreen(),
         builder: (context, snapshot) {

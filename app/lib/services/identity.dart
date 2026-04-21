@@ -1,10 +1,12 @@
+import 'package:app/models/signup.dart';
 import 'package:app/services/api.dart';
 import 'package:app/services/storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class Identity extends ChangeNotifier {
   final ValueNotifier<bool> _isAuthenticated = ValueNotifier<bool>(false);
-  final String url = "";
+  final String url = dotenv.env['URL'] ?? '';
   static final Identity instance = Identity._internal();
 
   // Singleton instance
@@ -79,10 +81,7 @@ class Identity extends ChangeNotifier {
         "variables": {"token": token},
       };
 
-      dynamic result = await ApiService.instance.post(
-        "http://localhost:3010",
-        body,
-      );
+      dynamic result = await ApiService.instance.post(url, body);
       //print('Data received: $result');
 
       flag = result?['data']?['verify']! as bool;
@@ -92,7 +91,6 @@ class Identity extends ChangeNotifier {
 
   Future<bool> signin(String username, String password) async {
     bool flag = false;
-
     // Fixed: Use correct query for signin with username and password
     dynamic body = {
       "query": 'query signin (\$input: SignIn!) { signin (input: \$input) }',
@@ -101,10 +99,7 @@ class Identity extends ChangeNotifier {
       },
     };
 
-    Map<String, dynamic> result = await ApiService.instance.post(
-      "http://localhost:3010",
-      body,
-    );
+    Map<String, dynamic> result = await ApiService.instance.post(url, body);
 
     String? token = result['data']['signin'];
 
@@ -115,6 +110,27 @@ class Identity extends ChangeNotifier {
     } else {
       await Storage.instance.remove("token");
     }
+    return flag;
+  }
+
+  Future<bool> signup(SignUpData entity) async {
+    bool flag = false;
+    print(entity.toJson());
+    // Fixed: Use correct query for signin with username and password
+    dynamic body = {
+      "query": 'mutation signup (\$input: SignUp!) { signup (input: \$input) }',
+      "variables": {"input": entity.toJson()},
+    };
+
+    Map<String, dynamic> result = await ApiService.instance.post(url, body);
+
+    dynamic signup_data = result['data']['signup'];
+
+    if (signup_data != null) {
+      // Fixed: Use correct token field from signin response
+      print(signup_data);
+      flag = true;
+    } else {}
     return flag;
   }
 }

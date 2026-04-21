@@ -121,15 +121,15 @@ class AppTheme {
           fontSize: 14,
         ),
         labelLarge: GoogleFonts.montserrat(
-          color: AppColors.textSecondary,
+          color: AppColors.textPrimary,
           fontSize: 24,
         ),
         labelMedium: GoogleFonts.montserrat(
-          color: AppColors.textSecondary,
+          color: AppColors.textPrimary,
           fontSize: 18,
         ),
         labelSmall: GoogleFonts.montserrat(
-          color: AppColors.textSecondary,
+          color: AppColors.textPrimary,
           fontSize: 14,
         ),
       ),

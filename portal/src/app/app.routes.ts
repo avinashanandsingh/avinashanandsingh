@@ -19,13 +19,13 @@ import { Support } from './features/support/support';
 import { Category } from './features/category/category';
 import { Shorts } from './features/shorts/shorts';
 import ManageUser from './features/user/manage/manage';
-import ResourceList from './features/resource/list/list';
+import ResourceList from './features/resource/list';
 import { MyCourseList } from './features/courses/my-course-list/my-course-list';
 //import { Landing } from './features/landing/landing';
 import { Scarevibes } from './features/scarevibes/scarevibes';
 import { Meditation } from './features/meditation/meditation';
 import { Aura } from './features/aura/aura';
-import MarketingList from './features/marketing/list/list';
+import Branding from './features/branding/list';
 import { Smtp } from './features/smtp/smtp';
 import { Unavailable } from './features/unavailable/unavailable';
 import { Landing } from './features/landing/landing';
@@ -112,8 +112,8 @@ export const routes: Routes = [
         data: { roles: [UserRole.ADMINISTRATOR] },
       },
       {
-        path: 'marketing',
-        component: MarketingList,
+        path: 'branding',
+        component: Branding,
         canActivate: [IdentityService],
         data: { roles: [UserRole.ADMINISTRATOR] },
       },

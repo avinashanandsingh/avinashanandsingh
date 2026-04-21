@@ -152,8 +152,9 @@ export class Scarevibes implements OnInit {
     this.preview.set(
       this.sanitizer.bypassSecurityTrustResourceUrl('https://samplelib.com/mp3/sample-6s.mp3'),
     );
-
+    this.show(this.loaderDialog);
     await this.load({});
+    this.hide(this.loaderDialog);
   }
 
   async load(filter: Filter): Promise<void> {

@@ -21,7 +21,7 @@ export class Schedule implements OnInit {
   rowCount = signal<number>(1);
   list = signal<ISchdeuleData[]>([]);
   course_list = signal<ICourseData[]>([]);
-  loaderDialog = signal<boolean>(false);
+  loader = signal<boolean>(false);
   formDialog = signal<boolean>(false);
   mode = signal<'ADD' | 'EDIT'>('ADD');
   dialogTitle = signal<string>('New Schedule');
@@ -57,7 +57,7 @@ export class Schedule implements OnInit {
           ...formData,
         };
         let result: any;
-        this.show(this.loaderDialog);
+        this.show(this.loader);
         switch (this.mode()) {
           case 'ADD':
             result = await this.service.add(body);
@@ -101,7 +101,7 @@ export class Schedule implements OnInit {
             break;
         }
         this.load({});
-        this.hide(this.loaderDialog);
+        this.hide(this.loader);
         this.hide(this.formDialog);
       },
       type: 'btn btn-primary w-full',
@@ -115,11 +115,13 @@ export class Schedule implements OnInit {
   ) {}
   async ngOnInit(): Promise<void> {
     this.titleService.title = 'Schedules';
+    this.show(this.loader);
     let result = await this.course.list({});
     if (result) {
       this.course_list.set(result.rows!);
     }
     await this.load({});
+    this.hide(this.loader);
   }
   async load(filter: Filter): Promise<void> {
     let result = await this.service.list(filter);
@@ -176,9 +178,9 @@ export class Schedule implements OnInit {
   }
 
   async delete(id: string): Promise<void> {
-    this.show(this.loaderDialog);
+    this.show(this.loader);
     let result = await this.service.delete(id);
-    this.hide(this.loaderDialog);
+    this.hide(this.loader);
     this.load({});
   }
 }

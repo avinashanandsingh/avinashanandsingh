@@ -45,6 +45,8 @@ const resolvers = {
     templates: shield,
     page: shield,
     pages: shield,
+    branding: shield,
+    brandings: shield,
     smtp: shield,
     /*     
     message: shield,
@@ -98,6 +100,9 @@ const resolvers = {
     newTemplate: shield,
     updateTemplate: shield,
     deleteTemplate: shield,
+    newBranding: shield,
+    updateBranding: shield,
+    deleteBranding: shield,
     newPage: shield,
     updatePage: shield,
     deletePage: shield,

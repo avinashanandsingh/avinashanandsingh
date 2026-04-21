@@ -1,8 +1,8 @@
 import 'package:app/components/custom-form-field.dart';
 import 'package:app/helpers/convert.dart';
-import 'package:app/pages/dashboard.dart';
 import 'package:app/pages/forgot_password.dart';
 import 'package:app/services/identity.dart';
+import 'package:app/services/storage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/theme.dart';
@@ -130,12 +130,12 @@ class _SignInState extends State<SignIn> {
                   ),
                 ),
                 const SizedBox(height: 32),
+                _buildLabel('Username'),
                 CustomFormField(
                   hintText: "Username",
                   type: FieldType.text,
                   isRequired: true,
                   onChanged: (value) {
-                    print("username: ${value}");
                     setState(() {
                       username = value;
                     });
@@ -143,25 +143,6 @@ class _SignInState extends State<SignIn> {
                 ),
                 const SizedBox(height: 20),
                 _buildLabel('Password'),
-                /* TextField(
-                  obscureText: _obscurePassword,
-                  decoration: _inputDecoration(hint: 'example@email.com')
-                      .copyWith(
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword
-                                ? Icons.visibility_off_outlined
-                                : Icons.visibility_outlined,
-                            color: Colors.grey,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _obscurePassword = !_obscurePassword;
-                            });
-                          },
-                        ),
-                      ),
-                ), */
                 CustomFormField(
                   hintText: "Password",
                   type: FieldType.password,

@@ -12,20 +12,21 @@
             </button>
         </div>
     </div>
-    <div class="py-6">
-        <div class="upload">
+    <form [formGroup]="form">
+    <div class="py-6 flex flex-col md:flex-row gap-3">
+        <div class="flex-1 upload">
 
             <div class="relative w-44 h-44 cursor-pointer rounded-full" (click)="upload?.click()">
                 @if(!user()?.avatar){
                 <img class="pen" alt="pen" src="images/pen.svg">
                 }
                 @if(user()?.avatar){
-                    @if(!blobUrl()){
-                        <img [src]="user()?.avatar" class="w-full" alt="Background">
-                    }
-                    @if(blobUrl()){
-                        <img [src]="blobUrl()" class="w-full" alt="Background">
-                    }
+                @if(!blobUrl()){
+                <img [src]="user()?.avatar" class="w-full" alt="Background">
+                }
+                @if(blobUrl()){
+                <img [src]="blobUrl()" class="w-full" alt="Background">
+                }
                 <div class="absolute bottom-8 right-8 items-center justify-center">
                     <span class="bg-purple-100 text-purple-900 px-2 py-1 rounded-full text-sm">
                         <i class="bi bi-pencil"></i>
@@ -34,15 +35,14 @@
                 }
             </div>
 
-            <input type="file" hidden #upload (change)="select($event)" onclick="this.value=null;" accept="image/*" name="file" />
+            <input type="file" hidden #upload (change)="select($event)" onclick="this.value=null;" accept="image/*"
+                name="file" />
             <span class="mt-2 text-sm text-gray-500">All image types are allowed!</span>
         </div>
-    </div>
-    <form [formGroup]="form">
-        <input type="hidden" formControlName="role" />
+        <div class="flex-1">
+            <input type="hidden" formControlName="role" />
         <input type="hidden" formControlName="id" />
-        <div class="flex flex-col md:flex-row gap-3 w-full">
-            <div title="First Name" class="mb-3 flex-1 w-full">
+         <div title="First Name" class="mb-3 flex-1 w-full">
                 <label for="first_name" class="block text-base font-medium text-gray-700 mb-2">First Name <span
                         class="text-red-500">*</span></label>
                 <input type="text" id="first_name" formControlName="first_name" class="input" />
@@ -64,7 +64,14 @@
                 }">
                 </ng-container>
             </div>
+        <div class="flex flex-col md:flex-row gap-3 w-full">
+           
+            
         </div>
+        
+        </div>
+    </div>
+    
         <div class="flex flex-col md:flex-row gap-3 w-full">
             <div title="Email Address" class="mb-3 flex-1 w-full">
                 <label for="email" class="block text-base font-medium text-gray-700 mb-2">Email Address <span
@@ -95,20 +102,36 @@
                 </ng-container>
             </div>
         </div>
-
+        <div class="flex flex-col md:flex-row gap-3 w-full mb-3">
+            <div title="Country" class="w-full">
+                <span class="block text-base font-medium text-gray-700 mb-2">Country</span>
+                <input type="hidden" formControlName="countryid"/>
+                <app-lov [items]="country_list()" [config]="{ minLength: 5, placeholder:'Select a Country', showImage: false }" (selected)="countryHandler($event!)" [itemId]="country_id()"></app-lov>
+            </div>
+            <div title="State" class="w-full">
+                <span class="block text-base font-medium text-gray-700 mb-2">State</span>
+                <input type="hidden" formControlName="stateid"/>
+                <app-lov [items]="state_list()" [config]="{ minLength: 5, placeholder:'Select a State', showImage: false }" (selected)="stateHandler($event!)" [itemId]="stateId()"></app-lov>
+            </div>
+            <div title="City" class="w-full">
+                <span class="block text-base font-medium text-gray-700 mb-2">City</span>
+                <input type="hidden" formControlName="cityid"/>
+                <app-lov [items]="city_list()" [config]="{ minLength: 5, placeholder:'Select a City', showImage: false }" (selected)="cityHandler($event!)" [itemId]="cityId()"></app-lov>
+            </div>
+        </div>
         <div title="Profession" class="mb-3">
             <label for="profession" class="block text-base font-medium text-gray-700 mb-2">Profession</label>
-            <input type="text" id="profession" formControlName="profession" class="input"/>
+            <input type="text" id="profession" formControlName="profession" class="input" />
         </div>
         <div title="Income" class="mb-3">
             <label for="income" class="block text-base font-medium text-gray-700 mb-2">Income</label>
             <input type="text" inputmode="numeric" id="income" formControlName="income" class="input" />
-             <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+            <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
                   validation: 'pattern',
                   message: 'Income must be a numerical figure',
                   control: form.controls['income']
                 }">
-                </ng-container>
+            </ng-container>
         </div>
     </form>
 </div>

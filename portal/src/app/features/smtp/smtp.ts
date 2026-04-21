@@ -59,7 +59,9 @@ export class Smtp implements OnInit {
 
   async ngOnInit(): Promise<void> {
     this.titleService.title = 'Smtp Settings';
+    this.loaderDialog.set(true);
     this.load();
+    this.loaderDialog.set(false);
   }
   async load() {
     let result = await this.service.get();

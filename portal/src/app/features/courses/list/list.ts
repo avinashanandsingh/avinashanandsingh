@@ -24,7 +24,7 @@ export default class Course implements OnInit {
   rowCount = signal<number>(0);
   list = signal<ICourseData[]>([]);
   category_list = signal<any>([]);
-  loaderDialog = signal<boolean>(false);
+  loader = signal<boolean>(false);
   dialogTitle = signal<string>('New Course');
   mode = signal<'PLAY' | 'ADD' | 'EDIT'>('ADD');
 
@@ -61,7 +61,7 @@ export default class Course implements OnInit {
       action: async (): Promise<void> => {
         let formData = this.form.getRawValue();
         if (this.form.valid) {
-          this.show(this.loaderDialog);
+          this.show(this.loader);
           var fd = new FormData();
           let input: any = {
             categoryid: formData.categoryid!.length > 0 ? formData.categoryid : null,
@@ -126,7 +126,7 @@ export default class Course implements OnInit {
           this.form.reset();
           this.hide(this.formDialog);
           this.load({});
-          this.hide(this.loaderDialog);
+          this.hide(this.loader);
         }
       },
       type: 'btn btn-primary w-full',
@@ -158,9 +158,11 @@ export default class Course implements OnInit {
 
   async ngOnInit(): Promise<void> {
     this.titleService.title = 'Courses';
+    this.show(this.loader);
     let result = await this.categoryService.list({});
     this.category_list.set(result?.rows);
     this.load({});
+    this.hide(this.loader)
   }
 
   // --- Methods ---
@@ -172,7 +174,7 @@ export default class Course implements OnInit {
     }
   }
   async archive(id: string): Promise<void> {
-    this.show(this.loaderDialog);
+    this.show(this.loader);
     let result = await this.service.archive(id);
     if (result?.data?.archiveCourse) {
       Swal.fire({
@@ -192,10 +194,10 @@ export default class Course implements OnInit {
       });
     }
     this.load({});
-    this.hide(this.loaderDialog);
+    this.hide(this.loader);
   }
   async publish(id: string): Promise<void> {
-    this.show(this.loaderDialog);
+    this.show(this.loader);
     let result = await this.service.publish(id);
     if (result?.data?.publishCourse) {
       Swal.fire({
@@ -215,7 +217,7 @@ export default class Course implements OnInit {
       });
     }
     this.load({});
-    this.hide(this.loaderDialog);
+    this.hide(this.loader);
   }
 
   changeHandler(type: 'I' | 'V', $event: File | null) {

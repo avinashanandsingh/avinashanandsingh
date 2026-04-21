@@ -7,8 +7,16 @@ type User {
   password: String
   avatar: String
   phone: String
+  countryid: Int
+  country: Country
+  stateid: Int
+  state: State
+  cityid: Int
+  city: City
   verified: Boolean
   status: String
+  profession: String
+  income: Float
   last_login_at: DateTime
   creator: User
   createdat: Date
@@ -464,4 +472,21 @@ type Page {
 type PageResult {
   count: Int
   rows: [Page]
+}
+
+type Branding {
+  id: UUID  
+  type: String
+  title: String
+  content: String
+  url: String
+  creator: User
+  createdat: DateTime
+  updater: User
+  updatedat: DateTime
+}
+
+type BrandingResult {
+  count: Int
+  rows: [Branding]
 }

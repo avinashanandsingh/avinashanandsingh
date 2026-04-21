@@ -4,7 +4,8 @@
     <!-- Input Container -->
     <div class="relative">
         <input #searchInput type="text" autocomplete="off" [formField]="searchForm.search"
-            [placeholder]="config.placeholder || 'Search...' " (input)="inputHandler($event)" (keydown)="handleKeyDown($event)" (click)="openDropdown()"
+            [placeholder]="config.placeholder || 'Search...' " (input)="inputHandler($event)"
+            (keydown)="handleKeyDown($event)" (click)="openDropdown()"
             class="w-full pl-10 px-2 py-2 pr-12 bg-white border border-gray-300 rounded-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all" />
 
         <!-- Clear Button -->
@@ -65,9 +66,10 @@
             <!-- Item Template -->
             <div class="flex items-center px-2 py-2 cursor-pointer transition-colors">
                 <!-- Avatar/Status -->
+                @if(config.showImage){
                 <div class="shrink-0 mr-3">
                     <img *ngIf="item.image" [src]="item.image"
-                        class="h-8 w-8 rounded-full object-cover border border-purple-200" />                   
+                        class="h-8 w-8 rounded-full object-cover border border-purple-200" />
                     <span *ngIf="!item.image && !item.status"
                         class="h-8 w-8 rounded-full bg-gray-100 text-gray-400 flex items-center justify-center">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
@@ -77,11 +79,12 @@
                         </svg>
                     </span>
                 </div>
-
+                }
                 <!-- Label -->
                 <div class="flex-1 min-w-0">
-                    <span class="text-base text-gray-900 truncate font-medium" [title]="item.label">{{ formatLabel(item) }}</span>
-                   <!--  @if(item.description!){
+                    <span class="text-base text-gray-900 truncate font-medium" [title]="item.label">{{ formatLabel(item)
+                        }}</span>
+                    <!--  @if(item.description!){
                     <span class="text-xs text-gray-500 truncate">{{ item.description }}</span>
                     } -->
                 </div>

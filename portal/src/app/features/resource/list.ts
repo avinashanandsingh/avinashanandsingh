@@ -1,13 +1,13 @@
 import { Component, OnInit, signal, WritableSignal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Dialog } from '../../../components/dialog/dialog';
-import { Upload } from '../../../components/upload/upload';
-import { IResourceData } from '../../../models/resource';
-import { ResourceService } from '../../../services/resource-service';
-import Filter from '../../../models/filter';
-import { Loader } from '../../../components/loader/loader';
-import { TitleService } from '../../../services/title-service';
+import { Dialog } from '../../components/dialog/dialog';
+import { Upload } from '../../components/upload/upload';
+import { IResourceData } from '../../models/resource';
+import { ResourceService } from '../../services/resource-service';
+import Filter from '../../models/filter';
+import { Loader } from '../../components/loader/loader';
+import { TitleService } from '../../services/title-service';
 
 @Component({
   selector: 'resource-list',
@@ -116,7 +116,9 @@ export default class List implements OnInit {
   ) {}
   async ngOnInit(): Promise<void> {
     this.titleService.title = 'Resources';
+    this.show(this.loaderDialog);
     await this.load({});
+    this.hide(this.loaderDialog);
   }
 
   async load(filter: Filter): Promise<void> {

@@ -63,6 +63,9 @@ type Query {
 
   smtp: Smtp!
 
+  branding(id: UUID!): Branding!
+  brandings(filter: Filter!): BrandingResult!
+
   template(filter: PageFilter!): Template!
   templates(filter: Filter!): TemplateResult!
 
@@ -132,6 +135,10 @@ type Mutation {
   newTemplate(input: TemplateIn!): Template!
   updateTemplate(id:UUID!, input: TemplateIn!): Template!
   deleteTemplate(id:UUID!): Template!
+
+  newBranding(input: BrandingIn!): Branding!
+  updateBranding(id:UUID!, input: BrandingIn!): Branding!
+  deleteBranding(id:UUID!): Branding!
 
   newPage(input: PageIn!): Page!
   updatePage(id:UUID!, input: PageIn!): Page!
