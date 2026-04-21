@@ -11,14 +11,28 @@ import { Upload } from '../../../components/upload/upload';
 import Filter from '../../../models/filter';
 import Swal from 'sweetalert2';
 import { TitleService } from '../../../services/title-service';
+import { Pager } from '../../../components/pager/pager';
 
 @Component({
   selector: 'manage-user',
-  imports: [CommonModule, ReactiveFormsModule, StatusDialog, ResetDialog, Dialog, Loader, Upload],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    StatusDialog,
+    ResetDialog,
+    Dialog,
+    Loader,
+    Upload,
+    Pager,
+  ],
   templateUrl: './manage.html',
   styleUrl: './manage.css',
 })
 export default class Manage {
+  rowCount = signal<number>(1);
+  limit: number = 3;
+  offset: number=0;
+  total = signal<number>(0);
   list = signal<IUser[]>([]);
   viewMode = signal<'list' | 'card'>('list');
   mode = signal<'ADD' | 'EDIT'>('ADD');
@@ -31,7 +45,7 @@ export default class Manage {
   // --- Signals ---
   isSearchFocused = signal<boolean>(false);
   filterText = signal<string>('');
-  loaderDialog = signal<boolean>(false);
+  loader = signal<boolean>(false);
   rolelist = signal<{ name: string; value: string }[]>([]);
   avatar = signal<File | null>(null);
   // --- Properties ---
@@ -105,7 +119,7 @@ export default class Manage {
           fd.append('0', '');
         }
         let result: any;
-        this.show(this.loaderDialog);
+        this.show(this.loader);
         if (formData.id) {
           result = await this.service.saveFormData(fd);
           if (result?.data?.updateUser) {
@@ -138,7 +152,7 @@ export default class Manage {
         }
         this.load({});
         this.form.reset({ role: '' });
-        this.hide(this.loaderDialog);
+        this.hide(this.loader);
         this.hide(this.editDialogOpen);
       },
       type: 'btn btn-primary w-full',
@@ -155,10 +169,13 @@ export default class Manage {
   async ngOnInit(): Promise<void> {
     // Load initial data
     this.titleService.title = 'Users';
-    this.show(this.loaderDialog);
-    await this.load({});
+    this.show(this.loader);
+    await this.load({
+      offset: this.offset,
+      limit: this.limit,
+    });
     this.rolelist.set(await this.service.rolelist());
-    this.hide(this.loaderDialog);
+    this.hide(this.loader);
   }
 
   ngOnDestroy(): void {
@@ -169,7 +186,20 @@ export default class Manage {
 
   async load(filter: Filter): Promise<void> {
     let result = await this.service.list(filter);
+    this.total.set(Math.ceil(result?.count! / this.limit));
+    this.rowCount.set(result?.count!);    
     this.list.set(result?.rows!);
+  }
+
+  async pageChange($event: number):Promise<void> {    
+    this.offset = ($event - 1) * this.limit;
+    console.log("offset:", this.offset);
+    this.show(this.loader);
+    await this.load({
+      offset: this.offset,
+      limit: this.limit,
+    });
+    this.hide(this.loader);
   }
 
   fileChange($event: File | null) {
@@ -189,9 +219,9 @@ export default class Manage {
         this.dialogTitle.set('New User');
         break;
       case 'EDIT':
-        this.show(this.loaderDialog);
+        this.show(this.loader);
         this.rolelist.set(await this.service.rolelist());
-        this.hide(this.loaderDialog);
+        this.hide(this.loader);
         this.form.patchValue(row!);
         this.dialogTitle.set('Update User');
         break;

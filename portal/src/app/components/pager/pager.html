@@ -1,0 +1,30 @@
+<div class="flex items-center justify-center gap-2 mb-6 w-full flex-1">
+  @if(showNavigation){
+  <button [disabled]="isPreviousDisabled" (click)="previous()"
+    class="w-8 h-8 flex items-center justify-center rounded bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
+    aria-label="Previous page">
+    <i class="bi bi-arrow-left-short text-xl"></i>
+  </button>
+  }
+  <div class="flex items-center justify-center">
+    @for(page of pages; track $index){
+    <span [ngClass]="page === currentPage ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
+      class="w-8 h-8 flex items-center justify-center rounded mx-0.5 text-sm font-medium cursor-pointer"
+      [attr.aria-label]="'Go to page ' + page" (click)="goToPage(page)">
+      {{ page }}
+    </span>
+    }
+  </div>
+  @if(showNavigation){
+  <button [disabled]="isNextDisabled" (click)="next()"
+    class="w-8 h-8 flex items-center justify-center rounded bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
+    aria-label="Next page">
+    <i class="bi bi-arrow-right-short text-xl"></i>
+  </button>
+  }
+</div>
+@if(showInfo){
+<div class="text-base text-gray-500 w-full flex-1" role="status" aria-live="polite">
+  {{ pagesInfo }}
+</div>
+}
