@@ -17,15 +17,19 @@ class ApiService {
     if (token != null) {
       headers.addAll({"authorization": token});
     }
-    if (query == null) {
-      response = await http.post(Uri.parse(url), headers: headers);
-    } else {
-      response = await http.post(
-        Uri.parse(url),
-        headers: headers,
-        body: jsonEncode(query),
-      );
+    try {
+      if (query == null) {
+        response = await http.post(Uri.parse(url), headers: headers);
+      } else {
+        response = await http.post(
+          Uri.parse(url),
+          headers: headers,
+          body: jsonEncode(query),
+        );
+      }
+      return jsonDecode(response.body);
+    } catch (e) {
+      throw Exception(e.toString());
     }
-    return jsonDecode(response.body);
   }
 }

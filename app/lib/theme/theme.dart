@@ -57,15 +57,27 @@ class AppTheme {
           elevation: 0,
         ),
       ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: Colors.white,
+          side: const BorderSide(color: AppColors.primary),
+          padding: const EdgeInsets.symmetric(vertical: 14),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          backgroundColor: AppColors.primary,
+          elevation: 0,
+        ),
+      ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: Colors.white,
-        hintStyle: const TextStyle(color: AppColors.textHint),
+        hintStyle: const TextStyle(color: AppColors.textHint, fontSize: 14),
         prefixIconColor: AppColors.textHint,
         suffixIconColor: AppColors.textHint,
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
-          borderSide: BorderSide(color: Colors.grey.withAlpha(51)),
+          borderSide: BorderSide(color: Colors.grey.shade300),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),

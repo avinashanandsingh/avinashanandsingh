@@ -1,13 +1,12 @@
+import 'package:app/pages/signin.dart';
 import 'package:flutter/material.dart';
 import '../theme/theme.dart';
 import 'change_email.dart';
 import 'change_password.dart';
-import 'signin.dart';
 import 'payment_history.dart';
 import 'enrolled_courses.dart';
-//import '../widgets/file_upload_box.dart';
-//import 'package:file_picker/file_picker.dart';
-//import '../widgets/dashed_border_painter.dart';
+import 'about.dart';
+import '../components/layout.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -20,44 +19,15 @@ class _ProfileState extends State<Profile> {
   static const Color primaryPurple = AppColors.primary;
 
   bool _agreedToTerms = false;
-  String? _uploadedPhoto;
-
-  /* Future<void> _pickFile() async {
-    // Skip entitlement checks for macOS debug environment
-    try {
-      await FilePicker.skipEntitlementsChecks();
-    } catch (_) {}
-    
-    FilePickerResult? result = await FilePicker.pickFiles();
-    if (result != null) {
-      setState(() {
-        _uploadedPhoto = result.files.single.name;
-      });
-    }
-  } */
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.black, size: 18),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
-          'PROFILE',
-          style: TextStyle(
-            color: primaryPurple,
-            fontSize: 16,
-            fontFamily: 'Serif',
-            letterSpacing: 1.1,
-          ),
-        ),
-        centerTitle: true,
-      ),
+    return Layout(
+      titleText: 'PROFILE',
+      isSerif: true,
+      showProfileActions:
+          false, // Don't show profile icon while on profile page
+      currentIndex: 2, // Assuming profile is 3 or use -1 if not in bottom nav
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
         child: Column(
@@ -169,19 +139,6 @@ class _ProfileState extends State<Profile> {
             _buildLabel("What outcome do you desire?"),
             _buildTextField("Write your answer here", maxLines: 4),
             const SizedBox(height: 16),
-
-            _buildLabel("Events Photos"),
-            /* FileUploadBox(
-              uploadedFileName: _uploadedPhoto,
-              defaultIcon: Icons.insert_drive_file_outlined,
-              onFileSelected: (fileName) {
-                setState(() {
-                  _uploadedPhoto = fileName;
-                });
-              },
-            ), */
-            const SizedBox(height: 32),
-
             // Checkbox and Agreement Text
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -287,6 +244,16 @@ class _ProfileState extends State<Profile> {
                   MaterialPageRoute(
                     builder: (context) => const EnrolledCourses(),
                   ),
+                );
+              },
+            ),
+            const Divider(height: 32),
+            _buildMenuItem(
+              "About",
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const About()),
                 );
               },
             ),

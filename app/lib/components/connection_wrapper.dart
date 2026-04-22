@@ -1,7 +1,5 @@
-import 'package:app/theme/theme.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
-import '../theme/theme.dart';
 
 class ConnectionWrapper extends StatelessWidget {
   final Widget child;

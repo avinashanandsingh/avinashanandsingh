@@ -20,9 +20,7 @@ class Course {
     dynamic result = await ApiService.instance.post(_url, body);
     if (result) {
       data = result?['data']?['rows']!;
-      print(data);
     }
-    print(data);
     return data;
   }
 }

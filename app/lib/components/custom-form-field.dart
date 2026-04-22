@@ -116,7 +116,11 @@ class CustomFormFieldState extends State<CustomFormField> {
         focusColor: Colors.transparent,
         hoverColor: Colors.transparent,
         highlightColor: Colors.transparent,
-        icon: Icon(_obscureText ? Icons.visibility : Icons.visibility_off),
+        icon: Icon(
+          _obscureText ? Icons.visibility : Icons.visibility_off,
+          color: AppColors.primary.withAlpha(150),
+          size: 20,
+        ),
         onPressed: () {
           setState(() {
             _obscureText = !_obscureText;
@@ -144,10 +148,16 @@ class CustomFormFieldState extends State<CustomFormField> {
         autovalidateMode: AutovalidateMode.always,
         onChanged: widget.onChanged,
         onFieldSubmitted: widget.onSubmitted,
+        style: TextTheme.of(context).bodySmall,
         decoration: InputDecoration(
           hintText: widget.hintText,
+          hintStyle: TextStyle(fontSize: 14),
           border: const OutlineInputBorder(),
-          prefixIcon: Icon(widget.prefixIcon, color: AppColors.primary),
+          prefixIcon: Icon(
+            widget.prefixIcon,
+            color: AppColors.primary,
+            size: 20,
+          ),
           suffixIcon: _buildSuffixIcon(),
         ),
       );
@@ -163,6 +173,7 @@ class CustomFormFieldState extends State<CustomFormField> {
         decoration: InputDecoration(
           contentPadding: EdgeInsets.all(8),
           hintText: widget.hintText,
+          hintStyle: TextStyle(fontSize: 14),
           border: const OutlineInputBorder(),
           suffixIcon: _buildSuffixIcon(),
         ),

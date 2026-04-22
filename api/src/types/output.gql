@@ -367,6 +367,7 @@ type Referral {
   referrer: UUID
   referby: User
   referredat: DateTime  
+  acceptedat: DateTime
 }
 
 type ReferralResult {

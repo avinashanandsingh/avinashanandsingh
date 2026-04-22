@@ -32,11 +32,11 @@ class BottomNav extends StatelessWidget {
           activeIcon: Icon(Icons.dashboard),
           label: "Dashboard",
         ),
-        /*   BottomNavigationBarItem(
-          icon: Icon(Icons.people_outline),
-          activeIcon: Icon(Icons.people),
-          label: "Community",
-        ), */
+        BottomNavigationBarItem(
+          icon: Icon(Icons.info),
+          activeIcon: Icon(Icons.info),
+          label: "About",
+        ),
       ],
     );
   }

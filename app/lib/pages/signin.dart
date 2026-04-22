@@ -1,10 +1,11 @@
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:app/components/custom-form-field.dart';
 import 'package:app/helpers/convert.dart';
 import 'package:app/pages/forgot_password.dart';
 import 'package:app/services/identity.dart';
-import 'package:app/services/storage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
 import '../theme/theme.dart';
 import 'signup.dart';
 
@@ -16,7 +17,7 @@ class SignIn extends StatefulWidget {
 }
 
 class _SignInState extends State<SignIn> {
-  bool _obscurePassword = true;
+  //bool _obscurePassword = true;
   String? username;
   String? password;
   @override
@@ -57,58 +58,6 @@ class _SignInState extends State<SignIn> {
     );
   }
 
-  Widget _buildLeftPanel() {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.bottomLeft,
-          end: Alignment.topRight,
-          colors: [
-            AppColors.gradientGold,
-            AppColors.gradientTop,
-            AppColors.gradientBottom,
-          ],
-          stops: [0.0, 0.4, 1.0],
-        ),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 80),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            'Unlock Your\nPotential.',
-            style: GoogleFonts.inter(
-              fontSize: 54,
-              height: 1.1,
-              fontWeight: FontWeight.w600,
-              color: const Color(0xFFF3D5B9),
-            ),
-          ),
-          Text(
-            'Connect and\nLearn.',
-            style: GoogleFonts.inter(
-              fontSize: 54,
-              height: 1.1,
-              fontWeight: FontWeight.bold,
-              color: const Color(0xFFEDC8A6),
-            ),
-          ),
-          const SizedBox(height: 32),
-          Text(
-            'Welcome back to your community LMS,\nwhere learning happens together.',
-            style: GoogleFonts.inter(
-              fontSize: 18,
-              height: 1.5,
-              fontWeight: FontWeight.w400,
-              color: Colors.white,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildRightPanel(BuildContext context) {
     return Container(
       color: Colors.white,
@@ -121,6 +70,15 @@ class _SignInState extends State<SignIn> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                if (MediaQuery.of(context).size.width <= 800) ...[
+                  Center(
+                    child: SvgPicture.asset(
+                      'assets/images/login_illustration.svg',
+                      height: 180,
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                ],
                 Text(
                   'Welcome Back!',
                   style: GoogleFonts.inter(
@@ -194,7 +152,7 @@ class _SignInState extends State<SignIn> {
                         Navigator.of(
                           context,
                           rootNavigator: true,
-                        ).pushReplacementNamed("/dashboard");
+                        ).pushReplacementNamed("/home");
                       }
                     },
                     style: ElevatedButton.styleFrom(
@@ -262,24 +220,6 @@ class _SignInState extends State<SignIn> {
           fontWeight: FontWeight.w600,
           color: Colors.black87,
         ),
-      ),
-    );
-  }
-
-  InputDecoration _inputDecoration({required String hint}) {
-    return InputDecoration(
-      hintText: hint,
-      hintStyle: GoogleFonts.inter(color: Colors.grey.shade500, fontSize: 14),
-      filled: true,
-      fillColor: Colors.white,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: Colors.grey.shade300),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: AppColors.gradientTop),
       ),
     );
   }

@@ -20,9 +20,9 @@ class _DashboardState extends State<Dashboard>
   initState() {
     super.initState();
     _tabController = TabController(
-      length: 4,
+      length: 3,
       vsync: this,
-      initialIndex: 3,
+      initialIndex: 2,
     ); // Defaulting to Courses for now
   }
 
@@ -42,12 +42,9 @@ class _DashboardState extends State<Dashboard>
         indicatorWeight: 3,
         tabs: const [
           Tab(text: "Privacy Policy"),
-          //Tab(text: "Community"),
-          Tab(text: "Notifications"),
           Tab(text: "Courses"),
           //Tab(text: "Students"),
           Tab(text: "Marketing"),
-          //Tab(text: "Events"),
         ],
       ),
       body: TabBarView(
@@ -55,7 +52,7 @@ class _DashboardState extends State<Dashboard>
         children: [
           const Center(child: Text("Privacy Policy")),
           //_buildCommunityTab(),
-          const Center(child: Text("Notifications")),
+          //const Center(child: Text("Notifications")),
           _buildCoursesTab(),
           //_buildStudentsTab(),
           const Center(child: Text("Marketing")),
@@ -87,158 +84,6 @@ class _DashboardState extends State<Dashboard>
       return false;
     }
     return true;
-  }
-
-  Widget _buildCommunityTab() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '4 COMMUNITIES',
-                style: TextStyle(
-                  color: primaryPurple,
-                  fontSize: 18,
-                  fontFamily: 'Serif',
-                  letterSpacing: 1.1,
-                ),
-              ),
-              ElevatedButton.icon(
-                onPressed: () {
-                  /*  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    backgroundColor: Colors.transparent,
-                    builder: (context) => const CreateCommunityBottomSheet(),
-                  ); */
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryPurple,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                icon: const Icon(Icons.add, size: 18),
-                label: const Text("Create Community"),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Expanded(
-            child: ListView.builder(
-              itemCount: 4,
-              itemBuilder: (context, index) {
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    side: BorderSide(color: Colors.grey.withAlpha(50)),
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  color: Colors.white,
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          radius: 30,
-                          backgroundColor: Colors.orange.shade100,
-                          child: Icon(
-                            Icons.people,
-                            color: Colors.orange.shade800,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                "Spiritual Journey",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 16,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                "Lorem fringilla pretium magna purus orci fau...",
-                                style: TextStyle(
-                                  color: Colors.grey.shade600,
-                                  fontSize: 13,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStudentsTab() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                'STUDENTS',
-                style: TextStyle(
-                  color: primaryPurple,
-                  fontSize: 18,
-                  fontFamily: 'Serif',
-                  letterSpacing: 1.1,
-                ),
-              ),
-              ElevatedButton.icon(
-                onPressed: () {
-                  /* showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    backgroundColor: Colors.transparent,
-                    builder: (context) => const AddEnrollmentBottomSheet(),
-                  ); */
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryPurple,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                icon: const Icon(Icons.add, size: 18),
-                label: const Text("Add Enrollment"),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          const Expanded(
-            child: Center(
-              child: Text(
-                "No students enrolled yet.",
-                style: TextStyle(color: Colors.grey),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   Widget _buildCoursesTab() {

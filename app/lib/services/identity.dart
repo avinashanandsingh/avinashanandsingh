@@ -1,8 +1,10 @@
+import 'package:app/models/invite.dart';
 import 'package:app/models/signup.dart';
 import 'package:app/services/api.dart';
 import 'package:app/services/storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:jwt_decoder/jwt_decoder.dart';
 
 class Identity extends ChangeNotifier {
   final ValueNotifier<bool> _isAuthenticated = ValueNotifier<bool>(false);
@@ -29,49 +31,22 @@ class Identity extends ChangeNotifier {
 
   bool get isAuthenticated => _isAuthenticated.value;
 
+  Future<dynamic> me() async {
+    String? token = await Storage.instance.get('token');
+    Map<String, dynamic> user = {};
+    if (token != null) {
+      user = JwtDecoder.decode(token);
+    }
+    return user;
+  }
+
   Future<void> logout() async {
     _isAuthenticated.value = false;
     await Storage.instance.clear();
-    print("User logged out.");
     notifyListeners();
   }
 
-  /* Future<void> isLoggedIn() async {
-    try {
-      // Simulate a delay (e.g., fetching from server)
-      String? xt = await token() ?? '';
-      print("xt: ${xt}");
-      if (xt.isNotEmpty) {
-        dynamic body = {
-          "query":
-              'query verify (\$token: String!) { verify (token: \$token) }',
-          "variables": {token: xt},
-        };
-
-        dynamic result = await ApiService.instance.post(
-          "http://localhost:3010",
-          body,
-        );
-        print('Data received: $result');
-
-        _isAuthenticated.value = result?.data?.verify as bool;
-
-        // Check if token is valid (replace with actual validation logic)
-        if (_isAuthenticated.value) {
-          print("User authenticated successfully.");
-        } else {
-          print("Login failed: Invalid or empty token.");
-        }
-      }
-    } catch (e) {
-      print("Error during login: $e");
-      _isAuthenticated.value = false;
-    } finally {
-      // Always notify listeners when the state changes
-      notifyListeners();
-    }
-  } */
-
+  // Verify user is logged in
   Future<bool> isLoggedIn() async {
     bool flag = false;
     String? token = await this.token() ?? '';
@@ -82,9 +57,9 @@ class Identity extends ChangeNotifier {
       };
 
       dynamic result = await ApiService.instance.post(url, body);
-      //print('Data received: $result');
-
-      flag = result?['data']?['verify']! as bool;
+      if (result?['data']?['verify'] != null) {
+        flag = result?['data']?['verify']! as bool;
+      }
     }
     return flag;
   }
@@ -132,5 +107,21 @@ class Identity extends ChangeNotifier {
       flag = true;
     } else {}
     return flag;
+  }
+
+  Future<dynamic> refer(InviteData entity) async {
+    dynamic result = {};
+    try {
+      dynamic body = {
+        "query":
+            'mutation refer (\$input: ReferralIn!) { refer (input: \$input) { id } }',
+        "variables": {"input": entity.toJson()},
+      };
+
+      result = await ApiService.instance.post(url, body);
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+    return result;
   }
 }

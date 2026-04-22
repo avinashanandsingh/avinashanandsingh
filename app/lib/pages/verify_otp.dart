@@ -69,7 +69,7 @@ class _VerifyOtpState extends State<VerifyOtp> {
                     decoration: BoxDecoration(
                       color: const Color(
                         0xFFC79A4A,
-                      ).withOpacity(0.15), // Light gold
+                      ).withValues(alpha: 0.15), // Light gold
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -116,7 +116,9 @@ class _VerifyOtpState extends State<VerifyOtp> {
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF4A2396).withOpacity(0.04),
+                              color: const Color(
+                                0xFF4A2396,
+                              ).withValues(alpha: 0.04),
                               blurRadius: 10,
                               offset: const Offset(0, 4),
                             ),

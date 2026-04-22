@@ -30,7 +30,7 @@ import { Pager } from '../../../components/pager/pager';
 })
 export default class Manage {
   rowCount = signal<number>(1);
-  limit: number = 3;
+  limit: number = Number(import.meta.env.NG_APP_LIMIT);
   offset: number=0;
   total = signal<number>(0);
   list = signal<IUser[]>([]);
