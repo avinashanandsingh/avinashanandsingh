@@ -15,6 +15,10 @@ export interface IUser {
   currency?: string;
   income?: number;
   referrerid?: string;
+  referby?: IUser;
+  creator?: IUser;
+  updater?: IUser;
+  updatedat?: Date;
   last_login_at?: string;
 }
 

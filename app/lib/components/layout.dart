@@ -22,7 +22,7 @@ class Layout extends StatefulWidget {
   final bool showHeader;
   final bool showBottomNav;
   final bool isSerif;
-  final bool showProfileActions;
+  final bool showActions;
   final PreferredSizeWidget? appBarBottom;
 
   const Layout({
@@ -33,7 +33,7 @@ class Layout extends StatefulWidget {
     this.showHeader = true,
     this.showBottomNav = true,
     this.isSerif = false,
-    this.showProfileActions = true,
+    this.showActions = true,
     this.appBarBottom,
   });
 
@@ -85,11 +85,11 @@ class _LayoutState extends State<Layout> {
             ? Header(
                 titleText: widget.titleText,
                 isSerif: widget.isSerif,
-                showProfileActions: widget.showProfileActions,
+                showActions: widget.showActions,
                 isAuthenticated: isAuthenticated,
                 bottom: widget.appBarBottom,
                 leading: Container(
-                  padding: const EdgeInsets.all(15),
+                  padding: const EdgeInsets.only(left: 3, top: 8, bottom: 8),
                   decoration: BoxDecoration(
                     color: AppColors.primary.withAlpha(0),
                     shape: BoxShape.circle,
@@ -97,7 +97,6 @@ class _LayoutState extends State<Layout> {
                   child: Image(
                     image: AssetImage('assets/images/logo.png'),
                     fit: BoxFit.contain,
-                    height: 32,
                   ),
                 ),
               )
@@ -141,7 +140,6 @@ class _LayoutState extends State<Layout> {
   }
 
   Widget onError(Object? object) {
-    print("onError: ${object}");
     return ErrorOverlay(message: object!.toString(), title: 'Error');
   }
 }

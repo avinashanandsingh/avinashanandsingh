@@ -1,5 +1,5 @@
-import 'package:app/theme/theme.dart';
 import 'package:flutter/material.dart';
+import '../theme/theme.dart';
 
 enum FieldType { text, number, email, phone, password }
 
@@ -66,7 +66,6 @@ class CustomFormFieldState extends State<CustomFormField> {
 
   /// 🔹 VALIDATION
   String? _validate(String? value) {
-    //print("custom field value: ${widget.isRequired}");
     // Required
     if (widget.isRequired && (value == null || value.trim().isEmpty)) {
       return '${widget.hintText} required';
@@ -118,7 +117,7 @@ class CustomFormFieldState extends State<CustomFormField> {
         highlightColor: Colors.transparent,
         icon: Icon(
           _obscureText ? Icons.visibility : Icons.visibility_off,
-          color: AppColors.primary.withAlpha(150),
+          color: AppColors.primary,
           size: 20,
         ),
         onPressed: () {
@@ -145,7 +144,7 @@ class CustomFormFieldState extends State<CustomFormField> {
         keyboardType: _getKeyboardType(),
         obscureText: widget.type == FieldType.password ? _obscureText : false,
         validator: _validate,
-        autovalidateMode: AutovalidateMode.always,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
         onChanged: widget.onChanged,
         onFieldSubmitted: widget.onSubmitted,
         style: TextTheme.of(context).bodySmall,

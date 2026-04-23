@@ -34,7 +34,7 @@ export default async (
         {
           column: "email",
           cop: COP.eq,
-          value: args.input.username,
+          value: args.input.username?.toLowerCase(),
         },
       ],
     });

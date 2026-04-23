@@ -1,5 +1,6 @@
 import 'package:app/models/invite.dart';
-import 'package:app/models/signup.dart';
+import 'package:app/models/register.dart';
+import 'package:app/models/signin.dart';
 import 'package:app/services/api.dart';
 import 'package:app/services/storage.dart';
 import 'package:flutter/material.dart';
@@ -33,9 +34,11 @@ class Identity extends ChangeNotifier {
 
   Future<dynamic> me() async {
     String? token = await Storage.instance.get('token');
-    Map<String, dynamic> user = {};
+    dynamic user;
     if (token != null) {
-      user = JwtDecoder.decode(token);
+      if (await isLoggedIn()) {
+        user = JwtDecoder.decode(token);
+      }
     }
     return user;
   }
@@ -64,20 +67,15 @@ class Identity extends ChangeNotifier {
     return flag;
   }
 
-  Future<bool> signin(String username, String password) async {
-    bool flag = false;
-    // Fixed: Use correct query for signin with username and password
+  Future<dynamic> signin(SigninData model) async {
     dynamic body = {
       "query": 'query signin (\$input: SignIn!) { signin (input: \$input) }',
-      "variables": {
-        "input": {"username": username, "password": password},
-      },
+      "variables": {"input": model.toJson()},
     };
 
-    Map<String, dynamic> result = await ApiService.instance.post(url, body);
-
-    String? token = result['data']['signin'];
-
+    return await ApiService.instance.post(url, body);
+    /* String? token = result['data']['signin'];
+    print("sign in token: ${token}");
     if (token != null) {
       // Fixed: Use correct token field from signin response
       await Storage.instance.set("token", token);
@@ -85,28 +83,39 @@ class Identity extends ChangeNotifier {
     } else {
       await Storage.instance.remove("token");
     }
-    return flag;
+    return flag; */
   }
 
-  Future<bool> signup(SignUpData entity) async {
-    bool flag = false;
-    print(entity.toJson());
-    // Fixed: Use correct query for signin with username and password
-    dynamic body = {
-      "query": 'mutation signup (\$input: SignUp!) { signup (input: \$input) }',
-      "variables": {"input": entity.toJson()},
-    };
+  Future<dynamic> signup(RegisterData entity) async {
+    dynamic result = {};
+    try {
+      dynamic body = {
+        "query":
+            'mutation signup (\$input: SignUp!) { signup (input: \$input) { id } }',
+        "variables": {"input": entity.toJson()},
+      };
 
-    Map<String, dynamic> result = await ApiService.instance.post(url, body);
+      result = await ApiService.instance.post(url, body);
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+    return result;
+  }
 
-    dynamic signup_data = result['data']['signup'];
+  Future<dynamic> verifyEmail(String otp) async {
+    dynamic result = {};
+    try {
+      dynamic body = {
+        "query":
+            'mutation verify (\$otp: String!) { verifyEmail (otp: \$otp) { succeed message } }',
+        "variables": {"otp": otp},
+      };
 
-    if (signup_data != null) {
-      // Fixed: Use correct token field from signin response
-      print(signup_data);
-      flag = true;
-    } else {}
-    return flag;
+      result = await ApiService.instance.post(url, body);
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+    return result;
   }
 
   Future<dynamic> refer(InviteData entity) async {

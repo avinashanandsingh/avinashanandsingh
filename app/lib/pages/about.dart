@@ -12,11 +12,11 @@ class About extends StatelessWidget {
     final double screenHeight = MediaQuery.of(context).size.height;
 
     return Layout(
-      titleText: 'ABOUT ME',
+      titleText: 'About Me',
       showHeader: true,
-      isSerif: true,
+      isSerif: false,
       showBottomNav: true,
-      showProfileActions: true,
+      showActions: true,
       body: SingleChildScrollView(
         child: Column(
           children: [

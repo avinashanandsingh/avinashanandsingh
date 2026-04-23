@@ -1,5 +1,7 @@
+import 'package:app/models/signin.dart';
+import 'package:app/services/storage.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:app/components/custom-form-field.dart';
+import 'package:app/components/custom_form_field.dart';
 import 'package:app/helpers/convert.dart';
 import 'package:app/pages/forgot_password.dart';
 import 'package:app/services/identity.dart';
@@ -18,13 +20,11 @@ class SignIn extends StatefulWidget {
 
 class _SignInState extends State<SignIn> {
   //bool _obscurePassword = true;
-  String? username;
-  String? password;
+  late SigninData model = SigninData();
   @override
   void initState() {
     super.initState();
-    username = '';
-    password = '';
+    model = SigninData();
   }
 
   @override
@@ -95,7 +95,7 @@ class _SignInState extends State<SignIn> {
                   isRequired: true,
                   onChanged: (value) {
                     setState(() {
-                      username = value;
+                      model.username = value;
                     });
                   },
                 ),
@@ -107,7 +107,7 @@ class _SignInState extends State<SignIn> {
                   isRequired: true,
                   onChanged: (value) {
                     setState(() {
-                      password = value;
+                      model.password = Convert.toBase64(value);
                     });
                   },
                 ),
@@ -144,11 +144,30 @@ class _SignInState extends State<SignIn> {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () async {
-                      bool result = await Identity.instance.signin(
-                        username!,
-                        Convert.toBase64(password!),
-                      );
-                      if (result) {
+                      dynamic result = await Identity.instance.signin(model);
+                      if (result?['errors'] != null) {
+                        dynamic error = result?['errors'][0];
+
+                        String msg =
+                            error['extensions']['originalError']['message'];
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              msg,
+                              style: GoogleFonts.montserrat(
+                                color: AppColors.error,
+                              ),
+                            ),
+                            backgroundColor: Colors.white,
+                            behavior: SnackBarBehavior.floating,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                        );
+                      } else {
+                        String token = result['data']['signin'];
+                        await Storage.instance.set("token", token);
                         Navigator.of(
                           context,
                           rootNavigator: true,

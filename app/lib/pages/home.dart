@@ -46,8 +46,9 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Layout(
-      titleText: 'Hi, Raj!',
+      titleText: 'Welcome Back!',
       currentIndex: 0,
+      isSerif: true,
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         child: Column(

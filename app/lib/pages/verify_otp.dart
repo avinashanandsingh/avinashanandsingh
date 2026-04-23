@@ -1,3 +1,6 @@
+import 'package:app/components/loader.dart';
+import 'package:app/services/identity.dart';
+import 'package:app/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -83,11 +86,7 @@ class _VerifyOtpState extends State<VerifyOtp> {
                   // Title
                   Text(
                     'Verify Email',
-                    style: GoogleFonts.inter(
-                      fontSize: 32,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.black87,
-                    ),
+                    style: TextTheme.of(context).headlineLarge,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 16),
@@ -110,7 +109,7 @@ class _VerifyOtpState extends State<VerifyOtp> {
                     children: List.generate(6, (index) {
                       return Container(
                         width: 50,
-                        height: 60,
+                        height: 52,
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(12),
@@ -130,7 +129,7 @@ class _VerifyOtpState extends State<VerifyOtp> {
                           keyboardType: TextInputType.number,
                           textAlign: TextAlign.center,
                           maxLength: 1,
-                          style: GoogleFonts.inter(
+                          style: GoogleFonts.montserrat(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
                             color: const Color(0xFF2B0A5E), // Dark purple text
@@ -179,13 +178,74 @@ class _VerifyOtpState extends State<VerifyOtp> {
                       borderRadius: BorderRadius.circular(24),
                     ),
                     child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
+                      onPressed: () async {
+                        String otp = '';
+                        for (int i = 0; i < _controllers.length; i++) {
+                          otp += _controllers[i].text;
+                        }
+
+                        Loader.show(context);
+                        try {
+                          dynamic result = await Identity.instance.verifyEmail(
+                            otp,
+                          );
+                          dynamic verified = result?['data']?['verifyEmail'];
+                          if (verified != null) {
+                            Loader.hide(context);
+                            if (verified['succeed']) {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => const SignIn(),
+                                ),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    verified['message'],
+                                    style: GoogleFonts.montserrat(
+                                      color: AppColors.cardBackground,
+                                    ),
+                                  ),
+                                  backgroundColor: AppColors.error,
+                                  behavior: SnackBarBehavior.floating,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
+                              );
+                            }
+                          } else {
+                            dynamic error = result?.errors?[0];
+                            String msg =
+                                error?.extensions?.originalError?.message;
+                            Loader.hide(context);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  msg,
+                                  style: GoogleFonts.montserrat(
+                                    color: AppColors.error,
+                                  ),
+                                ),
+                                backgroundColor: Colors.white,
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                            );
+                          }
+                        } catch (e) {
+                          Loader.hide(context);
+                          print(e);
+                        }
+                        /* Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => const SignIn(),
                           ),
-                        );
+                        ); */
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.transparent,

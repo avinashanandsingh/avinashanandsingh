@@ -24,9 +24,15 @@ class AppColors {
 
   static const Color textPrimaryDark = Color(0xFFF3D5B9);
   static const Color textSecondaryDark = Color(0xFFEDC8A6);
+  static const Color error = Colors.red;
 }
 
 class AppTheme {
+  static TextStyle get errorStyle => GoogleFonts.montserrat(
+    color: AppColors.error,
+    fontSize: 14,
+    fontWeight: FontWeight.w500,
+  );
   static ThemeData get lightTheme {
     return ThemeData(
       colorScheme: ColorScheme.fromSeed(
@@ -34,6 +40,7 @@ class AppTheme {
         primary: AppColors.primary,
         surface: AppColors.cardBackground,
         onSurface: AppColors.textPrimary,
+        error: AppColors.error,
         brightness: Brightness.light,
       ),
       useMaterial3: true,
@@ -72,6 +79,7 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: Colors.white,
+        contentPadding: EdgeInsets.only(top: 8),
         hintStyle: const TextStyle(color: AppColors.textHint, fontSize: 14),
         prefixIconColor: AppColors.textHint,
         suffixIconColor: AppColors.textHint,
@@ -83,11 +91,40 @@ class AppTheme {
           borderRadius: BorderRadius.circular(8),
           borderSide: const BorderSide(color: AppColors.primary),
         ),
-        errorStyle: TextStyle(fontSize: 14.0),
+        errorStyle: GoogleFonts.montserrat(
+          color: AppColors.error,
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: AppColors.error),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(8),
+          borderSide: const BorderSide(color: AppColors.error, width: 2),
+        ),
       ),
       textTheme: TextTheme(
-        displayLarge: TextStyle(
-          fontFamily: 'Cinzel',
+        headlineLarge: GoogleFonts.cinzel(
+          color: AppColors.primary,
+          fontWeight: FontWeight.bold,
+          letterSpacing: -0.5,
+          fontSize: 32,
+        ),
+        headlineMedium: GoogleFonts.cinzel(
+          color: AppColors.primary,
+          fontWeight: FontWeight.bold,
+          letterSpacing: -0.5,
+          fontSize: 28,
+        ),
+        headlineSmall: GoogleFonts.cinzel(
+          color: AppColors.primary,
+          fontWeight: FontWeight.bold,
+          letterSpacing: -0.5,
+          fontSize: 24,
+        ),
+        displayLarge: GoogleFonts.cinzel(
           color: AppColors.primary,
           fontWeight: FontWeight.bold,
           letterSpacing: -0.5,
@@ -125,7 +162,7 @@ class AppTheme {
           fontSize: 18,
         ),
         bodyMedium: GoogleFonts.montserrat(
-          color: AppColors.textSecondary,
+          color: AppColors.textPrimary,
           fontSize: 16,
         ),
         bodySmall: GoogleFonts.montserrat(

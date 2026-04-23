@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:app/components/connection_wrapper.dart';
 import 'package:app/pages/about.dart';
+import 'package:app/pages/verify_otp.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:app/components/secure_route.dart';
 import 'package:app/pages/dashboard.dart';
@@ -62,6 +63,7 @@ class MyApp extends StatelessWidget {
         '/home': (context) => const Home(),
         '/signin': (context) => const SignIn(),
         '/signup': (context) => const SignUp(),
+        '/verify': (context) => const VerifyOtp(),
         '/dashboard': (context) => SecureRoute(
           routeName: '/dashboard',
           onAuthCheck: (context) {},

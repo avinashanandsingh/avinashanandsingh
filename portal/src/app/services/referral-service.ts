@@ -28,7 +28,7 @@ export class ReferralService {
     };
     let header = this.header.api();
     let result = await this.api.post(this.url, header, body);
-    return result?.data?.schedules!;
+    return result?.data?.referrals!;
   }
 
   async get(id: String) {

@@ -98,7 +98,7 @@ export class IdentityService implements CanActivate {
           last_name: entity.last_name,
           email: entity.email,
           phone: entity.phone,
-          password: 'V2JkMjk0NCM=',
+          password: entity.password,
         },
       },
     };

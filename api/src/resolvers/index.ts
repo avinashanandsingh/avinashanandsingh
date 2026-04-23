@@ -62,6 +62,7 @@ const resolvers = {
     forgot: shield,
     reset: shield,
     changePassword: shield,
+    verifyEmail: shield,
     addCategory: shield,
     updateCategory: shield,
     deleteCategory: shield,

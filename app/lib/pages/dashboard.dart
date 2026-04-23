@@ -29,9 +29,9 @@ class _DashboardState extends State<Dashboard>
   @override
   Widget build(BuildContext context) {
     return Layout(
-      titleText: 'YOUR DASHBOARD',
-      isSerif: true,
-      showProfileActions: false,
+      titleText: 'Dashboard',
+      isSerif: false,
+      showActions: false,
       currentIndex: 1,
       appBarBottom: TabBar(
         controller: _tabController,

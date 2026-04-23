@@ -32,7 +32,7 @@ export class UserService {
   async list(filter: Filter): Promise<Data<IUser>> {
     let body = {
       query:
-        'query list ($filter: Filter!) { users(filter: $filter) { count rows { id role first_name last_name email phone countryid country { id name } stateid state { id, name } cityid city { id name } avatar status createdat creator { id first_name last_name email phone } updatedat updater { id first_name last_name email phone } } } }',
+        'query list ($filter: Filter!) { users(filter: $filter) { count rows { id role first_name last_name email phone countryid country { id name } stateid state { id, name } cityid city { id name } avatar status createdat creator { id first_name last_name email phone } updatedat updater { id first_name last_name email phone } referby { id first_name last_name email phone } } } }',
       variables: {
         filter: {
           ...filter,

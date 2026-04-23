@@ -2,7 +2,6 @@ import { Component, effect, signal } from '@angular/core';
 import { form, FormField, pattern, required, submit, validate } from '@angular/forms/signals';
 import { Router } from '@angular/router';
 import { IdentityService } from '../../services/identity-service';
-import { StorageService } from '../../services/storage-service';
 
 interface ISignUp {
   first_name: string;
@@ -85,6 +84,7 @@ export class SignUp {
       let entity = this.model();
       let exist: boolean = await this.identity.exist(entity.email);
       if (exist) {
+        entity.email = entity.email.toLowerCase();
         entity.password = window.btoa(entity.password);
         let result = await this.identity.signup(entity);
         if (result?.data?.signup) {

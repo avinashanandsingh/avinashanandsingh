@@ -80,6 +80,7 @@ type Mutation {
   forgot(email:String!): Forgot
   reset(otp:String!, password:String!): Reset
   changePassword(password: String!): Reset
+  verifyEmail(otp:String!): Verifed
 
   addCategory(input: CategoryIn!): Category!
   updateCategory(id:UUID!, input: CategoryIn!): Category!

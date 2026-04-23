@@ -23,10 +23,10 @@ class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     return Layout(
-      titleText: 'PROFILE',
-      isSerif: true,
-      showProfileActions:
-          false, // Don't show profile icon while on profile page
+      titleText: 'Profile',
+      isSerif: false,
+      showHeader: true,
+      showActions: false, // Don't show profile icon while on profile page
       currentIndex: 2, // Assuming profile is 3 or use -1 if not in bottom nav
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),

@@ -18,6 +18,7 @@ type User {
   profession: String
   income: Float
   last_login_at: DateTime
+  referby: User
   creator: User
   createdat: Date
   updater: User  
@@ -40,6 +41,11 @@ type Reset {
   succeed: Boolean
   message: String
 }
+type Verifed {
+  succeed: Boolean
+  message: String
+}
+
 
 type Category {
   id: UUID!

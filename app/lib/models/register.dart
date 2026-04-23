@@ -1,21 +1,19 @@
-class SignUpData {
+class RegisterData {
   String? firstName;
   String? lastName;
   String? email;
   String? phone;
   String? password;
-  SignUpData({
-    // ignore: non_constant_identifier_names
+  RegisterData({
     this.firstName,
-    // ignore: non_constant_identifier_names
     this.lastName,
     this.email,
     this.phone,
     this.password,
   });
 
-  factory SignUpData.fromJson(Map<String, dynamic> json) {
-    return SignUpData(
+  factory RegisterData.fromJson(Map<String, dynamic> json) {
+    return RegisterData(
       firstName: json['first_name'] as String?,
       lastName: json['last_name'] as String?,
       email: json['email'] as String?,

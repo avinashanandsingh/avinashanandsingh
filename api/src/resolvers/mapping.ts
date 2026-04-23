@@ -155,6 +155,12 @@ const mapping = [
     role: UserRole.ANONYMOUS,
   },
   {
+    name: "verifyEmail",
+    execute: user.verifyEmail,
+    include: false,
+    role: UserRole.ANONYMOUS,
+  },
+  {
     name: "verify",
     execute: user.verify,
     include: false,

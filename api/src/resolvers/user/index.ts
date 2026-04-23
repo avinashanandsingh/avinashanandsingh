@@ -11,6 +11,7 @@ import verify from "./verify";
 import forgot from "./forgot";
 import changePassword from "./changePassword";
 import changeStatus from "./changeStatus";
+import verifyEmail from "./verifyEmail";
 export default {
   add,
   update,
@@ -24,5 +25,6 @@ export default {
   verify,
   forgot,
   changePassword,
-  changeStatus
+  changeStatus,
+  verifyEmail,
 };

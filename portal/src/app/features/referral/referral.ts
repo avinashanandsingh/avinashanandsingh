@@ -22,7 +22,9 @@ export class Referral implements OnInit {
   ) {}
   async ngOnInit(): Promise<void> {
     this.titleService.title = 'Referrals';
-    await this.load({});
+    this.show();
+    await this.load({});    
+    this.hide();
   }
   async load(filter: Filter): Promise<void> {
     let result = await this.service.list(filter);

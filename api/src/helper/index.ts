@@ -12,8 +12,9 @@ import s3 from "./s3";
 import video from "./video";
 import send from "./send";
 import _enum from "./enum";
-import template from "./template"
-import smtp from "./smtp"
+import template from "./template";
+import referral from "./referral";
+import smtp from "./smtp";
 export default {
   enum: _enum,
   otp: otp,
@@ -33,4 +34,5 @@ export default {
   message: message,
   s3: s3,
   video: video,
+  referral: referral,
 };

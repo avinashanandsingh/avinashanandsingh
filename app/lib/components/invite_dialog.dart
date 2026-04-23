@@ -1,5 +1,5 @@
 import 'dart:ui';
-import 'package:app/components/custom-form-field.dart';
+import 'package:app/components/custom_form_field.dart';
 import 'package:app/models/invite.dart';
 import 'package:app/services/identity.dart';
 import 'package:flutter/material.dart';
@@ -156,7 +156,7 @@ class InviteDialogState extends State<InviteDialog> {
                               InviteData inviteData = InviteData();
                               inviteData.firstName = firstName;
                               inviteData.lastName = lastName;
-                              inviteData.email = email;
+                              inviteData.email = email.toLowerCase();
                               inviteData.referredat = DateTime.now()
                                   .toIso8601String();
 
