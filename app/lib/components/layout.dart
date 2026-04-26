@@ -5,21 +5,14 @@ import 'package:flutter/material.dart';
 import '../components/bottom_nav.dart';
 import '../components/header.dart';
 import '../theme/theme.dart';
-
-void showInviteDialog(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return const InviteDialog();
-    },
-  );
-}
+import '../components/invite_dialog.dart';
 
 class Layout extends StatefulWidget {
   final Widget body;
   final String titleText;
   final int currentIndex;
   final bool showHeader;
+  final bool showBack;
   final bool showBottomNav;
   final bool isSerif;
   final bool showActions;
@@ -31,6 +24,7 @@ class Layout extends StatefulWidget {
     this.titleText = 'Dashboard',
     this.currentIndex = 0,
     this.showHeader = true,
+    this.showBack = false,
     this.showBottomNav = true,
     this.isSerif = false,
     this.showActions = true,
@@ -88,16 +82,42 @@ class _LayoutState extends State<Layout> {
                 showActions: widget.showActions,
                 isAuthenticated: isAuthenticated,
                 bottom: widget.appBarBottom,
-                leading: Container(
-                  padding: const EdgeInsets.only(left: 3, top: 8, bottom: 8),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withAlpha(0),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Image(
-                    image: AssetImage('assets/images/logo.png'),
-                    fit: BoxFit.contain,
-                  ),
+
+                leading: Row(
+                  children: [
+                    if (widget.showBack) ...[
+                      IconButton(
+                        icon: const Icon(
+                          Icons.arrow_back_ios,
+                          color: Colors.black,
+                          size: 16,
+                        ),
+                        onPressed: () {
+                          Navigator.of(
+                            context,
+                            rootNavigator: true,
+                          ).pushReplacementNamed("/home");
+                        },
+                      ),
+                    ] else ...[
+                      Container(
+                        padding: const EdgeInsets.only(
+                          left: 8,
+                          top: 8,
+                          bottom: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withAlpha(0),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Image.asset(
+                          'assets/images/logo.png',
+                          height: 30,
+                          width: 30,
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
               )
             : null,
@@ -110,7 +130,7 @@ class _LayoutState extends State<Layout> {
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 8.0),
                   child: FloatingActionButton(
-                    onPressed: () => showInviteDialog(context),
+                    onPressed: () => InviteDialog.show(context),
                     elevation: 8,
                     shape: const CircleBorder(),
                     backgroundColor: AppColors.accentGold,
@@ -125,7 +145,6 @@ class _LayoutState extends State<Layout> {
                 return Text('');
               }
             } else if (snapshot.hasError) {
-              print("layout.snapshot.error:${snapshot.error}");
               return onError(snapshot.error!);
             } else {
               return loading ?? const CircularProgressIndicator();

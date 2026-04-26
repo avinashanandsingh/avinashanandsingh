@@ -22,7 +22,7 @@ import ManageUser from './features/user/manage/manage';
 import ResourceList from './features/resource/list';
 import { MyCourseList } from './features/courses/my-course-list/my-course-list';
 //import { Landing } from './features/landing/landing';
-import { Scarevibes } from './features/scarevibes/scarevibes';
+import { Sacredvibes } from './features/sacredvibes/sacredvibes';
 import { Meditation } from './features/meditation/meditation';
 import { Aura } from './features/aura/aura';
 import Branding from './features/branding/list';
@@ -101,7 +101,7 @@ export const routes: Routes = [
       },
       {
         path: 'scare-vibes',
-        component: Scarevibes,
+        component: Sacredvibes,
         canActivate: [IdentityService],
         data: { roles: [UserRole.ADMINISTRATOR] },
       },

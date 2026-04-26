@@ -1,3 +1,5 @@
+import 'package:app/components/custom_form_field.dart';
+import 'package:app/components/label.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -81,11 +83,7 @@ class _ChangePasswordState extends State<ChangePassword> {
                   Center(
                     child: Text(
                       'Change Password',
-                      style: GoogleFonts.inter(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w700,
-                        color: Colors.black87,
-                      ),
+                      style: TextTheme.of(context).headlineMedium,
                     ),
                   ),
                   const SizedBox(height: 32),
@@ -94,52 +92,18 @@ class _ChangePasswordState extends State<ChangePassword> {
                   _buildRequirementsCard(),
                   const SizedBox(height: 32),
 
-                  // Form Fields
-                  _buildLabel('Current Password'),
-                  TextField(
-                    controller: _currentPasswordController,
-                    obscureText: _obscureCurrent,
-                    decoration: _inputDecoration(
-                      hint: 'Enter current password',
-                      isObscured: _obscureCurrent,
-                      onToggleVisibility: () {
-                        setState(() {
-                          _obscureCurrent = !_obscureCurrent;
-                        });
-                      },
-                    ),
+                  Label(text: "New Password"),
+                  CustomFormField(
+                    hintText: "New password",
+                    type: FieldType.password,
+                    isRequired: true,
                   ),
                   const SizedBox(height: 20),
-
-                  _buildLabel('New Password'),
-                  TextField(
-                    controller: _newPasswordController,
-                    obscureText: _obscureNew,
-                    decoration: _inputDecoration(
-                      hint: 'Enter new password',
-                      isObscured: _obscureNew,
-                      onToggleVisibility: () {
-                        setState(() {
-                          _obscureNew = !_obscureNew;
-                        });
-                      },
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-
-                  _buildLabel('Confirm New Password'),
-                  TextField(
-                    controller: _confirmPasswordController,
-                    obscureText: _obscureConfirm,
-                    decoration: _inputDecoration(
-                      hint: 'Re-enter new password',
-                      isObscured: _obscureConfirm,
-                      onToggleVisibility: () {
-                        setState(() {
-                          _obscureConfirm = !_obscureConfirm;
-                        });
-                      },
-                    ),
+                  Label(text: "Confirm Password"),
+                  CustomFormField(
+                    hintText: "Confirm password",
+                    type: FieldType.password,
+                    isRequired: true,
                   ),
                   const SizedBox(height: 32),
 
@@ -177,51 +141,6 @@ class _ChangePasswordState extends State<ChangePassword> {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Help Box
-                  Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFFFDF5),
-                      border: Border.all(
-                        color: const Color(0xFFE5C888),
-                      ), // Lighter gold border
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 16,
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.info_rounded,
-                          color: Color(0xFFC79A4A),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: RichText(
-                            text: TextSpan(
-                              style: GoogleFonts.inter(
-                                fontSize: 13,
-                                color: Colors.black87,
-                                fontWeight: FontWeight.w500,
-                              ),
-                              children: const [
-                                TextSpan(
-                                  text: 'Forgot your current password? ',
-                                ),
-                                TextSpan(
-                                  text: 'Click here for Help.',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
                     ),
                   ),
                   const SizedBox(height: 48),
@@ -273,32 +192,6 @@ class _ChangePasswordState extends State<ChangePassword> {
           _buildRequirementRow('At least one special character', _hasSpecial),
           const SizedBox(height: 16),
           // Progress bar
-          Row(
-            children: [
-              Expanded(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: LinearProgressIndicator(
-                    value: _strengthProgress,
-                    minHeight: 8,
-                    backgroundColor: Colors.grey.shade300,
-                    valueColor: const AlwaysStoppedAnimation<Color>(
-                      Color(0xFFD4AF37), // Golden color for progress bar
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                '${(_strengthProgress * 100).toInt()}%',
-                style: GoogleFonts.inter(
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-            ],
-          ),
         ],
       ),
     );

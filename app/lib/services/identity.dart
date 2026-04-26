@@ -1,3 +1,4 @@
+import 'package:app/models/inquiry.dart';
 import 'package:app/models/invite.dart';
 import 'package:app/models/register.dart';
 import 'package:app/models/signin.dart';
@@ -10,6 +11,8 @@ import 'package:jwt_decoder/jwt_decoder.dart';
 class Identity extends ChangeNotifier {
   final ValueNotifier<bool> _isAuthenticated = ValueNotifier<bool>(false);
   final String url = dotenv.env['URL'] ?? '';
+  final Storage store = Storage();
+  final ApiService api = ApiService();
   static final Identity instance = Identity._internal();
 
   // Singleton instance
@@ -27,13 +30,13 @@ class Identity extends ChangeNotifier {
   }
 
   Future<String?> token() async {
-    return await Storage.instance.get('token');
+    return await store.get('token');
   }
 
   bool get isAuthenticated => _isAuthenticated.value;
 
   Future<dynamic> me() async {
-    String? token = await Storage.instance.get('token');
+    String? token = await store.get('token');
     dynamic user;
     if (token != null) {
       if (await isLoggedIn()) {
@@ -45,7 +48,7 @@ class Identity extends ChangeNotifier {
 
   Future<void> logout() async {
     _isAuthenticated.value = false;
-    await Storage.instance.clear();
+    await store.clear();
     notifyListeners();
   }
 
@@ -59,7 +62,7 @@ class Identity extends ChangeNotifier {
         "variables": {"token": token},
       };
 
-      dynamic result = await ApiService.instance.post(url, body);
+      dynamic result = await api.post(url, body);
       if (result?['data']?['verify'] != null) {
         flag = result?['data']?['verify']! as bool;
       }
@@ -73,15 +76,15 @@ class Identity extends ChangeNotifier {
       "variables": {"input": model.toJson()},
     };
 
-    return await ApiService.instance.post(url, body);
+    return await api.post(url, body);
     /* String? token = result['data']['signin'];
     print("sign in token: ${token}");
     if (token != null) {
       // Fixed: Use correct token field from signin response
-      await Storage.instance.set("token", token);
+      await store.set("token", token);
       flag = true;
     } else {
-      await Storage.instance.remove("token");
+      await store.remove("token");
     }
     return flag; */
   }
@@ -95,7 +98,7 @@ class Identity extends ChangeNotifier {
         "variables": {"input": entity.toJson()},
       };
 
-      result = await ApiService.instance.post(url, body);
+      result = await api.post(url, body);
     } catch (e) {
       throw Exception(e.toString());
     }
@@ -111,7 +114,7 @@ class Identity extends ChangeNotifier {
         "variables": {"otp": otp},
       };
 
-      result = await ApiService.instance.post(url, body);
+      result = await api.post(url, body);
     } catch (e) {
       throw Exception(e.toString());
     }
@@ -127,7 +130,23 @@ class Identity extends ChangeNotifier {
         "variables": {"input": entity.toJson()},
       };
 
-      result = await ApiService.instance.post(url, body);
+      result = await api.post(url, body);
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+    return result;
+  }
+
+  Future<dynamic> newInquiry(InquiryData entity) async {
+    dynamic result = {};
+    try {
+      dynamic body = {
+        "query":
+            'mutation add (\$input: InquiryIn!) { newInquiry (input: \$input) { id } }',
+        "variables": {"input": entity.toJson()},
+      };
+
+      result = await api.post(url, body);
     } catch (e) {
       throw Exception(e.toString());
     }

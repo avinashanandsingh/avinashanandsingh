@@ -24,7 +24,7 @@ export class BrandingService {
       query:
         'query list ($name: String!) { enums (name: $name) { name value } }',
       variables: {
-        name: "content_type",
+        name: "branding_type",
       },
     };
     let header = this.header.api();

@@ -5,7 +5,7 @@ import Update from "../../models/update";
 
 export default async (_: any, args: { id: number }, ctx: any): Promise<any> => {
   let row: any;
-  let table = "scaredvibes";
+  let table = "sacredvibes";
 
   const user:any = ctx.user;
 

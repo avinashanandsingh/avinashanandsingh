@@ -53,6 +53,23 @@ input UserIn {
   cityid: Int
 }
 
+input ProfileIn {  
+  first_name: String! @constraint(pattern: "^[a-zA-Z\\s]*$", maxLength: 50)
+  last_name: String!
+  email: String! @constraint(format: "email", maxLength: 255)
+  phone: String!
+    @constraint(
+      pattern: "^(?:\\+?[1-9]\\d{0,3}[-\\s]?)?(?:\\(\\d{1,5}\\)|\\d{1,5})?[-\\s]?(?:\\d[-\\s]?){6,19}\\d$"
+      maxLength: 20
+    )
+  file: File
+  profession: String
+  income: Float
+  countryid: Int
+  stateid: Int
+  cityid: Int
+}
+
 input CategoryIn {
   name: String!
   slug: String!
@@ -161,6 +178,7 @@ input TimeslotIn {
   name: String!
   start_time: String!
   end_time: String!
+  capacity: Int!
 }
 
 input ServiceIn {
@@ -170,8 +188,9 @@ input ServiceIn {
   timeslots: [TimeslotIn!]!
 }
 
-input ScaredvibeIn {  
+input SacredvibeIn {  
   title: String!
+  duration: String!
   url: String
   file: File
 }
@@ -192,8 +211,7 @@ input ReviewIn {
 
 input InquiryIn {
   subject: String
-  message: String
-  status: String
+  message: String  
 }
 
 input MeditationIn {

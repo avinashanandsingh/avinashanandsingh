@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/theme.dart';
 
-enum FieldType { text, number, email, phone, password }
+enum FieldType { text, number, name, email, phone, password, multiline }
 
 class CustomFormField extends StatefulWidget {
   final String hintText;
@@ -14,6 +14,7 @@ class CustomFormField extends StatefulWidget {
   final Function(String)? onChanged;
   final Function(String)? onSubmitted;
   final IconData? prefixIcon;
+  final bool readOnly;
   const CustomFormField({
     super.key,
     required this.hintText,
@@ -26,6 +27,7 @@ class CustomFormField extends StatefulWidget {
     this.onChanged,
     this.onSubmitted,
     this.prefixIcon,
+    this.readOnly = false,
   });
 
   @override
@@ -35,11 +37,12 @@ class CustomFormField extends StatefulWidget {
 class CustomFormFieldState extends State<CustomFormField> {
   late TextEditingController _controller;
   bool _obscureText = true;
-
+  bool multiline = false;
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController(text: widget.initialValue ?? '');
+    multiline = false;
   }
 
   /// 🔹 GET VALUE
@@ -55,10 +58,17 @@ class CustomFormFieldState extends State<CustomFormField> {
     switch (widget.type) {
       case FieldType.number:
         return TextInputType.number;
+      case FieldType.name:
+        return TextInputType.name;
       case FieldType.email:
         return TextInputType.emailAddress;
       case FieldType.phone:
         return TextInputType.phone;
+      case FieldType.multiline:
+        setState(() {
+          multiline = true;
+        });
+        return TextInputType.multiline;
       default:
         return TextInputType.text;
     }
@@ -142,16 +152,20 @@ class CustomFormFieldState extends State<CustomFormField> {
       return TextFormField(
         controller: _controller,
         keyboardType: _getKeyboardType(),
+        maxLines: multiline ? 3 : 1,
         obscureText: widget.type == FieldType.password ? _obscureText : false,
         validator: _validate,
         autovalidateMode: AutovalidateMode.onUserInteraction,
         onChanged: widget.onChanged,
         onFieldSubmitted: widget.onSubmitted,
         style: TextTheme.of(context).bodySmall,
+        readOnly: widget.readOnly,
         decoration: InputDecoration(
           hintText: widget.hintText,
           hintStyle: TextStyle(fontSize: 14),
-          border: const OutlineInputBorder(),
+          border: const OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(5)),
+          ),
           prefixIcon: Icon(
             widget.prefixIcon,
             color: AppColors.primary,
@@ -164,11 +178,14 @@ class CustomFormFieldState extends State<CustomFormField> {
       return TextFormField(
         controller: _controller,
         keyboardType: _getKeyboardType(),
+        maxLines: multiline ? 3 : 1,
         obscureText: widget.type == FieldType.password ? _obscureText : false,
         autovalidateMode: AutovalidateMode.onUserInteraction,
         validator: _validate,
         onChanged: widget.onChanged,
         onFieldSubmitted: widget.onSubmitted,
+        readOnly: widget.readOnly,
+        style: TextTheme.of(context).bodySmall,
         decoration: InputDecoration(
           contentPadding: EdgeInsets.all(8),
           hintText: widget.hintText,

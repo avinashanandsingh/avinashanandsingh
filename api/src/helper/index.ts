@@ -15,6 +15,7 @@ import _enum from "./enum";
 import template from "./template";
 import referral from "./referral";
 import smtp from "./smtp";
+import timeslot from "./timeslot";
 export default {
   enum: _enum,
   otp: otp,
@@ -35,4 +36,5 @@ export default {
   s3: s3,
   video: video,
   referral: referral,
+  timeslot,
 };

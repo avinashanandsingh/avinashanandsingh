@@ -1,3 +1,5 @@
+import 'package:app/models/profile.dart';
+import 'package:app/pages/profile.dart';
 import 'package:app/pages/signin.dart';
 import 'package:app/services/identity.dart';
 import 'package:flutter/material.dart';
@@ -20,10 +22,18 @@ class ActionIconData {
         Builder(
           builder: (context) => GestureDetector(
             onTap: () {
-              Navigator.of(
+              /*   Navigator.of(
                 context,
                 rootNavigator: true,
-              ).pushReplacementNamed("/profile");
+              ).pushReplacementNamed("/profile"); */
+
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      Profile(data: ProfileData.fromJson(user)),
+                ),
+              );
             },
             child: Container(
               padding: EdgeInsets.all(0),

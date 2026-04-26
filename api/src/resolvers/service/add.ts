@@ -34,9 +34,10 @@ export default async (
           { name: "name" },
           { name: "start_time" },
           { name: "end_time" },
+          { name: "capacity" },
         ],
       };
-      let values = [row.id, slot.name, slot.start_time, slot.end_time];
+      let values = [row.id, slot.name, slot.start_time, slot.end_time, slot.capacity];
       await helper.data.insert(input, values);
     });
     await helper.data.raw('COMMIT',[]);

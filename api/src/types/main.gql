@@ -46,8 +46,8 @@ type Query {
   resource(id: UUID!): Resource!
   resources(filter: Filter!): ResourceResult!
 
-  scaredvibe(id: UUID!): Scaredvibe!
-  scaredvibes(filter: Filter!): ScaredvibeResult!
+  sacredvibe(id: UUID!): Sacredvibe!
+  sacredvibes(filter: Filter!): SacredvibeResult!
 
   referral(id: UUID!): Referral!
   referrals(filter: Filter!): ReferralResult!
@@ -77,6 +77,7 @@ type Mutation {
   signup(input: SignUp!): User!
   addUser(input: UserIn!): User!
   updateUser(id:UUID!, input: UserIn!): User!
+  updateProfile(id:UUID!, input: ProfileIn!): User!
   forgot(email:String!): Forgot
   reset(otp:String!, password:String!): Reset
   changePassword(password: String!): Reset
@@ -115,9 +116,9 @@ type Mutation {
   updateResource(id:UUID!, input: ResourceIn!): Resource!
   deleteResource(id:UUID!): Resource!
 
-  addScaredvibe(input: ScaredvibeIn!): Scaredvibe!
-  updateScaredvibe(id:UUID!, input: ScaredvibeIn!): Scaredvibe!
-  deleteScaredvibe(id:UUID!): Scaredvibe!
+  addSacredvibe(input: SacredvibeIn!): Sacredvibe!
+  updateSacredvibe(id:UUID!, input: SacredvibeIn!): Sacredvibe!
+  deleteSacredvibe(id:UUID!): Sacredvibe!
 
   refer(input: ReferralIn!): Referral!
   deleteReferral(id:UUID!): Referral!

@@ -1,129 +1,123 @@
-import 'dart:ui';
+import 'dart:async';
+import 'package:app/components/home/branding_item.dart';
+import 'package:app/models/branding.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../theme/theme.dart';
-import '../../pages/course_details.dart';
+import '../../services/service.dart';
 
-class HeroCard extends StatelessWidget {
+class HeroCard extends StatefulWidget {
   final Animation<double> pulseAnimation;
+  final List<BrandingItem> items;
+  const HeroCard({
+    super.key,
+    required this.items,
+    required this.pulseAnimation,
+  });
 
-  const HeroCard({super.key, required this.pulseAnimation});
+  @override
+  State<HeroCard> createState() => _HeroCardState();
+}
+
+class _HeroCardState extends State<HeroCard> {
+  late final PageController _pageController;
+  int _currentPage = 0;
+  Timer? _timer;
+  int len = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(viewportFraction: 0.92);
+    _startAutoScroll();
+  }
+
+  void _startAutoScroll() {
+    _timer = Timer.periodic(const Duration(seconds: 5), (timer) {
+      if (_pageController.hasClients) {
+        if (_currentPage < widget.items.length - 1) {
+          _currentPage++;
+        } else {
+          _currentPage = 0;
+        }
+        _pageController.animateToPage(
+          _currentPage,
+          duration: const Duration(milliseconds: 800),
+          curve: Curves.easeInOutCubic,
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _pageController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => const CourseDetails()),
-        );
-      },
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        height: 200,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.primary.withAlpha(50),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            ),
-          ],
-          image: const DecorationImage(
-            image: NetworkImage(
-              'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1000',
-            ),
-            fit: BoxFit.cover,
+    return Column(
+      children: [
+        SizedBox(
+          height: 220,
+          child: PageView.builder(
+            controller: _pageController,
+            onPageChanged: (index) {
+              setState(() {
+                _currentPage = index;
+              });
+            },
+            itemCount: widget.items.length,
+            itemBuilder: (context, index) {
+              return AnimatedBuilder(
+                animation: _pageController,
+                builder: (context, child) {
+                  double value = 1.0;
+                  if (_pageController.position.haveDimensions) {
+                    value = _pageController.page! - index;
+                    value = (1 - (value.abs() * 0.1)).clamp(0.0, 1.0);
+                  }
+                  return Center(
+                    child: SizedBox(
+                      height: Curves.easeOut.transform(value) * 220,
+                      width:
+                          Curves.easeOut.transform(value) *
+                          MediaQuery.of(context).size.width,
+                      child: child,
+                    ),
+                  );
+                },
+                child: BrandingItem(
+                  type: widget.items[index].type,
+                  title: widget.items[index].title,
+                  content: widget.items[index].content,
+                  url: widget.items[index].url,
+                ),
+              );
+            },
           ),
         ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(24),
-          child: Stack(
-            children: [
-              Positioned.fill(
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Colors.transparent,
-                        AppColors.primary.withAlpha(200),
-                      ],
-                    ),
-                  ),
-                ),
+        const SizedBox(height: 12),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(
+            widget.items.length,
+            (index) => AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              margin: const EdgeInsets.symmetric(horizontal: 4),
+              height: 6,
+              width: _currentPage == index ? 20 : 6,
+              decoration: BoxDecoration(
+                color: _currentPage == index
+                    ? AppColors.primary
+                    : AppColors.primary.withAlpha(50),
+                borderRadius: BorderRadius.circular(3),
               ),
-              Positioned(
-                left: 20,
-                bottom: 24,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withAlpha(50),
-                        borderRadius: BorderRadius.circular(20),
-                        border: Border.all(color: Colors.white.withAlpha(100)),
-                      ),
-                      child: Text(
-                        "FEATURED",
-                        style: GoogleFonts.lato(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.5,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      "BREATHING\nTO SELF-SOOTHE",
-                      style: GoogleFonts.cinzel(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        height: 1.2,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Positioned(
-                right: 20,
-                bottom: 24,
-                child: ScaleTransition(
-                  scale: pulseAnimation,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(30),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                      child: Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withAlpha(40),
-                          shape: BoxShape.circle,
-                          border: Border.all(color: Colors.white.withAlpha(80)),
-                        ),
-                        child: const Icon(
-                          Icons.play_arrow_rounded,
-                          color: Colors.white,
-                          size: 32,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ),
         ),
-      ),
+      ],
     );
   }
 }

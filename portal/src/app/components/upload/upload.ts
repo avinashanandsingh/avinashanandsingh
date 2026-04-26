@@ -1,5 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output, signal } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  signal,
+  SimpleChanges,
+} from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
@@ -8,7 +17,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
   templateUrl: './upload.html',
   styleUrl: './upload.css',
 })
-export class Upload implements OnInit {
+export class Upload implements OnInit, OnChanges {
   blobUrl: string | null = null;
 
   // Input: Define the accepted file types (e.g., 'image/*', 'application/pdf')
@@ -23,12 +32,33 @@ export class Upload implements OnInit {
   @Input({ required: false }) labelText: string = 'Drop file or click to upload';
   fileName = signal<string>('');
 
-  constructor( private sanitizer: DomSanitizer){
-   
+  constructor(private sanitizer: DomSanitizer) {}
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['previewUrl']) {
+      console.log(this.previewUrl);
+      let final = this.previewUrl;
+      if (this.previewUrl?.includes('you')) {
+        let id = this.previewUrl?.substring(
+          this.previewUrl?.lastIndexOf('/') + 1,
+          this.previewUrl?.length,
+        );
+        final = `https://www.youtube.com/embed/${id}`;
+      }
+      let url = this.sanitizer.bypassSecurityTrustResourceUrl(final!);
+      this.safeUrl.set(url!);
+    }
   }
   ngOnInit(): void {
     console.log(this.previewUrl);
-     let url = this.sanitizer.bypassSecurityTrustResourceUrl(this.previewUrl!);    
+    let final = this.previewUrl;
+    if (this.previewUrl?.includes('you')) {
+      let id = this.previewUrl?.substring(
+        this.previewUrl?.lastIndexOf('/') + 1,
+        this.previewUrl?.length,
+      );
+      final = `https://www.youtube.com/embed/${id}`;
+    }
+    let url = this.sanitizer.bypassSecurityTrustResourceUrl(final!);
     this.safeUrl.set(url!);
   }
   // Handle file change logic

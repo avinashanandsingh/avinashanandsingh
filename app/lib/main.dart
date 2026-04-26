@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:app/components/connection_wrapper.dart';
 import 'package:app/pages/about.dart';
 import 'package:app/pages/verify_otp.dart';
+import 'package:app/helpers/globals.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:app/components/secure_route.dart';
 import 'package:app/pages/dashboard.dart';
@@ -37,9 +38,10 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       themeMode: themeProvider.themeMode,
       debugShowCheckedModeBanner: false,
-      builder: (context, widget) {
+      scaffoldMessengerKey: snackbarKey,
+      /*  builder: (context, widget) {
         return ConnectionWrapper(child: widget!);
-      },
+      }, */
       home: FutureBuilder<Widget>(
         future: _resolveInitialScreen(),
         builder: (context, snapshot) {

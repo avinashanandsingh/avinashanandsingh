@@ -328,9 +328,10 @@ type ResourceResult {
   rows:[Resource]
 }
 
-type Scaredvibe {
+type Sacredvibe {
   id: String
   title: String
+  duration: String
   url: String
   status: String
   sort: Int	
@@ -340,9 +341,9 @@ type Scaredvibe {
   updatedat: DateTime
 }
 
-type ScaredvibeResult {
+type SacredvibeResult {
   count: Int
-  rows:[Scaredvibe]
+  rows:[Sacredvibe]
 }
 
 type Meditation {
@@ -388,6 +389,7 @@ type Timeslot {
   name: String
   start_time: String
   end_time: String
+  capacity: Int
 }
 
 type Service {

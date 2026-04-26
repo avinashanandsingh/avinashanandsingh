@@ -13,6 +13,7 @@ class About extends StatelessWidget {
 
     return Layout(
       titleText: 'About Me',
+      currentIndex: 2,
       showHeader: true,
       isSerif: false,
       showBottomNav: true,

@@ -199,7 +199,15 @@ export class Shorts {
           this.dialogTitle.set('Watch Video');
           let row = this.list().find((x) => x.id === id);
           if (row) {
-            let url = this.sanitizer.bypassSecurityTrustResourceUrl(row?.url!);
+            let final = row?.url!;
+            if (row?.url!.includes('you')) {
+              let id = row?.url!.substring(
+                row?.url!.lastIndexOf('/') + 1,
+                row?.url!.length,
+              );
+              final = `https://www.youtube.com/embed/${id}`;
+            }
+            let url = this.sanitizer.bypassSecurityTrustResourceUrl(final);
             this.preview.set(url);
           }
           break;
@@ -209,7 +217,16 @@ export class Shorts {
         case 'EDIT':
           let erow = this.list().find((x) => x.id === id);
           this.thumbnailUrl.set(erow!.thumbnail);
-          this.videoUrl.set(erow?.url!);
+           let final = erow?.url!;
+            if (erow?.url!.includes('you')) {
+              let id = erow?.url!.substring(
+                erow?.url!.lastIndexOf('/') + 1,
+                erow?.url!.length,
+              );
+              final = `https://www.youtube.com/embed/${id}`;
+            }            
+          console.log(final);
+          this.videoUrl.set(final);
           this.form.patchValue(erow!);
           this.dialogTitle.set('Update Short');
           break;

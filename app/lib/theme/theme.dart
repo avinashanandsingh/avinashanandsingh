@@ -122,7 +122,7 @@ class AppTheme {
           color: AppColors.primary,
           fontWeight: FontWeight.bold,
           letterSpacing: -0.5,
-          fontSize: 24,
+          fontSize: 20,
         ),
         displayLarge: GoogleFonts.cinzel(
           color: AppColors.primary,
@@ -158,7 +158,7 @@ class AppTheme {
           fontSize: 14,
         ),
         bodyLarge: GoogleFonts.montserrat(
-          color: AppColors.textSecondary,
+          color: AppColors.textPrimary,
           fontSize: 18,
         ),
         bodyMedium: GoogleFonts.montserrat(
@@ -166,7 +166,7 @@ class AppTheme {
           fontSize: 16,
         ),
         bodySmall: GoogleFonts.montserrat(
-          color: AppColors.textSecondary,
+          color: AppColors.textPrimary,
           fontSize: 14,
         ),
         labelLarge: GoogleFonts.montserrat(

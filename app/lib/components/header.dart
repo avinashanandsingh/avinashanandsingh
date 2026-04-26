@@ -19,7 +19,7 @@ class Header extends AppBar {
          backgroundColor: Colors.white,
          elevation: 0,
          centerTitle: false,
-         leadingWidth: 64,
+         leadingWidth: 48,
          title: Row(
            mainAxisSize: MainAxisSize.min,
            children: [

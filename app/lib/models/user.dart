@@ -51,3 +51,39 @@ class UserData {
     };
   }
 }
+
+class UserBasicData {
+  String? id;
+  String? firstName;
+  String? lastName;
+  String? email;
+  String? phone;
+  UserBasicData({
+    this.id,
+    this.firstName,
+    this.lastName,
+    this.email,
+    this.phone,
+  });
+
+  factory UserBasicData.fromJson(Map<String, dynamic> json) {
+    return UserBasicData(
+      id: json['id'] as String?,
+      firstName: json['first_name'] as String?,
+      lastName: json['last_name'] as String?,
+      email: json['email'] as String?,
+      phone: json['phone'] as String?,
+    );
+  }
+
+  // Object to JSON conversion
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'first_name': firstName,
+      'last_name': lastName,
+      'email': email,
+      'phone': phone,
+    };
+  }
+}

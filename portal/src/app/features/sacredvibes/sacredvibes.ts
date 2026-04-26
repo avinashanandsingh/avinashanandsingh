@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { IScarevibeData } from '../../models/scarevibe';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import Filter from '../../models/filter';
-import { ScaredvibeService } from '../../services/scaredvibe-service';
+import { SacredvibeService } from '../../services/sacredvibe-service';
 import { Dialog } from '../../components/dialog/dialog';
 import { Upload } from '../../components/upload/upload';
 import { TitleService } from '../../services/title-service';
@@ -14,10 +14,10 @@ import Swal from 'sweetalert2';
 @Component({
   selector: 'app-scarevibes',
   imports: [CommonModule, ReactiveFormsModule, Loader, Dialog, Upload],
-  templateUrl: './scarevibes.html',
-  styleUrl: './scarevibes.css',
+  templateUrl: './sacredvibes.html',
+  styleUrl: './sacredvibes.css',
 })
-export class Scarevibes implements OnInit {
+export class Sacredvibes implements OnInit {
   rowCount = signal<number>(0);
   list = signal<IScarevibeData[]>([]);
   loaderDialog = signal<boolean>(false);
@@ -25,7 +25,7 @@ export class Scarevibes implements OnInit {
   playerDialog = signal<boolean>(false);
   preview = signal<SafeResourceUrl | null>(null);
   mode = signal<'ADD' | 'EDIT'>('ADD');
-  dialogTitle = signal<string>('Add New Resource');
+  dialogTitle = signal<string>('New Sacredvibe');
   dragItem: IScarevibeData | null = null;
   dragOverItem: IScarevibeData | null = null;
   file = signal<File | null>(null);
@@ -33,6 +33,7 @@ export class Scarevibes implements OnInit {
   form: FormGroup = new FormGroup({
     id: new FormControl(undefined),
     title: new FormControl('', [Validators.required]),
+    duration: new FormControl('', [Validators.required]),
     url: new FormControl(''),
   });
   dialogButtons = signal<Array<{ label: string; action: any; type: any }>>([
@@ -49,13 +50,14 @@ export class Scarevibes implements OnInit {
       action: async () => {
         if (this.form.invalid) return;
         let formData = this.form.getRawValue();
-        if (formData.url!.length <= 0 && this.file === null) {
+        if (formData.url?.length <= 0 && this.file === null) {
           this.msg = 'Either upload file or provide url';
         }
         var fd = new FormData();
         let input: any = {
           title: formData.title,
-          url: formData.url!.length > 0 ? formData.url : null,
+          duration: formData.duration,
+          url: formData.url,
           file: null,
         };
         let body: any = {};
@@ -63,7 +65,7 @@ export class Scarevibes implements OnInit {
           console.log('edit: ', formData.id);
           body = {
             query:
-              'mutation update ($id: UUID!, $input: ScaredvibeIn!) { updateScaredvibe(id:$id, input: $input) { id } }',
+              'mutation update ($id: UUID!, $input: SacredvibeIn!) { updateSacredvibe(id:$id, input: $input) { id } }',
             variables: {
               id: formData.id,
               input: {
@@ -73,7 +75,7 @@ export class Scarevibes implements OnInit {
           };
         } else {
           body = {
-            query: 'mutation add ($input: ScaredvibeIn!) { addScaredvibe(input: $input) { id } }',
+            query: 'mutation add ($input: SacredvibeIn!) { addSacredvibe(input: $input) { id } }',
             variables: {
               input: {
                 ...input,
@@ -93,11 +95,11 @@ export class Scarevibes implements OnInit {
         this.show(this.loaderDialog);
         switch (this.mode()) {
           case 'ADD':
-            result = await this.service.saveFormData(fd);
-            if (result?.data?.addScaredvibe) {
+            result = await this.service.save(fd);
+            if (result?.data?.addSacredvibe) {
               Swal.fire({
                 title: 'Success',
-                html: 'Scaredvibe saved successfully',
+                html: 'Sacredvibe saved successfully',
                 icon: 'success',
                 timer: 3000,
               });
@@ -114,11 +116,11 @@ export class Scarevibes implements OnInit {
             break;
           case 'EDIT':
             console.log('id: ', formData.id);
-            result = await this.service.saveFormData(fd);
-            if (result?.data?.updateScaredvibe) {
+            result = await this.service.save(fd);
+            if (result?.data?.updateSacredvibe) {
               Swal.fire({
                 title: 'Success',
-                html: 'Scaredvibe updated successfully',
+                html: 'Sacredvibe updated successfully',
                 icon: 'success',
                 timer: 3000,
               });
@@ -143,12 +145,12 @@ export class Scarevibes implements OnInit {
   ]);
 
   constructor(
-    private service: ScaredvibeService,
+    private service: SacredvibeService,
     private titleService: TitleService,
     private sanitizer: DomSanitizer,
   ) {}
   async ngOnInit(): Promise<void> {
-    this.titleService.title = 'Scarevibes';
+    this.titleService.title = 'Sacredvibes';
     this.preview.set(
       this.sanitizer.bypassSecurityTrustResourceUrl('https://samplelib.com/mp3/sample-6s.mp3'),
     );
@@ -179,13 +181,13 @@ export class Scarevibes implements OnInit {
     }
     switch (this.mode()) {
       case 'ADD':
-        this.dialogTitle.set('New Scarevibe');
+        this.dialogTitle.set('New Sacredvibe');
         me.set(true);
         break;
       case 'EDIT':
         let row = this.list().find((x) => x.id === id);
         this.form.patchValue(row!);
-        this.dialogTitle.set('Update Scarevibe');
+        this.dialogTitle.set('Update Sacredvibe');
         me.set(true);
         break;
       default:

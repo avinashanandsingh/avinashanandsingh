@@ -64,7 +64,7 @@ export default class Course implements OnInit {
           this.show(this.loader);
           var fd = new FormData();
           let input: any = {
-            categoryid: formData.categoryid!.length > 0 ? formData.categoryid : null,
+            categoryid: formData.categoryid ? formData.categoryid : null,
             title: formData.title,
             description: formData.description,
             url: formData.url ? formData.url : null,
@@ -241,8 +241,14 @@ export default class Course implements OnInit {
       case 'PLAY':
         row = this.list().find((x) => x.id === id);
         const rawUrl = row?.url!;
+        console.log(rawUrl);     
         if (rawUrl) {
-          const url = this.sanitizer.bypassSecurityTrustResourceUrl(rawUrl!);
+          let final = rawUrl;
+          if(rawUrl.includes("you")){            
+            let id = rawUrl.substring(rawUrl.lastIndexOf("/")+1, rawUrl.length);            
+            final = `https://www.youtube.com/embed/${id}`;
+          }                    
+          const url = this.sanitizer.bypassSecurityTrustResourceUrl(final);
           this.safeVideoUrl.set(url);
           this.dialogTitle.set('Watch Video');
         }

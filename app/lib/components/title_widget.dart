@@ -10,6 +10,7 @@ class TitleWidget extends StatelessWidget {
     return Flexible(
       child: Text(
         title,
+        textAlign: TextAlign.left,
         overflow: TextOverflow.ellipsis,
         style: TextTheme.of(context).bodyMedium,
       ),

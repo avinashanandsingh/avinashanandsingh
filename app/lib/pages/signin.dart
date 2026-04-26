@@ -12,7 +12,8 @@ import '../theme/theme.dart';
 import 'signup.dart';
 
 class SignIn extends StatefulWidget {
-  const SignIn({super.key});
+  final Widget? redirect;
+  const SignIn({super.key, this.redirect});
 
   @override
   State<SignIn> createState() => _SignInState();
@@ -21,6 +22,7 @@ class SignIn extends StatefulWidget {
 class _SignInState extends State<SignIn> {
   //bool _obscurePassword = true;
   late SigninData model = SigninData();
+  Storage store = Storage();
   @override
   void initState() {
     super.initState();
@@ -167,11 +169,19 @@ class _SignInState extends State<SignIn> {
                         );
                       } else {
                         String token = result['data']['signin'];
-                        await Storage.instance.set("token", token);
-                        Navigator.of(
-                          context,
-                          rootNavigator: true,
-                        ).pushReplacementNamed("/home");
+                        await store.set("token", token);
+                        if (widget.redirect != null) {
+                          Navigator.of(context).pushReplacement(
+                            MaterialPageRoute(
+                              builder: (context) => widget.redirect!,
+                            ),
+                          );
+                        } else {
+                          Navigator.of(
+                            context,
+                            rootNavigator: true,
+                          ).pushReplacementNamed("/home");
+                        }
                       }
                     },
                     style: ElevatedButton.styleFrom(

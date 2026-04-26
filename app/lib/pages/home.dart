@@ -1,4 +1,8 @@
+import 'package:app/components/home/branding_item.dart';
 import 'package:app/components/home/section.dart';
+import 'package:app/models/branding.dart';
+import 'package:app/models/sacredvibe.dart';
+import 'package:app/services/service.dart';
 import 'package:flutter/material.dart';
 import '../theme/theme.dart';
 import '../components/layout.dart';
@@ -58,7 +62,35 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             //const SectionHeader(title: "START YOUR DAY"),
             Section(
               title: "START YOUR DAY",
-              child: HeroCard(pulseAnimation: _pulseAnimation),
+              child: FutureBuilder(
+                future: Service.branding.list(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    );
+                  } else if (snapshot.hasData) {
+                    List<BrandingData> list = snapshot.data!;
+                    return HeroCard(
+                      pulseAnimation: _pulseAnimation,
+                      items: list
+                          .map(
+                            (item) => BrandingItem(
+                              type: item.type,
+                              title: item.title,
+                              content: item.content,
+                              url: item.url,
+                            ),
+                          )
+                          .toList(),
+                    );
+                  }
+                  return Container();
+                },
+              ),
             ),
 
             //const SizedBox(height: 16),
@@ -88,11 +120,28 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             const AbundanceCard(),
 
             const SizedBox(height: 36),
-            const SectionHeader(
+            Section(
               title: "SACRED VIBES",
               subtitle: "Rituals, prayers and devotion to uplift your spirit.",
+              child: FutureBuilder(
+                future: Service.sacredvibe.list(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    );
+                  } else if (snapshot.hasData) {
+                    List<SacredvibeData> list = snapshot.data!;
+
+                    return SacredVibesTile(items: list);
+                  }
+                  return Container();
+                },
+              ),
             ),
-            const SacredVibesTile(),
 
             const SizedBox(height: 32),
             const SuperhumanBanner(),

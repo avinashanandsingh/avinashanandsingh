@@ -1,13 +1,14 @@
 import 'package:app/models/course.dart';
 import 'package:app/services/api.dart';
-//import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class Course {
-  final String _url = "http://localhost:3010";
-  static final Course instance = Course._init();
+  final String url = dotenv.env['URL'] ?? '';
+  final ApiService api = ApiService();
+  //static final Course instance = Course._init();
 
   // Singleton instance
-  Course._init();
+  //Course._init();
 
   Future<List<CourseData>> list() async {
     List<CourseData> data = [];
@@ -17,7 +18,7 @@ class Course {
       "variables": {"filter": {}},
     };
 
-    dynamic result = await ApiService.instance.post(_url, body);
+    dynamic result = await api.post(url, body);
     if (result) {
       data = result?['data']?['rows']!;
     }

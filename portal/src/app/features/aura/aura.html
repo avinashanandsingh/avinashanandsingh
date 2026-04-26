@@ -27,17 +27,17 @@
 
             <tbody>
                 @for (row of list(); track row.id) {
-                <tr (click)="toggleRow(row.id!)"
+                <tr
                     class="group cursor-pointer hover:bg-blue-50/50 transition-colors border-b border-gray-100 last:border-0" [class.bg-purple-100]="expandedRowId() === row.id">
                     <td class="px-6 py-4 font-medium text-gray-900">{{ row.name }}</td>
                     <td class="px-6 py-4 text-gray-600">{{ row.price }}</td>
                     <td class="px-6 py-4 text-gray-600">{{ row.offer }}</td>
                     <td class="px-6 py-4 text-gray-600">{{ row.status }}</td>
                     <td class="px-6 py-4 text-right">
-                        <button class="text-purple-600 hover:text-purple-900 text-base pr-3">
+                        <button (click)="delete(row.id!)" class="text-purple-600 hover:text-purple-900 text-base pr-3">
                             <i class="bi bi-trash"></i>
                         </button>
-                        <span class="inline-block transition-transform duration-300"
+                        <span class="inline-block transition-transform duration-300"  (click)="toggleRow(row.id!)"
                             [class.rotate-180]="expandedRowId() === row.id">
                             <i class="bi bi-caret-down text-xl"></i>
                         </span>
@@ -58,6 +58,7 @@
                                         <th class="px-6 py-4">Name</th>
                                         <th class="px-6 py-4">Start Time</th>
                                         <th class="px-6 py-4">End Time</th>
+                                        <th class="px-6 py-4">Capacity</th>
                                         <th class="px-6 py-4 text-right">Actions</th>
                                     </tr>
                                 </thead>
@@ -66,6 +67,7 @@
                                     <td class="px-6 py-4 font-medium text-gray-900">{{ slot.name }}</td>
                                     <td class="px-6 py-4 text-gray-600">{{ slot.start_time }}</td>
                                     <td class="px-6 py-4 text-gray-600">{{ slot.end_time }}</td>
+                                    <td class="px-6 py-4 text-gray-600">{{ slot.capacity }}</td>
                                     <td class="px-6 py-4 text-right">
                                         <button class="text-purple-600 hover:text-purple-900 text-base pr-3">
                                             <i class="bi bi-trash"></i>
@@ -85,7 +87,7 @@
     </div>
 </div>
 
-<loader [isOpen]="loaderDialog"></loader>
+<loader [isOpen]="loader"></loader>
 <app-dialog [buttons]="dialogButtons" [isOpen]="formDialog" [title]="dialogTitle()" [backdrop]="false"
     (close)="hide(formDialog)">
     <form [formGroup]="parentForm">
@@ -100,7 +102,7 @@
                 }">
             </ng-container>
         </div>
-        <div class="flex flex-row gap-3 w-full mb-3">
+        <div class="flex flex-row gap-3 w-full mb-6">
             <div class="w-full">
                 <label class="label">Price</label>
                 <input id="price" formControlName="price" type="text" inputmode="numeric" placeholder="0.00"
@@ -124,14 +126,13 @@
                 </ng-container>
             </div>
         </div>
-
-
         <fieldset class="border border-gray-300 p-4 rounded-md">
             <legend class="px-2 text-base font-semibold text-gray-700">Timeslots</legend>
             <div formArrayName="timeslots" class="mb-3">
                 <div *ngFor="let row of timeslots.controls; let i=index" [formGroupName]="i" class="mb-3">
                     <div class="flex flex-row gap-3 mb-3">
                         <input type="text" formControlName="name" placeholder="Name" class="input">
+                        <input type="text" inputmode="numeric" formControlName="capacity" placeholder="Capacity" class="input">
                     </div>
                     <div class="flex flex-row gap-3">
                         <input type="time" formControlName="start_time" placeholder="Start Time" class="input">

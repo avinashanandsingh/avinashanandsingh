@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { ScaredvibeService } from './scaredvibe-service';
+import { SacredvibeService } from './sacredvibe-service';
 
 describe('ScaredvibeService', () => {
-  let service: ScaredvibeService;
+  let service: SacredvibeService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(ScaredvibeService);
+    service = TestBed.inject(SacredvibeService);
   });
 
   it('should be created', () => {

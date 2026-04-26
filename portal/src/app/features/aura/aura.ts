@@ -24,7 +24,7 @@ import { TitleService } from '../../services/title-service';
 })
 export class Aura implements OnInit {
   list = signal<IAuraData[]>([]);
-  loaderDialog = signal<boolean>(false);
+  loader = signal<boolean>(false);
   formDialog = signal<boolean>(false);
   mode = signal<'ADD' | 'EDIT' | null>(null);
   file = signal<File | null>(null);
@@ -54,13 +54,21 @@ export class Aura implements OnInit {
           });
           return;
         }
+        formData.timeslots = formData.timeslots.map((row: any) => {
+          return {
+            name: row?.name!,
+            capacity: Number(row.capacity),
+            start_time: row?.start_time,
+            end_time: row?.end_time,
+          };
+        });
         let body: IAuraData = {
           ...formData,
         };
         body.price = Number(body.price);
         body.offer = Number(body.offer);
         let result: any;
-        this.show(this.loaderDialog);
+        this.show(this.loader);
         switch (this.mode()) {
           case 'ADD':
             result = await this.service.add(body);
@@ -75,30 +83,13 @@ export class Aura implements OnInit {
           this.load({});
           this.hide(this.formDialog);
         }
-        this.hide(this.loaderDialog);
+        this.hide(this.loader);
       },
       type: 'btn btn-primary w-full',
     },
   ]);
 
   expandedRowId = signal<string | null>(null);
-
-  users: any[] = [
-    {
-      id: 1,
-      name: 'Alex Rivera',
-      role: 'Lead Developer',
-      email: 'alex@example.com',
-      details: 'Expert in Angular and Rust. Currently leading the migration to v21.',
-    },
-    {
-      id: 2,
-      name: 'Jordan Smith',
-      role: 'UI Designer',
-      email: 'jordan@example.com',
-      details: 'Specializes in accessible design systems and Tailwind CSS integration.',
-    },
-  ];
 
   constructor(
     private service: AuraService,
@@ -120,13 +111,13 @@ export class Aura implements OnInit {
         name: ['', Validators.required],
         start_time: ['', [Validators.required]],
         end_time: ['', [Validators.required]],
+        capacity: ['', [Validators.required]],
       });
       this.timeslots.push(row);
     }
-    this.show(this.loaderDialog);
-    await this.load({});
-    console.log(this.list());
-    this.hide(this.loaderDialog);
+    this.show(this.loader);
+    await this.load({});    
+    this.hide(this.loader);
   }
 
   async load(filter: Filter): Promise<void> {
@@ -177,11 +168,35 @@ export class Aura implements OnInit {
     me.set(false);
     //this.form.reset();
   }
-  async delete(id: string): Promise<void> {
-    this.show(this.loaderDialog);
-    let result = await this.service.delete(id);
-    this.load({});
-    this.hide(this.loaderDialog);
+  async delete(id: string): Promise<void> {   
+    let dialog = await Swal.fire({
+          title: 'Are you sure, want to delete?',
+          showDenyButton: true,
+          showCancelButton: false,
+          confirmButtonText: 'Confirm',
+          denyButtonText: 'Cancel',
+          customClass: {
+            actions: 'my-actions',
+            cancelButton: 'order-1 right-gap',
+            confirmButton: 'order-2',
+            denyButton: 'order-3',
+          },
+        });
+    
+        if (dialog.isConfirmed) {
+          this.show(this.loader);
+          let result = await this.service.delete(id);
+          if (result) {        
+            Swal.fire({
+                title: 'Success',
+                html: 'Branding content has been deleted',
+                icon: 'success',
+                timer: 3000,
+              });
+            this.load({});
+            this.hide(this.loader);
+          }
+        }
   }
 
   toggleRow(id: string) {

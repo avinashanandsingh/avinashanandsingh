@@ -10,7 +10,7 @@ import entrollment from "./entrollment";
 import Meditation from "./meditation";
 import short from "./short";
 import resource from "./resource";
-import scaredvibe from "./scaredvibe";
+import sacredvibe from "./sacredvibe";
 import referral from "./referral";
 import service from "./service";
 import review from "./review";
@@ -170,6 +170,12 @@ const mapping = [
     name: "signup",
     execute: user.signup,
     include: false,
+    role: UserRole.ANONYMOUS,
+  },  
+  {
+    name: "updateProfile",
+    execute: user.profile,
+    include: true,
     role: UserRole.ANONYMOUS,
   },
   {
@@ -433,7 +439,7 @@ const mapping = [
   {
     name: "shorts",
     execute: short.list,
-    include: true,
+    include: false,
     role: UserRole.ANONYMOUS,
   },
   {
@@ -491,32 +497,32 @@ const mapping = [
     role: UserRole.ADMINISTRATOR,
   },
   {
-    name: "scaredvibes",
-    execute: scaredvibe.list,
-    include: true,
+    name: "sacredvibes",
+    execute: sacredvibe.list,
+    include: false,
     role: UserRole.ANONYMOUS,
   },
   {
-    name: "scaredvibe",
-    execute: scaredvibe.get,
-    include: true,
+    name: "sacredvibe",
+    execute: sacredvibe.get,
+    include: false,
     role: UserRole.ANONYMOUS,
   },
   {
-    name: "addScaredvibe",
-    execute: scaredvibe.add,
+    name: "addSacredvibe",
+    execute: sacredvibe.add,
     include: true,
     role: UserRole.ADMINISTRATOR,
   },
   {
-    name: "updateScaredvibe",
-    execute: scaredvibe.update,
+    name: "updateSacredvibe",
+    execute: sacredvibe.update,
     include: true,
     role: UserRole.ADMINISTRATOR,
   },
   {
-    name: "deleteScaredvibe",
-    execute: scaredvibe.delete,
+    name: "deleteSacredvibe",
+    execute: sacredvibe.delete,
     include: true,
     role: UserRole.ADMINISTRATOR,
   },

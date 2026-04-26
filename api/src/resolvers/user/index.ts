@@ -12,6 +12,7 @@ import forgot from "./forgot";
 import changePassword from "./changePassword";
 import changeStatus from "./changeStatus";
 import verifyEmail from "./verifyEmail";
+import profile from "./profile";
 export default {
   add,
   update,
@@ -27,4 +28,5 @@ export default {
   changePassword,
   changeStatus,
   verifyEmail,
+  profile,
 };

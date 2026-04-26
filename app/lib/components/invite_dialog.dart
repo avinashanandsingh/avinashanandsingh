@@ -6,18 +6,17 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/theme.dart';
 
-void showInviteDialog(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return const InviteDialog();
-    },
-  );
-}
-
 class InviteDialog extends StatefulWidget {
   const InviteDialog({super.key});
   static const Color primaryPurple = AppColors.primary;
+  static void show(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return const InviteDialog();
+      },
+    );
+  }
 
   @override
   State<InviteDialog> createState() => InviteDialogState();

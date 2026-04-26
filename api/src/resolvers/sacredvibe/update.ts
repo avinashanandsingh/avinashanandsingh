@@ -9,7 +9,7 @@ export default async (
   ctx: any,
 ): Promise<any> => {
   let row: any;
-  let table = "scaredvibes";
+  let table = "sacredvibes";
 
   let user: any = ctx.user;
   let file = args.input.file;

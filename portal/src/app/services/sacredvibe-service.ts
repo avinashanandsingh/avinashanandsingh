@@ -9,7 +9,7 @@ import { IScarevibeData } from '../models/scarevibe';
 @Injectable({
   providedIn: 'root',
 })
-export class ScaredvibeService {
+export class SacredvibeService {
   url: string = import.meta.env.NG_APP_API;
   constructor(
     private api: ApiService,
@@ -20,7 +20,7 @@ export class ScaredvibeService {
   async list(filter: Filter): Promise<Data<IScarevibeData>> {
     let body = {
       query:
-        'query list ($filter: Filter!) { scaredvibes(filter: $filter) { count rows { id title url status } } }',
+        'query list ($filter: Filter!) { sacredvibes (filter: $filter) { count rows { id title url duration status } } }',
       variables: {
         filter: {
           ...filter,
@@ -29,12 +29,12 @@ export class ScaredvibeService {
     };
     let header = this.header.api();
     let result = await this.api.post(this.url, header, body);
-    return result?.data?.scaredvibes!;
+    return result?.data?.sacredvibes!;
   }
 
   async get(id: String) {
     let body = {
-      query: 'query get($id: UUID!) { scaredvibe (id: $id) { id title url status } }',
+      query: 'query get($id: UUID!) { sacredvibe (id: $id) { id title url status } }',
       variables: {
         id: id,
       },
@@ -43,45 +43,15 @@ export class ScaredvibeService {
     return await this.api.post(this.url, header, body);
   }
 
-  async add(input: IScarevibeData): Promise<any> {
-    delete input.id;
-    let body = {
-      query: 'mutation add ($input: ResourceIn!) { addResource(input: $input) { id } }',
-      variables: {
-        input: {
-          ...input,
-        },
-      },
-    };
-    let header = this.header.api();
-    return await this.api.post(this.url, header, body);
-  }
-
-  async saveFormData(body: FormData): Promise<any> {
+  async save(body: FormData): Promise<any> {
     //let header = this.header.api();
     let token = this.store!.get('xt');
     return await this.api.postForm(this.url, { authorization: token }, body);
   }
 
-  async update(input: IScarevibeData): Promise<any> {
-    let id = input.id;
-    delete input.id;
-    let body = {
-      query:
-        'mutation update($id:String!, $input: ScaredvibeIn!) { updateScaredvibe(id: $id, input: $input) { id } }',
-      variables: {
-        id: id,
-        input: {
-          ...input,
-        },
-      },
-    };
-    let header = this.header.api();
-    return await this.api.post(this.url, header, body);
-  }
   async delete(id: String) {
     let body = {
-      query: 'mutation delete($id: UUID!) { deleteScaredvibe (id: $id) { id } }',
+      query: 'mutation delete($id: UUID!) { deleteSacredvibe (id: $id) { id } }',
       variables: {
         id: id,
       },

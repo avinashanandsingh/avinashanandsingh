@@ -1,18 +1,20 @@
 import { GraphQLError } from "graphql";
 import helper from "../../helper/index";
 import { COP } from "../../models/enum";
-import Update from "../../models/update";
+import Delete from "../../models/delete";
 
-export default async (_: any, args: { id: number }, ctx: any): Promise<any> => {
+export default async (
+  _: any,
+  args: { id: string },
+  _ctx: any,
+): Promise<any> => {
   let row: any;
   let table = "services";
 
-  const user:any = ctx.user;
-
-  let input: Update = {
+  await helper.data.raw("BEGIN", []);
+  await helper.timeslot.delete(args.id!);
+  let input: Delete = {
     table: table,
-    columns: ["status"],
-    values: ["DELETED"],
     criteria: [
       {
         table,
@@ -23,20 +25,17 @@ export default async (_: any, args: { id: number }, ctx: any): Promise<any> => {
     ],
   };
 
-  input.columns.push("updater");
-  input.values?.push(user.id);
-  input.columns.push("updatedat");
-  input.values?.push(new Date());
-
-  let result = await helper.data.update(input);
+  let result = await helper.data.delete(input);
   if (result) {
+    await helper.data.raw("COMMIT", []);
     row = result;
   } else {
+    await helper.data.raw("ROLLBACK", []);
     throw new GraphQLError("An error occured", {
       extensions: {
         originalError: {
           code: 1234,
-          message: "unable to update short",
+          message: "unable to delete service",
         },
       },
     });

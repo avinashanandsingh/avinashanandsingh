@@ -2,11 +2,10 @@ import { GraphQLError } from "graphql";
 import helper from "../../helper/index";
 import Select from "../../models/select";
 import { COP } from "../../models/enum";
-import User from "../../models/user";
 
-export default async (_: any, args: any, ctx: any): Promise<any> => {
+export default async (_: any, args: any, _ctx: any): Promise<any> => {
   let row: any;
-  let table = "view_scaredvibes";
+  let table = "view_sacredvibes";
   let fields = await helper.data.columns([{ name: table }]);
   let input: Select = {
     tables: [
@@ -26,7 +25,7 @@ export default async (_: any, args: any, ctx: any): Promise<any> => {
       },
     ],
   };
-  let result = await helper.data.select<User>(input);
+  let result = await helper.data.select<any>(input);
   if (result?.count! > 0) {
     row = result.rows?.shift();
   } else {

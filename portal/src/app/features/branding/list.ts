@@ -47,7 +47,7 @@ export default class List implements OnInit {
         if (formData?.url?.length <= 0 && this.file() === null) {
           Swal.fire({
             title: 'Failed',
-            html: 'Please upload a video file or enter a URL',
+            html: 'Please upload a file or enter a URL',
             icon: 'error',
             timer: 3000,
           });
@@ -154,9 +154,10 @@ export default class List implements OnInit {
     this.list.set(result?.rows! ?? []);
   }
 
-  fileChange($event: Event) {
-    console.log($event);
-    //this.file.set($event);
+  fileChange($event: any) {    
+    $event.preventDefault();
+    const file = $event.target.files[0];
+    this.file.set(file);
   }
 
   async show(me: WritableSignal<boolean>, mode?: 'ADD' | 'EDIT', id?: string) {

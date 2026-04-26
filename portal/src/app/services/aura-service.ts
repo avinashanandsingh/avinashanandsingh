@@ -18,7 +18,7 @@ export class AuraService {
   async list(filter: Filter): Promise<Data<IAuraData>> {
     let body = {
       query:
-        'query list ($filter: Filter!) { services(filter: $filter) { count rows { id name price offer status timeslots { id serviceid name start_time end_time } } } }',
+        'query list ($filter: Filter!) { services(filter: $filter) { count rows { id name price offer status timeslots { id serviceid name start_time end_time capacity } } } }',
       variables: {
         filter: {
           ...filter,

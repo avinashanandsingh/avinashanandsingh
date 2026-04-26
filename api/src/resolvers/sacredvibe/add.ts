@@ -14,15 +14,15 @@ export default async (_: any, args: { input: any }, ctx: any): Promise<any> => {
       // Process the file content
       const arrayBuffer = await file!.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
-      let result = await helper.s3.upload("scaredvibes", name, type, buffer);
+      let result = await helper.s3.upload("sacredvibes", name, type, buffer);
       if (result) {
         args.input["url"] =
-          `${process.env.AWS_CDN}/scaredvibes/${name}`;
+          `${process.env.AWS_CDN}/sacredvibes/${name}`;
       }
     }
   
     let input: Insert = {
-      table: "scaredvibes",
+      table: "sacredvibes",
       columns: Object.keys(args.input).map((x) => {
         return { name: x };
       }),
@@ -40,7 +40,7 @@ export default async (_: any, args: { input: any }, ctx: any): Promise<any> => {
         extensions: {
           originalError: {
             code: 1234,
-            message: "unable to create scaredvibe",
+            message: "unable to create sacredvibe",
           },
         },
       });
