@@ -6,13 +6,10 @@ import 'package:app/models/profile.dart';
 import 'package:app/pages/signin.dart';
 import 'package:app/services/service.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../theme/theme.dart';
-import 'change_email.dart';
 import 'change_password.dart';
 import 'payment_history.dart';
 import 'enrolled_courses.dart';
-import '../helpers/globals.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key, this.data});

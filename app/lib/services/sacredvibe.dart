@@ -23,7 +23,7 @@ class Sacredvibe {
             id: row['id'],
             title: row['title'],
             url: row['url'],
-            duration: row['ducation'],
+            duration: row['duration'],
           ),
         );
       }

@@ -73,6 +73,9 @@ type Course {
   url: String
   categoryid: UUID
   category: Category
+  duration: String
+  validity: Int
+  certified: Boolean
   short: Boolean
   level: String
   free: Boolean
@@ -498,4 +501,19 @@ type Branding {
 type BrandingResult {
   count: Int
   rows: [Branding]
+}
+
+type Setting {
+  id: UUID
+  name: String
+  value: String
+  creator: User
+  createdat: DateTime
+  updater: User
+  updatedat: DateTime
+}
+
+type SettingResult {
+  count: Int
+  rows: [Setting]
 }

@@ -28,7 +28,7 @@ export default class List implements OnInit {
     type: new FormControl('', [Validators.required]),
     title: new FormControl('', [Validators.required]),
     content: new FormControl(''),
-    url: new FormControl(''),
+    url: new FormControl('', [Validators.pattern(/^(https?:\/\/)[^\s$.?#].[^\s]*$/i)]),
   });
   actions = signal<Array<{ label: string; action: any; type: any }>>([
     {
@@ -60,10 +60,10 @@ export default class List implements OnInit {
           title: formData.title,
           content: formData.content,
           url: formData.url!,
-          file: null,          
+          file: null,
         };
         let body: any = {};
-        if (formData.id) {          
+        if (formData.id) {
           body = {
             query:
               'mutation update ($id: UUID!, $input: BrandingIn!) { updateBranding(id:$id, input: $input) { id } }',
@@ -85,15 +85,12 @@ export default class List implements OnInit {
           };
         }
         fd.append('operations', JSON.stringify(body));
-        fd.append(
-          'map',
-          JSON.stringify({ '0': ['variables.input.file'] }),
-        );
+        fd.append('map', JSON.stringify({ '0': ['variables.input.file'] }));
         if (this.file()) {
           fd.append('0', this.file()!, this.file()!.name);
         } else {
           fd.append('0', '');
-        }        
+        }
 
         let result: any;
         this.show(this.loader);
@@ -154,7 +151,7 @@ export default class List implements OnInit {
     this.list.set(result?.rows! ?? []);
   }
 
-  fileChange($event: any) {    
+  fileChange($event: any) {
     $event.preventDefault();
     const file = $event.target.files[0];
     this.file.set(file);
@@ -209,13 +206,13 @@ export default class List implements OnInit {
     if (dialog.isConfirmed) {
       this.show(this.loader);
       let result = await this.service.delete(id);
-      if (result) {        
+      if (result) {
         Swal.fire({
-            title: 'Success',
-            html: 'Branding content has been deleted',
-            icon: 'success',
-            timer: 3000,
-          });
+          title: 'Success',
+          html: 'Branding content has been deleted',
+          icon: 'success',
+          timer: 3000,
+        });
         this.load({});
         this.hide(this.loader);
       }

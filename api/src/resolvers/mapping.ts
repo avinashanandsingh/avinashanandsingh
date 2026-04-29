@@ -19,6 +19,7 @@ import log from "./log";
 import smtp from "./smtp";
 import template from "./template";
 import page from "./page";
+import setting from "./setting";
 import branding from "./branding";
 import _enum from "./enum";
 /* Chat Feature */
@@ -171,7 +172,7 @@ const mapping = [
     execute: user.signup,
     include: false,
     role: UserRole.ANONYMOUS,
-  },  
+  },
   {
     name: "updateProfile",
     execute: user.profile,
@@ -685,6 +686,36 @@ const mapping = [
   {
     name: "deleteBranding",
     execute: branding.delete,
+    include: true,
+    role: UserRole.ADMINISTRATOR,
+  },
+  {
+    name: "setting",
+    execute: setting.get,
+    include: false,
+    role: UserRole.ANONYMOUS,
+  },
+  {
+    name: "settings",
+    execute: setting.list,
+    include: false,
+    role: UserRole.ANONYMOUS,
+  },
+  {
+    name: "newSetting",
+    execute: setting.add,
+    include: true,
+    role: UserRole.ADMINISTRATOR,
+  },
+  {
+    name: "updateSetting",
+    execute: setting.update,
+    include: true,
+    role: UserRole.ADMINISTRATOR,
+  },
+  {
+    name: "deleteSetting",
+    execute: setting.delete,
     include: true,
     role: UserRole.ADMINISTRATOR,
   },

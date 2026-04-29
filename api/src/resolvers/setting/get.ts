@@ -1,8 +1,6 @@
 import { GraphQLError } from "graphql";
 import helper from "../../helper/index";
 import Select from "../../models/select";
-import { COP, LOP } from "../../models/enum";
-import Criteria from "../../models/criteria";
 
 export default async (
   _: any,
@@ -10,7 +8,7 @@ export default async (
   _ctx: any,
 ): Promise<any> => {
   let row: any;
-  let table = "view_pages";
+  let table = "view_settings";
 
   let fields = await helper.data.columns([{ name: table }]);  
   let filter = args.filter;  
@@ -25,8 +23,7 @@ export default async (
     ],
     criteria: filter.criteria,
   };
-  let result = await helper.data.select(input);
-  console.log(result);
+  let result = await helper.data.select(input);  
   if (result?.count! > 0) {
     row = result?.rows?.shift();
   } else {

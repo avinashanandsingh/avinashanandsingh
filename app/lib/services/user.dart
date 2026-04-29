@@ -16,7 +16,7 @@ class User {
       String id = user["id"];
       dynamic body = {
         "query":
-            'query get (\$id: UUID!) { user (id: \$id) { id first_name last_name email phone countryid stateid cityid referby { id first_name last_name email } last_login_at } }',
+            'query get (\$id: UUID!) { user (id: \$id) { id avatar first_name last_name email phone countryid stateid cityid referby { id first_name last_name email } last_login_at } }',
         "variables": {"id": id},
       };
 

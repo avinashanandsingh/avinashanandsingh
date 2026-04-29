@@ -145,8 +145,10 @@ export class Page implements OnInit {
     switch (mode!) {
       case 'ADD':        
         this.form.reset({
-          type: '',          
+          type: '',
+          body: ''      
         });
+        this.trustedHtml.set('');
         this.dialogTitle.set('New Page');
         break;
       case 'EDIT':

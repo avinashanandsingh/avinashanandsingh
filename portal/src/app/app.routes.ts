@@ -36,6 +36,7 @@ import { Orders } from './features/orders/orders';
 import { Inquiry } from './features/inquiry/inquiry';
 import { Template } from './features/template/template';
 import { Page } from './features/page/page';
+import { Setting } from './features/setting/setting';
 
 export const routes: Routes = [
   {
@@ -150,6 +151,12 @@ export const routes: Routes = [
       {
         path: 'pages',
         component: Page,
+        canActivate: [IdentityService],
+        data: { roles: [UserRole.ADMINISTRATOR] },
+      },
+      {
+        path: 'settings',
+        component: Setting,
         canActivate: [IdentityService],
         data: { roles: [UserRole.ADMINISTRATOR] },
       },

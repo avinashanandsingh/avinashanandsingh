@@ -20,7 +20,7 @@
               "base": "dist",
               "browser": ""
             },
-            "browser": "src/main.ts",
+            "browser": "src/main.ts",            
             "tsConfig": "tsconfig.app.json",
             "assets": [
               {

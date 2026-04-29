@@ -20,15 +20,16 @@
             <table class="w-full text-left text-base text-gray-600">
                 <thead class="bg-gray-50 text-base uppercase text-gray-500 border-b border-gray-100">
                     <tr>
-                        <th class="px-6 py-4 font-semibold">Title</th>
-                        <th class="py-4 font-semibold  text-start">Category</th>
-                       <!--  <th class="py-4 font-semibold">Description</th> -->
-                        <th class="py-4 font-semibold">Short</th>
-                        <th class="py-4 font-semibold">Level</th>
-                        <th class="py-4 font-semibold">Free</th>
+                        <th class="px-6 py-4 font-semibold text-start">Title</th>
+                        <th class="py-4 font-semibold text-start">Level</th>
+                        <th class="py-4 font-semibold text-start">Duration</th>
+                        <th class="py-4 font-semibold text-start">Validity</th>
+                        <th class="py-4 font-semibold text-start">Certified</th>                        
+                        <th class="py-4 font-semibold text-start">Short</th>                        
+                        <th class="py-4 font-semibold text-start">Free</th>
                         <th class="py-4 font-semibold text-start">Price</th>
-                        <th class="py-4 font-semibold  text-start">Offer</th>
-                        <th class="py-4 font-semibold  text-start">Status</th>
+                        <th class="py-4 font-semibold text-start">Offer</th>
+                        <th class="py-4 font-semibold text-start">Status</th>
                         <th class="py-4 font-semibold">Actions</th>
                     </tr>
                 </thead>
@@ -51,30 +52,27 @@
                                     <div class="font-bold text-gray-900">{{ c.title }}</div>
                                 </div>
                             </div>
+                        </td>                        
+                        <td class="py-4 whitespace-nowrap text-start">
+                            <div class="font-bold text-gray-900">{{ c.level }}</div>
+                        </td>
+                        <td class="py-4 whitespace-nowrap text-start">
+                            <div class="font-bold text-gray-900">{{ c.duration }}</div>
+                        </td>
+                        <td class="py-4 whitespace-nowrap text-start">
+                            <div class="font-bold text-gray-900">{{ c.validity }}</div>
                         </td>
                         <td class="py-4 whitespace-nowrap text-start">
 
-                            @if(c.category){
-                            <div class="font-bold text-gray-900">{{ c.category!.name! }}</div>
-                            }@else{
-                            <div class="font-bold text-gray-900">N/A</div>
-                            }
+                            <div class="font-bold text-gray-900">{{ c.certified ? 'Yes' :'No' }}</div>
+
                         </td>
-                        <!-- <td class="py-4 whitespace-nowrap text-start">
-
-                            <div class="font-bold text-gray-900">{{ c.description }}</div>
-
-                        </td> -->
                         <td class="py-4 whitespace-nowrap text-start">
 
                             <div class="font-bold text-gray-900">{{ c.short ? 'Yes' :'No' }}</div>
 
                         </td>
-                        <td class="py-4 whitespace-nowrap text-start">
-
-                            <div class="font-bold text-gray-900">{{ c.level }}</div>
-
-                        </td>
+                        
                         <td class="py-4 whitespace-nowrap text-start">
 
                             <div class="font-bold text-gray-900">{{ c.free ? 'Yes' :'No' }}</div>
@@ -169,17 +167,7 @@
             }@else {
                 <app-upload [fileType]="'image/*'" (fileChange)="changeHandler('I', $event)"></app-upload>
             }
-        </div>
-
-        <div class="w-full mb-3">
-            <label for="categoryid" class="block mb-2.5 text-base  text-heading">Category</label>
-            <select id="categoryid" formControlName="categoryid" class="select">
-                <option selected value="">Select a category</option>
-                @for(item of category_list(); track item.id){
-                <option selected [value]="item.id">{{item.name}}</option>
-                }
-            </select>
-        </div>
+        </div>        
 
         <div class="w-full mb-3">
             <label for="title" class="block mb-2.5 text-base font-medium text-heading">Title</label>
@@ -202,9 +190,33 @@
                   control: form.controls['description']
                 }"></ng-container>
         </div>
-
+        <div class="w-full mb-3">
+            <label for="duration" class="block mb-2.5 text-base font-medium text-heading">Duration</label>
+            <input type="text" id="duration" formControlName="duration" class="input" placeholder="Duration (1h 30m)" required />
+            <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'Duration is required',
+                  control: form.controls['duration']
+                }"></ng-container>
+        </div>
+         <div class="w-full mb-3">
+            <label for="duration" class="block mb-2.5 text-base font-medium text-heading">Validity</label>
+            <input type="text" id="validity" formControlName="validity" class="input" inputmode="numeric" placeholder="Validity in Days" required />
+            <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'Validity is required',
+                  control: form.controls['validity']
+                }"></ng-container>
+        </div>
         <div class="mb-3">
             <div class="flex flex-col md:flex-row gap-3 w-full">
+                <div class="w-full">
+                    <label class="flex items-center space-x-3 cursor-pointer">
+                        <input type="checkbox" id="certified" formControlName="certified"                            
+                            class="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500" />
+                        <span class="text-base">Certified</span>
+                    </label>
+                </div>
                 <div class="w-full">
                     <label class="flex items-center space-x-3 cursor-pointer">
                         <input type="checkbox" id="free" formControlName="free" (change)="showPrice.set(!showPrice());"
@@ -217,9 +229,9 @@
                         <input type="checkbox" id="short" formControlName="short"
                             (change)="showLevel.set(!showLevel());"
                             class="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500" />
-                        <span class="text-base">Is this a short course?</span>
+                        <span class="text-base">Is Short?</span>
                     </label>
-                </div>
+                </div>                
             </div>
         </div>
         @if(!showLevel()){

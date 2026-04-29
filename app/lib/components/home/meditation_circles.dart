@@ -1,10 +1,6 @@
-import 'dart:ui';
-import 'package:app/components/audio_player_dialog.dart' as AudioDialog;
 import 'package:app/components/home/meditation_item.dart';
 import 'package:app/services/identity.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import '../../theme/theme.dart';
 
 class MeditationCircles extends StatelessWidget {
   const MeditationCircles({super.key});

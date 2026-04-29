@@ -20,7 +20,7 @@ export class CourseService {
   async list(filter: Filter): Promise<Data<ICourseData>> {
     let body = {
       query:
-        'query list ($filter: Filter!) { courses(filter: $filter) { count rows { id categoryid category { id name } title description thumbnail url short level free currency price offer status } } }',
+        'query list ($filter: Filter!) { courses(filter: $filter) { count rows { id categoryid category { id name } title description duration validity thumbnail url certified short level free currency price offer status } } }',
       variables: {
         filter: {
           ...filter,

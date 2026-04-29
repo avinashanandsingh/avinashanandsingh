@@ -2,6 +2,7 @@ import 'package:app/components/document_card.dart';
 import 'package:app/components/image_card.dart';
 import 'package:app/components/text_card.dart';
 import 'package:app/components/video_card.dart';
+import 'package:app/components/url_card.dart';
 import 'package:app/theme/theme.dart';
 import 'package:flutter/material.dart';
 
@@ -33,6 +34,7 @@ class BrandingItem extends StatelessWidget {
       "DOCUMENT" => DocumentCard(title: title, url: url!),
       "IMAGE" => ImageCard(title: title, url: url!),
       "VIDEO" => VideoCard(title: title, url: url!),
+      "URL" => UrlCard(url: url!),
       _ => Container(),
     };
   }

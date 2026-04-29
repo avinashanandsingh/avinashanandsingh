@@ -1,10 +1,10 @@
 import 'dart:ui';
+import 'package:app/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
-import '../theme/theme.dart';
 import '../main.dart';
 
 void show(BuildContext context, {required String url}) {
@@ -118,10 +118,7 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog>
 
         return Dialog(
           backgroundColor: Colors.transparent,
-          insetPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 24,
-          ),
+          insetPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(24),
             child: BackdropFilter(
@@ -175,17 +172,21 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog>
                     ),
                     // Main Content
                     Column(
-                      mainAxisSize: MainAxisSize.min,
+                      mainAxisSize: MainAxisSize.max,
                       children: [
                         // Header with close button
                         Padding(
-                          padding: const EdgeInsets.fromLTRB(20, 16, 8, 8),
+                          padding: const EdgeInsets.fromLTRB(20, 12, 8, 4),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
                                 "Video Player",
-                                style: TextTheme.of(context).headlineMedium,
+                                style: GoogleFonts.cinzel(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: colorScheme.primary,
+                                ),
                               ),
                               IconButton(
                                 onPressed: () => Navigator.pop(context),
@@ -197,23 +198,21 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog>
                             ],
                           ),
                         ),
-                        // Video Player Area
-                        Flexible(
+                        // Video Player Area - fills remaining space
+                        Expanded(
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
+                            padding: const EdgeInsets.fromLTRB(8, 4, 8, 12),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(16),
-                              child: AspectRatio(
-                                aspectRatio: 16 / 9,
-                                child: _buildPlayerContent(colorScheme),
+                              child: Container(
+                                color: Colors.black,
+                                child: Center(
+                                  child: _buildPlayerContent(colorScheme),
+                                ),
                               ),
                             ),
                           ),
                         ),
-                        const SizedBox(height: 16),
                       ],
                     ),
                   ],

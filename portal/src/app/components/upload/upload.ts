@@ -34,8 +34,7 @@ export class Upload implements OnInit, OnChanges {
 
   constructor(private sanitizer: DomSanitizer) {}
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['previewUrl']) {
-      console.log(this.previewUrl);
+    if (changes['previewUrl']) {    
       let final = this.previewUrl;
       if (this.previewUrl?.includes('you')) {
         let id = this.previewUrl?.substring(
@@ -48,8 +47,7 @@ export class Upload implements OnInit, OnChanges {
       this.safeUrl.set(url!);
     }
   }
-  ngOnInit(): void {
-    console.log(this.previewUrl);
+  ngOnInit(): void {    
     let final = this.previewUrl;
     if (this.previewUrl?.includes('you')) {
       let id = this.previewUrl?.substring(

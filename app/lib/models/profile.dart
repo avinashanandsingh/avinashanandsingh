@@ -2,6 +2,7 @@ import 'package:app/models/user.dart';
 
 class ProfileData {
   String? id;
+  String? avatar;
   String? role;
   String? firstName;
   String? lastName;
@@ -17,6 +18,7 @@ class ProfileData {
   UserBasicData? referedby;
   ProfileData({
     this.id,
+    this.avatar,
     this.firstName,
     this.lastName,
     this.email,
@@ -34,6 +36,7 @@ class ProfileData {
   factory ProfileData.fromJson(Map<String, dynamic> json) {
     return ProfileData(
       id: json['id'] as String?,
+      avatar: json['avatar'] as String?,
       firstName: json['first_name'] as String?,
       lastName: json['last_name'] as String?,
       email: json['email'] as String?,
@@ -53,6 +56,7 @@ class ProfileData {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'avatar': avatar,
       'first_name': firstName,
       'last_name': lastName,
       'email': email,

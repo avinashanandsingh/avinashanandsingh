@@ -141,6 +141,11 @@
         <div title="URL" class="mb-3">
             <label class="block text-base font-medium text-gray-700 mb-2">URL</label>
             <input type="text" formControlName="url" class="mt-1 input" placeholder="URL" />
+             <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'pattern',
+                  message: 'Valid url must be provided.',
+                  control: form.controls['url']
+                }"></ng-container>
         </div>
         <div title="Upload" class="mb-3">
             <label for="upload" class="block text-base font-medium text-gray-700 mb-2">Don't have url?</label>

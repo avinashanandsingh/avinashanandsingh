@@ -101,9 +101,14 @@
                 <div class="pt-4 pb-2 px-4">
                     <p class="text-xs font-bold text-purple-300 uppercase tracking-widest">Settings</p>
                 </div>
-                <a [routerLink]="['/smtp']" [class.side-bar-item-active]="isLinkActive('/smtp')"
+                 <a [routerLink]="['/settings']" [class.side-bar-item-active]="isLinkActive('/settings')"
                     class="side-bar-item">
                     <i class="bi bi-gear"></i>
+                    Settings
+                </a>
+                <a [routerLink]="['/smtp']" [class.side-bar-item-active]="isLinkActive('/smtp')"
+                    class="side-bar-item">                    
+                    <i class="bi bi-at"></i>
                     Smtp
                 </a>
                 <a [routerLink]="['/templates']" [class.side-bar-item-active]="isLinkActive('/templates')"

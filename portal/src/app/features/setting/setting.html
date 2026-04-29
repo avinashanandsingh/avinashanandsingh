@@ -1,0 +1,67 @@
+<div class="p-6 bg-white space-y-3 rounded min-h-screen">
+
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800">Settings</h1>
+            <p class="text-gray-500 text-sm">Manage settings here</p>
+        </div>
+    </div>
+    <form [formGroup]="form">
+        <div class="flex grow gap-3">
+            <div class="w-full">
+                <input type="text" class="input" placeholder="Key" formControlName="name" />
+                <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'Key is required',
+                  control: form.controls['name']
+                }">
+                </ng-container>
+            </div>
+            <div class="w-full">
+                <input type="text" class="input" placeholder="Value" formControlName="value" />
+                <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'Value is required',
+                  control: form.controls['value']
+                }">
+                </ng-container>
+            </div>
+            @if(form.valid){
+            <button class="btn btn-primary w-50" (click)="add()">
+                <i class="bi bi-plus-circle" title="Add Setting"></i>&nbsp;New Setting
+            </button>
+            }@else{
+            <button class="btn btn-primary w-50" disabled>
+                <i class="bi bi-plus-circle" title="Add Setting"></i>&nbsp;New Setting
+            </button>
+            }
+        </div>
+    </form>
+    <div>
+        @for(field of list(); track field.id){
+        <div class="flex grow gap-3 mb-3">
+            <input type="text" class="input" placeholder="Key" #keyField [value]="field.name" />
+            <input type="text" #valueField class="input" [value]="field.value" placeholder="Value"
+                style="border-radius: 5px" (blur)="update(field.id!, keyField.value, valueField.value)" />
+            <button class="btn btn-danger" (click)="delete(field.id!)" title="Delete">
+                <i class="bi bi-trash"></i>
+            </button>
+        </div>
+        }
+    </div>
+
+    <ng-template #formError let-control="control" let-message="message" let-validation="validation">
+        @if(control.hasError(validation) && (control.dirty || control.touched)) {
+        <ng-container>
+            <div class="fv-plugins-message-container">
+                <div class="fv-help-block mt-1">
+                    <span class="error">
+                        {{ message }}
+                    </span>
+                </div>
+            </div>
+        </ng-container>
+        }
+    </ng-template>
+    <loader [isOpen]="loader"></loader>

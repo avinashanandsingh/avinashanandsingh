@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import '../theme/theme.dart';
+import 'package:intl/intl.dart';
 
-enum FieldType { text, number, name, email, phone, password, multiline }
+enum FieldType { text, number, name, email, phone, password, multiline, date }
 
 class CustomFormField extends StatefulWidget {
   final String hintText;
@@ -11,6 +12,7 @@ class CustomFormField extends StatefulWidget {
   final double? min;
   final double? max;
   final String? initialValue;
+  //final Function()? onTap;
   final Function(String)? onChanged;
   final Function(String)? onSubmitted;
   final IconData? prefixIcon;
@@ -24,6 +26,7 @@ class CustomFormField extends StatefulWidget {
     this.min,
     this.max,
     this.initialValue,
+    //this.onTap,
     this.onChanged,
     this.onSubmitted,
     this.prefixIcon,
@@ -53,6 +56,36 @@ class CustomFormFieldState extends State<CustomFormField> {
     _controller.text = val;
   }
 
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(DateTime.now().year),
+      lastDate: DateTime(2100),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(), // Header
+            textTheme: TextTheme.of(context),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(
+                textStyle: TextTheme.of(context).labelSmall,
+              ), // Buttons
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null) {
+      setState(() {
+        // Formats the date: 2026-04-27
+        _controller.text = DateFormat('dd-MM-yyyy').format(picked.toLocal());
+      });
+    }
+  }
+
   /// 🔹 KEYBOARD TYPE
   TextInputType _getKeyboardType() {
     switch (widget.type) {
@@ -64,6 +97,8 @@ class CustomFormFieldState extends State<CustomFormField> {
         return TextInputType.emailAddress;
       case FieldType.phone:
         return TextInputType.phone;
+      case FieldType.date:
+        return TextInputType.datetime;
       case FieldType.multiline:
         setState(() {
           multiline = true;
@@ -134,6 +169,16 @@ class CustomFormFieldState extends State<CustomFormField> {
           setState(() {
             _obscureText = !_obscureText;
           });
+        },
+      );
+    } else if (widget.type == FieldType.date) {
+      return IconButton(
+        focusColor: Colors.transparent,
+        hoverColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        icon: Icon(Icons.calendar_today, color: AppColors.primary, size: 20),
+        onPressed: () {
+          _selectDate(context);
         },
       );
     }

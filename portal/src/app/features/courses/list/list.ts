@@ -9,7 +9,6 @@ import { Router } from '@angular/router';
 import Filter from '../../../models/filter';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { Upload } from '../../../components/upload/upload';
-import { CategoryService } from '../../../services/category-service';
 import { Loader } from '../../../components/loader/loader';
 import Swal from 'sweetalert2';
 import { TitleService } from '../../../services/title-service';
@@ -63,11 +62,13 @@ export default class Course implements OnInit {
         if (this.form.valid) {
           this.show(this.loader);
           var fd = new FormData();
-          let input: any = {
-            categoryid: formData.categoryid ? formData.categoryid : null,
+          let input: any = {            
             title: formData.title,
             description: formData.description,
+            duration: formData.duration,
+            validity: Number(formData.validity),
             url: formData.url ? formData.url : null,
+            certified: formData.certified,
             short: formData.short,
             level: formData.level,
             free: formData.free,
@@ -136,11 +137,13 @@ export default class Course implements OnInit {
   ]);
 
   form: FormGroup = new FormGroup({
-    id: new FormControl(''),
-    categoryid: new FormControl(''),
+    id: new FormControl(''),  
     title: new FormControl('', [Validators.required]),
     description: new FormControl('', [Validators.required]),
+    duration: new FormControl('', [Validators.required]),
+    validity: new FormControl('', [Validators.required]),
     url: new FormControl(''),
+    certified: new FormControl(false),
     free: new FormControl(false),
     short: new FormControl(false),
     level: new FormControl(''),
@@ -150,7 +153,6 @@ export default class Course implements OnInit {
 
   constructor(
     private service: CourseService,
-    private categoryService: CategoryService,
     private titleService: TitleService,
     private router: Router,
     private sanitizer: DomSanitizer,
@@ -159,8 +161,8 @@ export default class Course implements OnInit {
   async ngOnInit(): Promise<void> {
     this.titleService.title = 'Courses';
     this.show(this.loader);
-    let result = await this.categoryService.list({});
-    this.category_list.set(result?.rows);
+    //let result = await this.categoryService.list({});
+    //this.category_list.set(result?.rows);
     this.load({});
     this.hide(this.loader)
   }

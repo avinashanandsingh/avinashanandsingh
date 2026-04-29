@@ -12,8 +12,11 @@ export interface ICourseData {
   category?: any;
   title: string;
   description: string;
+  duration: string;
+  validity: number;
   thumbnail?: string;
   url?: string;
+  certified: boolean;
   short: boolean;
   level: string;
   free: boolean;

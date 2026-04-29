@@ -59,7 +59,7 @@ class TextCard extends StatelessWidget {
                   letterSpacing: 1.2,
                 ),
               ),
-              const SizedBox(height: 12),
+              /* const SizedBox(height: 8),
               Container(
                 width: 40,
                 height: 3,
@@ -67,8 +67,8 @@ class TextCard extends StatelessWidget {
                   color: primaryColor,
                   borderRadius: BorderRadius.circular(2),
                 ),
-              ),
-              const SizedBox(height: 16),
+              ), */
+              const SizedBox(height: 8),
               Text(
                 content,
                 style: GoogleFonts.montserrat(
