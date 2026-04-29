@@ -51,6 +51,7 @@ export class Setting implements OnInit {
     }
     this.load({});
     this.loader.set(false);
+    this.form.reset();
   }
 
   async update(id: string, key: string, value: string) {

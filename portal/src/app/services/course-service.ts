@@ -16,6 +16,18 @@ export class CourseService {
     private header: Header,
     private store: StorageService,
   ) {}
+  
+  async levels(): Promise<{ name: string; value: string }[]> {
+    let body = {
+      query: 'query list ($name: String!) { enums (name: $name) { name value } }',
+      variables: {
+        name: 'levels',
+      },
+    };
+    let header = this.header.api();
+    let result = await this.api.post(this.url, header, body);
+    return result?.data?.enums!;
+  }
 
   async list(filter: Filter): Promise<Data<ICourseData>> {
     let body = {

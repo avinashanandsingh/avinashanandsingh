@@ -58,47 +58,44 @@ export class Schedule implements OnInit {
         };
         let result: any;
         this.show(this.loader);
-        switch (this.mode()) {
-          case 'ADD':
-            result = await this.service.add(body);
-            if (result?.data?.addSchedule) {              
-               Swal.fire({
-                title: 'Success',
-                html: 'Schedule saved successfully',
-                icon: 'success',
-                timer: 3000,
-              });
-            } else {
-              let error = result?.errors?.shift();
-              let msg = error?.extensions?.originalError?.message;
-              Swal.fire({
-                title: 'Failed',
-                html: msg,
-                icon: 'error',
-                timer: 3000,
-              });
-            }
-            break;
-          case 'EDIT':
-            result = await this.service.update(body);
-            if (result?.data?.updateSchedule) {              
-              Swal.fire({
-                title: 'Success',
-                html: 'Schedule updated successfully',
-                icon: 'success',
-                timer: 3000,
-              });
-            }else{
-              let error = result?.errors?.shift();
-              let msg = error?.extensions?.originalError?.message;
-              Swal.fire({
-                title: 'Failed',
-                html: msg,
-                icon: 'error',
-                timer: 3000,
-              });
-            }
-            break;
+        if (formData.id) {
+          result = await this.service.add(body);
+          if (result?.data?.addSchedule) {
+            Swal.fire({
+              title: 'Success',
+              html: 'Schedule saved successfully',
+              icon: 'success',
+              timer: 3000,
+            });
+          } else {
+            let error = result?.errors?.shift();
+            let msg = error?.extensions?.originalError?.message;
+            Swal.fire({
+              title: 'Failed',
+              html: msg,
+              icon: 'error',
+              timer: 3000,
+            });
+          }
+        } else {
+          result = await this.service.update(body);
+          if (result?.data?.updateSchedule) {
+            Swal.fire({
+              title: 'Success',
+              html: 'Schedule updated successfully',
+              icon: 'success',
+              timer: 3000,
+            });
+          } else {
+            let error = result?.errors?.shift();
+            let msg = error?.extensions?.originalError?.message;
+            Swal.fire({
+              title: 'Failed',
+              html: msg,
+              icon: 'error',
+              timer: 3000,
+            });
+          }
         }
         this.load({});
         this.hide(this.loader);

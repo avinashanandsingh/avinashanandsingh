@@ -1,44 +1,30 @@
+import 'package:app/models/course.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../theme/theme.dart';
 import '../../pages/course_details.dart';
 
 class ShortCourses extends StatelessWidget {
-  const ShortCourses({super.key});
+  final List<CourseData> list;
+  const ShortCourses({super.key, required this.list});
 
   @override
   Widget build(BuildContext context) {
-    final courses = [
-      {
-        "title": "LAW OF\nATTRACTION",
-        "img":
-            "https://images.unsplash.com/photo-1542831371-29b0f74f9713?q=80&w=400",
-      },
-      {
-        "title": "CREATIVE\nVISUALIZATION",
-        "img":
-            "https://images.unsplash.com/photo-1506126613408-eca07ce68773?q=80&w=400",
-      },
-      {
-        "title": "PRAYER\nPEACE",
-        "img":
-            "https://images.unsplash.com/photo-1499209974431-9dddcece7f88?q=80&w=400",
-      },
-    ];
-
     return SizedBox(
       height: 220,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 12),
-        itemCount: courses.length,
+        itemCount: list.length,
         itemBuilder: (context, index) {
           return GestureDetector(
-            onTap: () {
+            onTap: () async {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const CourseDetails()),
+                MaterialPageRoute(
+                  builder: (context) => CourseDetails(data: list[index]),
+                ),
               );
             },
             child: Container(
@@ -54,7 +40,7 @@ class ShortCourses extends StatelessWidget {
                   ),
                 ],
                 image: DecorationImage(
-                  image: NetworkImage(courses[index]["img"]!),
+                  image: NetworkImage(list[index].thumbnail!),
                   fit: BoxFit.cover,
                 ),
               ),
@@ -83,7 +69,7 @@ class ShortCourses extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          courses[index]["title"]!,
+                          list[index].title!,
                           style: GoogleFonts.cinzel(
                             color: Colors.white,
                             fontSize: 14,
@@ -94,8 +80,8 @@ class ShortCourses extends StatelessWidget {
                         Row(
                           children: [
                             Text(
-                              "Play Now",
-                              style: GoogleFonts.lato(
+                              "Buy Now",
+                              style: GoogleFonts.montserrat(
                                 color: AppColors.accentGold,
                                 fontSize: 11,
                                 fontWeight: FontWeight.bold,

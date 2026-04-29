@@ -1,6 +1,8 @@
 import 'package:app/components/home/branding_item.dart';
 import 'package:app/components/home/section.dart';
 import 'package:app/models/branding.dart';
+import 'package:app/models/course.dart';
+import 'package:app/models/filter.dart';
 import 'package:app/models/sacredvibe.dart';
 import 'package:app/services/service.dart';
 import 'package:flutter/material.dart';
@@ -26,6 +28,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
+  late Filter filterShortCourse = Filter();
 
   @override
   void initState() {
@@ -37,6 +40,10 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     _pulseAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
+
+    List<Criteria> criteria = [];
+    criteria.add(Criteria(column: "short", cop: "eq", value: true));
+    filterShortCourse.criteria = criteria;
   }
 
   @override
@@ -101,7 +108,22 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
               onAction: () {
                 print("Load...");
               },
-              child: ShortCourses(),
+              child: FutureBuilder(
+                future: Service.course.list(true),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    );
+                  } else if (snapshot.hasData) {
+                    return ShortCourses(list: snapshot.data!);
+                  }
+                  return Container();
+                },
+              ),
             ),
 
             const SizedBox(height: 32),

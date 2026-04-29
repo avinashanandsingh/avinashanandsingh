@@ -31,7 +31,8 @@ class ImageCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
-        height: height,
+        constraints: BoxConstraints(maxHeight: height),
+        //height: height,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(borderRadius),
           boxShadow: [

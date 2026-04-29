@@ -24,8 +24,8 @@
                         <th class="py-4 font-semibold text-start">Level</th>
                         <th class="py-4 font-semibold text-start">Duration</th>
                         <th class="py-4 font-semibold text-start">Validity</th>
-                        <th class="py-4 font-semibold text-start">Certified</th>                        
-                        <th class="py-4 font-semibold text-start">Short</th>                        
+                        <th class="py-4 font-semibold text-start">Certified</th>
+                        <th class="py-4 font-semibold text-start">Short</th>
                         <th class="py-4 font-semibold text-start">Free</th>
                         <th class="py-4 font-semibold text-start">Price</th>
                         <th class="py-4 font-semibold text-start">Offer</th>
@@ -52,7 +52,7 @@
                                     <div class="font-bold text-gray-900">{{ c.title }}</div>
                                 </div>
                             </div>
-                        </td>                        
+                        </td>
                         <td class="py-4 whitespace-nowrap text-start">
                             <div class="font-bold text-gray-900">{{ c.level }}</div>
                         </td>
@@ -72,7 +72,7 @@
                             <div class="font-bold text-gray-900">{{ c.short ? 'Yes' :'No' }}</div>
 
                         </td>
-                        
+
                         <td class="py-4 whitespace-nowrap text-start">
 
                             <div class="font-bold text-gray-900">{{ c.free ? 'Yes' :'No' }}</div>
@@ -117,10 +117,12 @@
                                     class="text-purple-600 hover:text-purple-900 text-base" title="Edit">
                                     <i class="bi bi-pencil-square"></i>
                                 </button>
-                                <button (click)="publish(c.id!)" class="text-purple-600 hover:text-purple-900 text-base" title="Publish">
+                                <button (click)="publish(c.id!)" class="text-purple-600 hover:text-purple-900 text-base"
+                                    title="Publish">
                                     <i class="bi bi-cloud-upload"></i>
                                 </button>
-                               <button (click)="archive(c.id!)" class="text-purple-600 hover:text-purple-900 text-base" title="Archive">
+                                <button (click)="archive(c.id!)" class="text-purple-600 hover:text-purple-900 text-base"
+                                    title="Archive">
                                     <i class="bi bi-archive"></i>
                                 </button>
                             </div>
@@ -153,21 +155,18 @@
 </div>
 
 <!-- Course Add/Edit Modal -->
-
-
-<loader [isOpen]="loader"></loader>
-
 <app-dialog [isOpen]="formDialog" [backdrop]="false" [buttons]="dialogButtons" [title]="dialogTitle()">
     <form [formGroup]="form">
         <input type="hidden" id="id" formControlName="id" />
         <div class="w-full mb-3">
             <label class="block mb-2.5 text-base  text-heading">Thumbnail</label>
             @if(thumbnailUrl()){
-                <app-upload [fileType]="'image/*'" (fileChange)="changeHandler('I', $event)" [previewUrl]="thumbnailUrl()!"></app-upload>
+            <app-upload [fileType]="'image/*'" (fileChange)="changeHandler('I', $event)"
+                [previewUrl]="thumbnailUrl()!"></app-upload>
             }@else {
-                <app-upload [fileType]="'image/*'" (fileChange)="changeHandler('I', $event)"></app-upload>
+            <app-upload [fileType]="'image/*'" (fileChange)="changeHandler('I', $event)"></app-upload>
             }
-        </div>        
+        </div>
 
         <div class="w-full mb-3">
             <label for="title" class="block mb-2.5 text-base font-medium text-heading">Title</label>
@@ -192,16 +191,18 @@
         </div>
         <div class="w-full mb-3">
             <label for="duration" class="block mb-2.5 text-base font-medium text-heading">Duration</label>
-            <input type="text" id="duration" formControlName="duration" class="input" placeholder="Duration (1h 30m)" required />
+            <input type="text" id="duration" formControlName="duration" class="input" placeholder="Duration (1h 30m)"
+                required />
             <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
                   validation: 'required',
                   message: 'Duration is required',
                   control: form.controls['duration']
                 }"></ng-container>
         </div>
-         <div class="w-full mb-3">
+        <div class="w-full mb-3">
             <label for="duration" class="block mb-2.5 text-base font-medium text-heading">Validity</label>
-            <input type="text" id="validity" formControlName="validity" class="input" inputmode="numeric" placeholder="Validity in Days" required />
+            <input type="text" id="validity" formControlName="validity" class="input" inputmode="numeric"
+                placeholder="Validity in Days" required />
             <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
                   validation: 'required',
                   message: 'Validity is required',
@@ -212,7 +213,7 @@
             <div class="flex flex-col md:flex-row gap-3 w-full">
                 <div class="w-full">
                     <label class="flex items-center space-x-3 cursor-pointer">
-                        <input type="checkbox" id="certified" formControlName="certified"                            
+                        <input type="checkbox" id="certified" formControlName="certified"
                             class="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500" />
                         <span class="text-base">Certified</span>
                     </label>
@@ -231,7 +232,7 @@
                             class="h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500" />
                         <span class="text-base">Is Short?</span>
                     </label>
-                </div>                
+                </div>
             </div>
         </div>
         @if(!showLevel()){
@@ -239,16 +240,11 @@
             <label for="level" class="block mb-2.5 text-base font-medium text-heading">Level</label>
             <select id="level" formControlName="level" class="input">
                 <option value="">Select a level</option>
-                <option value="L0">L0</option>
-                <option value="L1">L1</option>
-                <option value="L2">L2</option>
+                @for(item of levels(); track $index){
+                <option [value]="item.value">{{item.value}}</option>
+                }
             </select>
 
-            <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
-                  validation: 'required',
-                  message: 'Description is required',
-                  control: form.controls['level']
-                }"></ng-container>
             @if(form.controls['level'].value && form.controls['level'].value!.length<=0){ <span class="error">
                 Level is required in case, this is a short course
                 </span>
@@ -289,9 +285,10 @@
         <div class="w-full">
             <label class="block mb-2.5 text-base  text-heading">Introductory Video</label>
             @if(videoUrl()){
-                <app-upload [fileType]="'video/*'" (fileChange)="changeHandler('V', $event)" [previewUrl]="videoUrl()"></app-upload>
+            <app-upload [fileType]="'video/*'" (fileChange)="changeHandler('V', $event)"
+                [previewUrl]="videoUrl()"></app-upload>
             }@else{
-                <app-upload [fileType]="'video/*'" (fileChange)="changeHandler('V', $event)"></app-upload>
+            <app-upload [fileType]="'video/*'" (fileChange)="changeHandler('V', $event)"></app-upload>
             }
         </div>
     </form>
@@ -320,3 +317,4 @@
     </ng-container>
     }
 </ng-template>
+<loader [isOpen]="loader"></loader>

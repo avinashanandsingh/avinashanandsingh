@@ -83,6 +83,7 @@ type Course {
   price: Float
   offer: Float
   status: String
+  review: JSON
   creator: User
   createdat: Date
   updater: User

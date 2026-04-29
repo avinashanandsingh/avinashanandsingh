@@ -42,6 +42,7 @@ class _VideoCardState extends State<VideoCard> {
     if (videoId != null) {
       _youtubeController = YoutubePlayerController(
         initialVideoId: videoId,
+
         flags: const YoutubePlayerFlags(autoPlay: false, mute: false),
       );
       if (mounted) {
@@ -60,6 +61,7 @@ class _VideoCardState extends State<VideoCard> {
           videoPlayerController: _videoPlayerController!,
           autoPlay: false,
           looping: false,
+          allowFullScreen: true,
           aspectRatio: _videoPlayerController!.value.aspectRatio,
           placeholder: Container(
             color: Colors.black,

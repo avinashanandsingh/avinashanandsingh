@@ -23,6 +23,7 @@ export default class Course implements OnInit {
   rowCount = signal<number>(0);
   list = signal<ICourseData[]>([]);
   category_list = signal<any>([]);
+  levels = signal<{ name: string; value: string }[]>([]);
   loader = signal<boolean>(false);
   dialogTitle = signal<string>('New Course');
   mode = signal<'PLAY' | 'ADD' | 'EDIT'>('ADD');
@@ -32,7 +33,7 @@ export default class Course implements OnInit {
   formDialog = signal<boolean>(false);
   error = signal<string>('');
   showLevel = signal<boolean>(false);
-  showPrice = signal<boolean>(false);
+  showPrice = signal<boolean>(true);
   playerDialog = signal<boolean>(false);
   thumbnailUrl = signal<string | null>('');
   videoUrl = signal<string>('');
@@ -62,21 +63,25 @@ export default class Course implements OnInit {
         if (this.form.valid) {
           this.show(this.loader);
           var fd = new FormData();
-          let input: any = {            
+
+          let input: any = {
             title: formData.title,
             description: formData.description,
             duration: formData.duration,
             validity: Number(formData.validity),
             url: formData.url ? formData.url : null,
-            certified: formData.certified,
-            short: formData.short,
-            level: formData.level,
-            free: formData.free,
+            certified: formData.certified ?? false,
+            short: formData.short ?? false,
+            free: formData.free ?? false,
             price: Number(formData.free ? 0.0 : formData.price),
             offer: Number(formData.free ? 0.0 : formData.offer),
             thumbnail: null,
             video: null,
           };
+          input['level'] = null;
+          if (!formData.short) {
+            input['level'] = formData.level;
+          }
           let body: any = {};
           if (formData.id) {
             console.log('edit: ', formData.id);
@@ -118,10 +123,38 @@ export default class Course implements OnInit {
 
           let result = await this.service.saveFormData(fd);
           if (result?.data?.addCourse) {
-            alert('Successfully saved');
+            Swal.fire({
+              title: 'Success',
+              html: 'Course saved successfully',
+              icon: 'success',
+              timer: 3000,
+            });
+          } else {
+            let error = result?.errors?.shift();
+            let msg = error?.extensions?.originalError?.message;
+            Swal.fire({
+              title: 'Failed',
+              html: msg,
+              icon: 'error',
+              timer: 3000,
+            });
           }
-          if (result?.data?.UpdateCourse) {
-            alert('Successfully updated');
+          if (result?.data?.updateCourse) {
+            Swal.fire({
+              title: 'Success',
+              html: 'Course updated successfully',
+              icon: 'success',
+              timer: 3000,
+            });
+          } else {
+            let error = result?.errors?.shift();
+            let msg = error?.extensions?.originalError?.message;
+            Swal.fire({
+              title: 'Failed',
+              html: msg,
+              icon: 'error',
+              timer: 3000,
+            });
           }
 
           this.form.reset();
@@ -137,7 +170,7 @@ export default class Course implements OnInit {
   ]);
 
   form: FormGroup = new FormGroup({
-    id: new FormControl(''),  
+    id: new FormControl(''),
     title: new FormControl('', [Validators.required]),
     description: new FormControl('', [Validators.required]),
     duration: new FormControl('', [Validators.required]),
@@ -160,11 +193,12 @@ export default class Course implements OnInit {
 
   async ngOnInit(): Promise<void> {
     this.titleService.title = 'Courses';
-    this.show(this.loader);
+    this.loader.set(true);
     //let result = await this.categoryService.list({});
     //this.category_list.set(result?.rows);
-    this.load({});
-    this.hide(this.loader)
+    this.levels.set(await this.service.levels());
+    await this.load({});
+    this.loader.set(false);
   }
 
   // --- Methods ---
@@ -198,6 +232,7 @@ export default class Course implements OnInit {
     this.load({});
     this.hide(this.loader);
   }
+
   async publish(id: string): Promise<void> {
     this.show(this.loader);
     let result = await this.service.publish(id);
@@ -233,23 +268,31 @@ export default class Course implements OnInit {
     }
   }
 
-  async show(me: WritableSignal<boolean>, mode?: 'PLAY' | 'ADD' | 'EDIT', id?: string) {
+  async show(me: WritableSignal<boolean>, mode?: 'PLAY' | 'ADD' | 'EDIT', id?: string) {    
     me.set(true);
     if (mode) {
       this.mode.set(mode);
     }
     let row: any;
-    switch (this.mode()) {
+    switch (mode!) {
+      case 'ADD':
+        this.form.reset({
+          level:''
+        });
+        this.thumbnailUrl.set(null);
+        this.videoUrl.set('');
+        this.dialogTitle.set('New Course');
+        break;
       case 'PLAY':
         row = this.list().find((x) => x.id === id);
         const rawUrl = row?.url!;
-        console.log(rawUrl);     
+        console.log(rawUrl);
         if (rawUrl) {
           let final = rawUrl;
-          if(rawUrl.includes("you")){            
-            let id = rawUrl.substring(rawUrl.lastIndexOf("/")+1, rawUrl.length);            
+          if (rawUrl.includes('you')) {
+            let id = rawUrl.substring(rawUrl.lastIndexOf('/') + 1, rawUrl.length);
             final = `https://www.youtube.com/embed/${id}`;
-          }                    
+          }
           const url = this.sanitizer.bypassSecurityTrustResourceUrl(final);
           this.safeVideoUrl.set(url);
           this.dialogTitle.set('Watch Video');
@@ -259,24 +302,24 @@ export default class Course implements OnInit {
         row = this.list().find((x) => x.id === id);
         this.form.patchValue(row!);
         console.log(row);
+        //if(row?.short){
+          this.showLevel.set(row?.short);
+          this.form.controls['level'].setValue('');
+        //}else{
+          //this.showLevel.set(true);
+        //}
+        
+        this.showPrice.set(row?.free);
+        
         this.thumbnailUrl.set(row?.thumbnail!);
         this.videoUrl.set(row?.url!);
-        this.dialogTitle.set('Update Module');
+        this.dialogTitle.set('Update Course');
         break;
     }
-    me.set(true);
   }
+
   hide(me: WritableSignal<boolean>) {
     me.set(false);
-  }
-
-  edit(id: string) {
-    const course = this.list().find((c) => c.id === id);
-    if (!course) return;
-
-    this.router.navigate(['/course'], {
-      queryParams: { id: id },
-    });
   }
 
   togglePublish(id: string) {

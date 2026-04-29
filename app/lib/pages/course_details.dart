@@ -1,12 +1,16 @@
+import 'package:app/components/image_card.dart';
+import 'package:app/components/video_card.dart';
+import 'package:app/models/course.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../theme/theme.dart';
 import '../components/header.dart';
 import '../components/bottom_nav.dart';
-//import '../widgets/create_community_bottom_sheet.dart';
 import 'home.dart';
 
 class CourseDetails extends StatefulWidget {
-  const CourseDetails({super.key});
+  final CourseData? data;
+  const CourseDetails({super.key, this.data});
 
   @override
   State<CourseDetails> createState() => _CourseDetailsState();
@@ -18,18 +22,6 @@ class _CourseDetailsState extends State<CourseDetails>
   //final int _bottomNavIndex = 1;
 
   static const Color primaryPurple = AppColors.primary;
-
-  final List<bool> _faqOpenStates = [true, false, false];
-  final List<String> _faqQuestions = [
-    "WHERE CAN I WATCH?",
-    "CAN I DOWNLOAD THE CONTENT?",
-    "DO I GET A CERTIFICATE?",
-  ];
-  final List<String> _faqAnswers = [
-    "You can watch the course on any device — mobile, tablet, or desktop — anytime after enrollment.",
-    "Yes! Enrolled students can download lessons for offline viewing from within the app.",
-    "Absolutely! Upon completing the course, you receive a verifiable certificate you can share on LinkedIn.",
-  ];
 
   final TextEditingController _commentController = TextEditingController();
 
@@ -55,10 +47,15 @@ class _CourseDetailsState extends State<CourseDetails>
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _buildHeaderInfo(),
-            _buildMetadataGrid(),
-            _buildVideoPlayer(),
-            _buildTabBar(),
+            _buildHeaderInfo(widget.data!),
+            _buildMetadataGrid(widget.data!),
+            //_buildVideoPlayer(),
+            ImageCard(
+              url: widget.data!.thumbnail!,
+              height: 500,
+              borderRadius: 8,
+            ),
+            _buildTabBar(widget.data!),
             _buildTabContent(),
           ],
         ),
@@ -86,14 +83,14 @@ class _CourseDetailsState extends State<CourseDetails>
     );
   }
 
-  Widget _buildHeaderInfo() {
+  Widget _buildHeaderInfo(CourseData d) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "ANIMATION IS THE KEY OF SUCCESSFULL UI/UX DESIGN",
+          Text(
+            d.title!,
             style: TextStyle(
               color: primaryPurple,
               fontSize: 20,
@@ -132,18 +129,18 @@ class _CourseDetailsState extends State<CourseDetails>
     );
   }
 
-  Widget _buildMetadataGrid() {
+  Widget _buildMetadataGrid(CourseData d) {
     final metadata = [
       {
         'icon': Icons.star,
         'iconColor': Colors.orange,
-        'text': '4.5 (500 Reviews)',
+        'text': '${d.rating ?? 0} (${d.reviews ?? 0} Reviews)',
       },
       {'icon': Icons.language, 'iconColor': Colors.grey, 'text': 'English'},
       {
         'icon': Icons.insert_drive_file_outlined,
         'iconColor': Colors.grey,
-        'text': 'Course Certificate',
+        'text': d.certified! ? 'Certified' : 'Non-Certified',
       },
       {'icon': Icons.grid_view, 'iconColor': Colors.grey, 'text': '5 Modules'},
       {
@@ -151,16 +148,20 @@ class _CourseDetailsState extends State<CourseDetails>
         'iconColor': Colors.grey,
         'text': '500 Enrolled Student',
       },
-      {'icon': Icons.access_time, 'iconColor': Colors.grey, 'text': '1h 30m'},
+      {
+        'icon': Icons.access_time,
+        'iconColor': Colors.grey,
+        'text': d.duration!,
+      },
       {
         'icon': Icons.calendar_today,
         'iconColor': Colors.grey,
-        'text': 'Expires On: 7 April, 2026',
+        'text': 'Validity: ${d.validity} days',
       },
       {
         'icon': Icons.signal_cellular_alt,
         'iconColor': Colors.grey,
-        'text': 'Beginner',
+        'text': d.level ?? 'N/A',
       },
     ];
 
@@ -301,19 +302,21 @@ class _CourseDetailsState extends State<CourseDetails>
     );
   }
 
-  Widget _buildTabBar() {
+  Widget _buildTabBar(CourseData? d) {
     return TabBar(
       controller: _tabController,
       isScrollable: true,
       labelColor: Colors.black,
       unselectedLabelColor: Colors.grey,
       indicatorColor: primaryPurple,
+      tabAlignment: TabAlignment.start,
       indicatorWeight: 3,
-      tabs: const [
-        Tab(text: "Overview"),
-        Tab(text: "Curriculum"),
+      tabs: [
+        const Tab(text: "Overview"),
+        const Tab(text: "Curriculum"),
+
         // Tab(text: "Forum"),
-        Tab(text: "Certificates"),
+        if (d!.certified!) const Tab(text: "Certificates"),
         //Tab(text: "Assignments"),
       ],
     );
@@ -358,45 +361,25 @@ class _CourseDetailsState extends State<CourseDetails>
                 size: 18,
                 color: primaryPurple,
               ),
-              label: const Text(
+              label: Text(
                 "Write Review",
-                style: TextStyle(
+                style: GoogleFonts.montserrat(
                   color: primaryPurple,
-                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
             ),
           ],
         ),
         const SizedBox(height: 12),
-        _buildNumberedList([
+        Text(widget.data!.description!),
+        /*  _buildNumberedList([
           "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
           "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",
           "Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-        ]),
+        ]), */
         const SizedBox(height: 32),
-        const Text(
-          "FAQs",
-          style: TextStyle(
-            color: primaryPurple,
-            fontSize: 16,
-            fontFamily: 'Serif',
-          ),
-        ),
-        const SizedBox(height: 16),
-        ..._faqQuestions.asMap().entries.map((entry) {
-          int i = entry.key;
-          return _buildAccordionItem(
-            _faqQuestions[i],
-            _faqAnswers[i],
-            isOpen: _faqOpenStates[i],
-            onTap: () {
-              setState(() {
-                _faqOpenStates[i] = !_faqOpenStates[i];
-              });
-            },
-          );
-        }),
       ],
     );
   }
