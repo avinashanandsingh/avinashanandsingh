@@ -17,7 +17,7 @@ type Query {
   category(id: UUID!): Category!
   categories(filter: Filter!): CategoryResult!
   
-  course(id: UUID!): Course!
+  course(filter: Filter!): Course!
   courses(filter: Filter!): CourseResult!
   
   schedule(id: UUID!): Schedule!

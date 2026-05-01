@@ -69,6 +69,7 @@ type Course {
   id: UUID
   title: String  
   description: String
+  about: String
   thumbnail: String
   url: String
   categoryid: UUID
@@ -80,18 +81,15 @@ type Course {
   level: String
   free: Boolean
   currency: String
-  price: Float
-  offer: Float
+  price: String
+  offer: String
   status: String
   review: JSON
   creator: User
   createdat: Date
   updater: User
   updatedat: Date
-
-  modules: [Module!]
-  students: [User!]  
-  contents:  [Content]
+  modules: [Module]
 }
 
 type CourseResult {

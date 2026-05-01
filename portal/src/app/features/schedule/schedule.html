@@ -13,7 +13,44 @@
             </button>
         </div>
     </div>
-
+    <!-- Filter Area -->
+     <form [formGroup]="filterForm">
+    <div
+        class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border border-gray-300 rounded p-3">
+        
+            <div class="flex-1 w-full">
+                <select id="courseId" class="select" formControlName="courseid">
+                    <option selected value="">Select a Course</option>
+                    @for(item of course_list(); track item.id){
+                    <option [value]="item.id">{{item.title}}</option>
+                    }
+                </select>
+            </div>
+            <div class="flex-1 w-full">
+                <div id="startDate" class="flex flex-row gap-3">
+                    <input type="date" class="input" placeholder="start" formControlName="from_date"/>
+                    <input type="date" class="input" placeholder="To Date"  formControlName="to_date"/>
+                </div>
+            </div>
+            <div class="flex-1 w-full">
+                <input type="text" inputmode="numeric" class="input" placeholder="Capacity" formControlName="capacity" />
+            </div>
+            <div class="flex-1 w-full">
+                <select id="status" class="select" formControlName="status">
+                    <option selected value="">Select a Status</option>
+                    <option value="">All</option>
+                    <option value="ACTIVE">Active</option>
+                    <!-- <option value="INACTIVE">Inctive</option> -->
+                    <option value="DELETED">Deleted</option>
+                </select>
+            </div>
+            <div class="w-10">
+                <button (click)="filter()" class="btn btn-primary h-10">
+                    <i class="bi bi-funnel"></i>
+                </button>
+            </div>        
+    </div>
+    </form>
     <!-- List Table -->
     <div class="w-full  rounded-lg shadow overflow-hidden">
         <div class="overflow-x-auto">
@@ -42,6 +79,9 @@
                             Deadline
                         </th>
                         <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+                            Capacity
+                        </th>
+                        <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
                             Status
                         </th>
                         <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider w-20">
@@ -52,17 +92,19 @@
                 <tbody class="bg-white divide-y divide-gray-200">
                     @for(row of list(); track row.id){
                     <tr class="hover:bg-gray-50 transition">
-                         <td class="p-3 whitespace-nowrap">
+                        <td class="p-3 whitespace-nowrap">
                             <div class="text-base font-medium text-gray-900">{{ row.course?.title }}</div>
                         </td>
                         <td class="p-3 whitespace-nowrap">
                             <div class="text-base font-medium text-gray-900">{{ row.title }}</div>
                         </td>
                         <td class="p-3 whitespace-nowrap">
-                            <div class="text-base font-medium text-gray-900">{{ row.start_date | date:'dd-MMM-yyyy' }}</div>
+                            <div class="text-base font-medium text-gray-900">{{ row.start_date | date:'dd-MMM-yyyy' }}
+                            </div>
                         </td>
                         <td class="p-3 whitespace-nowrap">
-                            <div class="text-base font-medium text-gray-900">{{ row.end_date | date:'dd-MMM-yyyy' }}</div>
+                            <div class="text-base font-medium text-gray-900">{{ row.end_date | date:'dd-MMM-yyyy' }}
+                            </div>
                         </td>
                         <td class="p-3 whitespace-nowrap">
                             <div class="text-base font-medium text-gray-900">{{ row.start_time }}</div>
@@ -71,23 +113,24 @@
                             <div class="text-base font-medium text-gray-900">{{ row.end_time }}</div>
                         </td>
                         <td class="p-3 whitespace-nowrap">
-                            <div class="text-base font-medium text-gray-900">{{ row.deadline | date:'dd-MMM-yyyy HH:MM a' }}</div>
+                            <div class="text-base font-medium text-gray-900">{{ row.deadline | date:'dd-MMM-yyyy HH:MM
+                                a' }}</div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ row.capacity }}</div>
                         </td>
                         <td class="p-3 whitespace-nowrap text-base text-gray-500">
                             @switch (row.status) {
                             @case ('ACTIVE') {
-                            <span
-                                class="px-2 py-1 rounded-sm text-base bg-green-100 text-green-700">
+                            <span class="px-2 py-1 rounded-sm text-base bg-green-100 text-green-700">
                                 {{ row.status | titlecase}}
                             </span>
                             }
                             @case('INACTIVE'){
-                            <span
-                                class="px-2 py-1 rounded-sm text-base bg-gray-100 text-gray-600">Inactive</span>
+                            <span class="px-2 py-1 rounded-sm text-base bg-gray-100 text-gray-600">Inactive</span>
                             }
                             @case('DELETED'){
-                            <span
-                                class="px-2 py-1 rounded-sm text-base bg-red-50 text-red-700">Deleted</span>
+                            <span class="px-2 py-1 rounded-sm text-base bg-red-50 text-red-700">Deleted</span>
                             }
                             }
                         </td>
@@ -103,7 +146,7 @@
                                     class="text-purple-600 hover:text-purple-900 text-base">
                                     <i class="bi bi-trash"></i>
                                 </button>
-                            }
+                                }
                             </div>
                         </td>
                     </tr>
@@ -124,11 +167,11 @@
         <div class="space-y-4">
             <input type="hidden" id="id" formControlName="id" />
             <div>
-                <label class="label">Course <span class="text-red-500">*</span></label>                
+                <label class="label">Course <span class="text-red-500">*</span></label>
                 <select class="select w-full" id="courseid" formControlName="courseid" required>
                     <option selected value="">Select a course</option>
                     @for(item of course_list(); track item.id){
-                        <option [value]="item.id">{{item.title}}</option>
+                    <option [value]="item.id">{{item.title}}</option>
                     }
                 </select>
                 <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
@@ -176,7 +219,7 @@
             <div class="flex flex-col md:flex-row gap-3 w-full">
                 <div class="w-full">
                     <label class="label">Start Time <span class="text-red-500">*</span></label>
-                    <input type="time" id="start_time" formControlName="start_time" class="input"/>
+                    <input type="time" id="start_time" formControlName="start_time" class="input" />
                     <!-- <time-picker [required]="true" (valueChange)="timeHandler('S', $event)"></time-picker> -->
 
                     <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
@@ -188,8 +231,8 @@
                 </div>
                 <div class="w-full">
                     <label class="label">End Time <span class="text-red-500">*</span></label>
-                    <input type="time" id="end_time" formControlName="end_time" class="input"/>
-                  <!--   <time-picker [required]="true" ngDefaultControl formControlName="end_time"
+                    <input type="time" id="end_time" formControlName="end_time" class="input" />
+                    <!--   <time-picker [required]="true" ngDefaultControl formControlName="end_time"
                         (valueChange)="timeHandler('E', $event)"></time-picker>
  -->
                     <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{

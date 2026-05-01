@@ -10,10 +10,12 @@ import { Loader } from '../../components/loader/loader';
 import { Dialog } from '../../components/dialog/dialog';
 import { CourseService } from '../../services/course-service';
 import { ScheduleService } from '../../services/schedule-service';
-import { COP } from '../../models/enum';
+import { COP, LOP } from '../../models/enum';
 import { Upload } from '../../components/upload/upload';
 import Swal from 'sweetalert2';
 import { TitleService } from '../../services/title-service';
+import Criteria from '../../models/criteria';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-module',
@@ -23,16 +25,18 @@ import { TitleService } from '../../services/title-service';
 })
 export class Module implements OnInit {
   rowCount = signal<number>(0);
+  criteria = signal<Criteria[]>([]);
   list = signal<IModuleData[]>([]);
   course_list = signal<ICourseData[]>([]);
   schedule_list = signal<ISchdeuleData[]>([]);
-  loaderDialog = signal<boolean>(false);
+  loader = signal<boolean>(false);
   playerDialog = signal<boolean>(false);
   formDialog = signal<boolean>(false);
   mode = signal<'ADD' | 'EDIT' | null>(null);
   file = signal<File | null>(null);
-  dialogTitle = signal<string>('New Module');  
-  preview = signal<string>('');
+  dialogTitle = signal<string>('New Module');
+  preview = signal<SafeResourceUrl>('');
+  plainUrl = signal<string>('');
   form: FormGroup = new FormGroup({
     id: new FormControl(undefined),
     courseid: new FormControl('', [Validators.required]),
@@ -106,74 +110,99 @@ export class Module implements OnInit {
         }
 
         let result: any;
-        this.show(this.loaderDialog);
-        switch (this.mode()) {
-          case 'ADD':
-            result = await this.service.saveFormData(fd);
-            if (result?.data?.addModule) {
-              Swal.fire({
-                title: 'Confirmation',
-                html: 'Module saved successfully',
-                icon: 'success',
-                timer: 3000,
-              });
-            } else {
-              Swal.fire({
-                title: 'Failed',
-                html: 'Unable to add module',
-                icon: 'error',
-                timer: 3000,
-              });
-            }
-            break;
-          case 'EDIT':            
-            result = await this.service.saveFormData(fd);
-            if (result?.data?.updateModule) {
-              Swal.fire({
-                title: 'Confirmation',
-                html: 'Module updated successfully',
-                icon: 'success',
-                timer: 3000,
-              });
-            } else {
-              Swal.fire({
-                title: 'Failed',
-                html: 'Unable to update module',
-                icon: 'error',
-                timer: 3000,
-              });
-            }
-            break;
+        this.show(this.loader);
+        result = await this.service.save(fd);
+        if (formData.id) {
+          if (result?.data?.updateModule) {
+            Swal.fire({
+              title: 'Confirmation',
+              html: 'Module updated successfully',
+              icon: 'success',
+              timer: 3000,
+            });
+          } else {
+            Swal.fire({
+              title: 'Failed',
+              html: 'Unable to update module',
+              icon: 'error',
+              timer: 3000,
+            });
+          }
+        } else {
+          if (result?.data?.addModule) {
+            Swal.fire({
+              title: 'Confirmation',
+              html: 'Module saved successfully',
+              icon: 'success',
+              timer: 3000,
+            });
+          } else {
+            Swal.fire({
+              title: 'Failed',
+              html: 'Unable to add module',
+              icon: 'error',
+              timer: 3000,
+            });
+          }
         }
-        this.hide(this.loaderDialog);
+        this.hide(this.loader);
         this.form.reset();
         this.hide(this.formDialog);
       },
       type: 'btn btn-primary w-full',
     },
   ]);
+  filterForm: FormGroup = new FormGroup({
+    courseid: new FormControl(''),
+    scheduleid: new FormControl(''),
+    status: new FormControl(''),
+  });
   constructor(
     private service: ModuleService,
     private course: CourseService,
     private schedule: ScheduleService,
-    private titleService: TitleService
+    private titleService: TitleService,
+    private sanitizer: DomSanitizer,
   ) {}
   async ngOnInit(): Promise<void> {
-    this.titleService.title ="Modules";
-    this.show(this.loaderDialog);
-    await this.load({});    
+    this.titleService.title = 'Modules';
+    this.show(this.loader);
     let result = await this.course.list({});
     if (result) {
       this.course_list.set(result.rows!);
     }
-    this.hide(this.loaderDialog);
+    this.hide(this.loader);
   }
-
-  async load(filter: Filter) {
-    let result = await this.service.list(filter);
+  async filter() {
+    let formData = this.filterForm.getRawValue();
+    console.log(formData);
+    let keys = Object.keys(formData);
+    let criteria: Criteria[] = [];
+    keys.forEach((k) => {
+      let row: Criteria = {};
+      if (formData[k] != null && formData[k]?.trim().length > 0) {
+        row.column = k;
+        row.cop = COP.eq;
+        row.value = formData[k];
+        if (criteria.length > 0) {
+          row.lop = LOP.AND;
+        }
+        criteria.push(row);
+      }
+    });
+    console.log(criteria);
+    this.criteria.set(criteria);
+    this.show(this.loader);
+    await this.load();
+    this.hide(this.loader);
+  }
+  async load() {
+    let result = await this.service.list({ criteria: this.criteria() });
     if (result) {
-      this.rowCount.set(result.count!);
-      this.list.set(result.rows!);
+      this.rowCount.set(result?.count!);
+      this.list.set(result?.rows!);
+    } else {
+      this.list.set([]);
     }
   }
   async load_schedules(filter: Filter) {
@@ -187,7 +216,8 @@ export class Module implements OnInit {
     $event.preventDefault();
     let el: any = $event.target as HTMLElement;
     //console.log(el.value);
-    this.show(this.loaderDialog);
+    this.show(this.loader);
+    this.filterForm.controls['scheduleid'].setValue('');
     await this.load_schedules({
       criteria: [
         {
@@ -197,14 +227,22 @@ export class Module implements OnInit {
         },
       ],
     });
-    this.hide(this.loaderDialog);
+    this.hide(this.loader);
   }
   fileChange($event: File | null) {
     this.file.set($event);
   }
-  async showPlayer(id:string){
+  async showPlayer(id: string) {
     let row = this.list().find((x) => x.id === id);
-    this.preview.set(row?.url!)
+    console.log(row);
+    let final = row?.url!;
+    this.plainUrl.set(row?.url!);
+    if (row?.url!.includes('you')) {
+      let id = row?.url!.substring(row?.url!.lastIndexOf('/') + 1, row?.url!.length);
+      final = `https://www.youtube.com/embed/${id}`;
+    }
+    const url = this.sanitizer.bypassSecurityTrustResourceUrl(final);
+    this.preview.set(url);
     this.playerDialog.set(true);
   }
   async show(me: WritableSignal<boolean>, id?: string) {
@@ -220,7 +258,7 @@ export class Module implements OnInit {
         break;
       case 'EDIT':
         let row = this.list().find((x) => x.id === id);
-        this.show(this.loaderDialog);
+        this.show(this.loader);
         await this.load_schedules({
           criteria: [
             {
@@ -231,13 +269,21 @@ export class Module implements OnInit {
           ],
         });
         this.form.patchValue(row!);
-        this.preview.set(row!.url!);
-        this.hide(this.loaderDialog);
+        let final = row?.url!;
+        this.plainUrl.set(row?.url!);
+        if (row?.url!.includes('you')) {
+          let id = row?.url!.substring(row?.url!.lastIndexOf('/') + 1, row?.url!.length);
+          final = `https://www.youtube.com/embed/${id}`;
+        }
+        const url = this.sanitizer.bypassSecurityTrustResourceUrl(final);
+        this.preview.set(url);
+
+        this.hide(this.loader);
         this.dialogTitle.set('Update Module');
         me.set(true);
         break;
       default:
-        me.set(true);       
+        me.set(true);
         break;
     }
   }
@@ -246,9 +292,9 @@ export class Module implements OnInit {
     //this.form.reset();
   }
   async delete(id: string): Promise<void> {
-    this.show(this.loaderDialog);
+    this.show(this.loader);
     let result = await this.service.delete(id);
-    this.load({});
-    this.hide(this.loaderDialog);    
+    this.load();
+    this.hide(this.loader);
   }
 }

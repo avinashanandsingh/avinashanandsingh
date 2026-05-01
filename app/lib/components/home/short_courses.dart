@@ -1,4 +1,5 @@
 import 'package:app/models/course.dart';
+import 'package:app/pages/course/public.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../theme/theme.dart';
@@ -23,7 +24,7 @@ class ShortCourses extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => CourseDetails(data: list[index]),
+                  builder: (context) => PublicCourse(data: list[index]),
                 ),
               );
             },

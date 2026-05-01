@@ -13,7 +13,43 @@
             </button>
         </div>
     </div>
+    <!-- Filter Area -->
+    <form [formGroup]="filterForm">
+        <div
+            class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border border-gray-300 rounded p-3">
 
+            <div class="flex-1 w-full">
+                <select id="courseId" class="select" formControlName="courseid" (change)="changeHandler($event)">
+                    <option selected value="">Select a Course</option>
+                    @for(item of course_list(); track item.id){
+                    <option [value]="item.id">{{item.title}}</option>
+                    }
+                </select>
+            </div>
+            <div class="flex-1 w-full">
+                <select id="scheduleId" class="select" formControlName="scheduleid">
+                    <option selected value="">Select a Schedule</option>
+                    @for(item of schedule_list(); track item.id){
+                    <option [value]="item.id">{{item.title}}</option>
+                    }
+                </select>
+            </div>
+            <div class="flex-1 w-full">
+                <select id="status" class="select" formControlName="status">
+                    <option selected value="">Select a Status</option>
+                    <option value="">All</option>
+                    <option value="ACTIVE">Active</option>
+                    <!-- <option value="INACTIVE">Inctive</option> -->
+                    <option value="DELETED">Deleted</option>
+                </select>
+            </div>
+            <div class="w-10">
+                <button (click)="filter()" class="btn btn-primary h-10">
+                    <i class="bi bi-funnel"></i>
+                </button>
+            </div>
+        </div>
+    </form>
     <!-- List Table -->
     <div class="w-full  rounded-lg shadow overflow-hidden">
         <div class="overflow-x-auto">
@@ -116,12 +152,12 @@
                 </tbody>
             </table>
             @if(list().length === 0){
-            <p class="p-6 text-center text-gray-500">No modules added yet.</p>
+            <p class="p-6 text-center text-gray-500">Please select a course and schedule to see the data.</p>
             }
         </div>
     </div>
 </div>
-<loader [isOpen]="loaderDialog"></loader>
+<loader [isOpen]="loader"></loader>
 <app-dialog [buttons]="dialogButtons" [isOpen]="formDialog" [title]="dialogTitle()" [backdrop]="false"
     (close)="hide(formDialog)">
     <form [formGroup]="form">
@@ -179,7 +215,7 @@
 
             <div>
                 <label class="label">Drop your video file here.</label>
-                <app-upload fileType="video/*" (fileChange)="fileChange($event)" [previewUrl]="preview()"></app-upload>
+                <app-upload fileType="video/*" (fileChange)="fileChange($event)" [previewUrl]="plainUrl()"></app-upload>
             </div>
 
         </div>
@@ -188,10 +224,12 @@
 <app-dialog [isOpen]="playerDialog" title="Watch Video">
     <!-- Video Player -->
     <div class="relative aspect-video w-full bg-black" [style.height]="'300px'">
-        <iframe class="w-full aspect-video" src="https://d1bsxhak5ljzei.cloudfront.net/modules/file_example_MP4_1280_10MG.mp4" title="YouTube video player"
+        @if(preview()){
+        <iframe class="w-full aspect-video" [src]="preview()" title="Video player"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
             allowfullscreen>
         </iframe>
+        }
     </div>
 </app-dialog>
 <ng-template #formError let-control="control" let-message="message" let-validation="validation">

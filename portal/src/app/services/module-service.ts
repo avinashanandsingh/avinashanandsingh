@@ -43,42 +43,12 @@ export class ModuleService {
     return await this.api.post(this.url, header, body);
   }
 
-  async add(input: IModuleData): Promise<any> {
-    delete input.id;
-    let body = {
-      query: 'mutation add ($input: ModuleIn!) { addModule(input: $input) { id } }',
-      variables: {
-        input: {
-          ...input,
-        },
-      },
-    };
-    let header = this.header.api();
-    return await this.api.post(this.url, header, body);
-  }
-
-  async saveFormData(body: FormData): Promise<any> {
+  async save(body: FormData): Promise<any> {
     //let header = this.header.api();
     let token = this.store!.get('xt');
     return await this.api.postForm(this.url, { authorization: token }, body);
   }
 
-  async update(input: IModuleData): Promise<any> {
-    let id = input.id;
-    delete input.id;
-    let body = {
-      query:
-        'mutation update($id:String!, $input: ModuleIn!) { updateModule(id: $id, input: $input) { id } }',
-      variables: {
-        id: id,
-        input: {
-          ...input,
-        },
-      },
-    };
-    let header = this.header.api();
-    return await this.api.post(this.url, header, body);
-  }
   async delete(id: String) {
     let body = {
       query: 'mutation delete($id: UUID!) { deleteModule (id: $id) { id } }',

@@ -60,6 +60,7 @@ export default class Course implements OnInit {
       label: 'Save',
       action: async (): Promise<void> => {
         let formData = this.form.getRawValue();
+        console.log(formData, this.form.valid);
         if (this.form.valid) {
           this.show(this.loader);
           var fd = new FormData();
@@ -67,6 +68,7 @@ export default class Course implements OnInit {
           let input: any = {
             title: formData.title,
             description: formData.description,
+            about: formData.about,
             duration: formData.duration,
             validity: Number(formData.validity),
             url: formData.url ? formData.url : null,
@@ -119,9 +121,8 @@ export default class Course implements OnInit {
             fd.append('1', this.video()!, this.video()?.name!);
           } else {
             fd.append('1', '');
-          }
-
-          let result = await this.service.saveFormData(fd);
+          }          
+          let result = await this.service.save(fd);
           if (result?.data?.addCourse) {
             Swal.fire({
               title: 'Success',
@@ -172,7 +173,8 @@ export default class Course implements OnInit {
   form: FormGroup = new FormGroup({
     id: new FormControl(''),
     title: new FormControl('', [Validators.required]),
-    description: new FormControl('', [Validators.required]),
+    description: new FormControl(''),
+    about: new FormControl(''),
     duration: new FormControl('', [Validators.required]),
     validity: new FormControl('', [Validators.required]),
     url: new FormControl(''),
@@ -274,11 +276,17 @@ export default class Course implements OnInit {
       this.mode.set(mode);
     }
     let row: any;
+    console.log(mode);
     switch (mode!) {
       case 'ADD':
         this.form.reset({
-          level:''
+          level:'',
+          certified: false,
+          free: false,
+          short: false,
         });
+        this.showLevel.set(false);
+        this.showPrice.set(false);
         this.thumbnailUrl.set(null);
         this.videoUrl.set('');
         this.dialogTitle.set('New Course');
@@ -301,16 +309,12 @@ export default class Course implements OnInit {
       case 'EDIT':
         row = this.list().find((x) => x.id === id);
         this.form.patchValue(row!);
-        console.log(row);
-        //if(row?.short){
-          this.showLevel.set(row?.short);
+        console.log(row);        
+        this.showLevel.set(row?.short);
+        if(row?.short){
           this.form.controls['level'].setValue('');
-        //}else{
-          //this.showLevel.set(true);
-        //}
-        
-        this.showPrice.set(row?.free);
-        
+        }
+        this.showPrice.set(row?.free);        
         this.thumbnailUrl.set(row?.thumbnail!);
         this.videoUrl.set(row?.url!);
         this.dialogTitle.set('Update Course');

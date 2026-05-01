@@ -82,6 +82,7 @@ input CourseIn {
   categoryid: UUID
   title: String!
   description: String
+  about: String
   duration: String!
   validity: Int!
   thumbnail: File!

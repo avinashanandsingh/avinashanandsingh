@@ -242,7 +242,7 @@ const mapping = [
   {
     name: "course",
     execute: course.get,
-    include: true,
+    include: false,
     role: UserRole.ANONYMOUS,
   },
   {

@@ -28,7 +28,12 @@ class _CourseDetailsState extends State<CourseDetails>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    int tabs = 2;
+    if (widget.data!.certified!) {
+      tabs = 3;
+    }
+    print('tabs ${tabs}');
+    _tabController = TabController(length: tabs, vsync: this);
   }
 
   @override
@@ -331,7 +336,7 @@ class _CourseDetailsState extends State<CourseDetails>
           _buildOverviewTab(),
           _buildCurriculumTab(),
           //_buildForumTab(),
-          _buildCertificatesTab(),
+          if (widget.data!.certified!) _buildCertificatesTab(),
           //_buildAssignmentsTab(),
         ],
       ),
@@ -374,6 +379,7 @@ class _CourseDetailsState extends State<CourseDetails>
         ),
         const SizedBox(height: 12),
         Text(widget.data!.description!),
+        widget.data!.about != null ? Text(widget.data!.about!) : Text(''),
         /*  _buildNumberedList([
           "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
           "Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.",

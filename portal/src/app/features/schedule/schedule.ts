@@ -10,6 +10,8 @@ import { Loader } from '../../components/loader/loader';
 import { CourseService } from '../../services/course-service';
 import { ICourseData } from '../../models/course-model';
 import Swal from 'sweetalert2';
+import Criteria from '../../models/criteria';
+import { COP, LOP } from '../../models/enum';
 
 @Component({
   selector: 'app-schedule',
@@ -21,11 +23,20 @@ export class Schedule implements OnInit {
   rowCount = signal<number>(1);
   list = signal<ISchdeuleData[]>([]);
   course_list = signal<ICourseData[]>([]);
+  criteria = signal<Criteria[]>([]);
   loader = signal<boolean>(false);
   formDialog = signal<boolean>(false);
   mode = signal<'ADD' | 'EDIT'>('ADD');
   dialogTitle = signal<string>('New Schedule');
   minDate = new Date(new Date().setDate(new Date().getDate()) + 1);
+  filterForm: FormGroup = new FormGroup({
+    courseid: new FormControl(''),
+    from_date: new FormControl(undefined),
+    to_date: new FormControl(undefined),
+    capacity: new FormControl(undefined),
+    status: new FormControl(''),
+  });
+
   form: FormGroup = new FormGroup({
     id: new FormControl(undefined),
     courseid: new FormControl('', [Validators.required]),
@@ -117,7 +128,38 @@ export class Schedule implements OnInit {
     if (result) {
       this.course_list.set(result.rows!);
     }
-    await this.load({});
+    await this.load({ orderBy: [{ column: 'start_date', asc: false }] });
+    this.hide(this.loader);
+  }
+  async filter() {
+    let formData = this.filterForm.getRawValue();
+    let keys = Object.keys(formData);
+    let criteria: Criteria[] = [];
+    keys.forEach((k) => {
+      let row: Criteria = {};
+      if (formData[k] != null && formData[k]?.trim().length > 0) {
+        row.column = k;
+        row.cop = COP.eq;
+        row.value = formData[k];
+        if (criteria.length > 0) {
+          row.lop = LOP.AND;
+        }
+        criteria.push(row);
+      }
+    });
+
+    criteria = criteria.map((x) => {
+      if (x.column === 'from_date') {
+        x.column = 'start_date';
+        x.cop = COP.ge;
+      } else if (x.column === 'to_date') {
+        x.column = 'start_date';
+        x.cop = COP.le;
+      }
+      return x;
+    });
+    this.show(this.loader);
+    await this.load({ criteria: criteria, orderBy: [{ column: 'start_date', asc: false }] });
     this.hide(this.loader);
   }
   async load(filter: Filter): Promise<void> {
@@ -125,8 +167,11 @@ export class Schedule implements OnInit {
     if (result) {
       this.rowCount.set(result.count!);
       this.list.set(result.rows!);
+    }else{
+      this.list.set([]);
     }
   }
+
   show(me: WritableSignal<boolean>, id?: string) {
     me.set(true);
     if (id) {

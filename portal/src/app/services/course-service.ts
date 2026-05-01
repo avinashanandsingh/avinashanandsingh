@@ -32,7 +32,7 @@ export class CourseService {
   async list(filter: Filter): Promise<Data<ICourseData>> {
     let body = {
       query:
-        'query list ($filter: Filter!) { courses(filter: $filter) { count rows { id categoryid category { id name } title description duration validity thumbnail url certified short level free currency price offer status } } }',
+        'query list ($filter: Filter!) { courses(filter: $filter) { count rows { id categoryid category { id name } title description about duration validity thumbnail url certified short level free currency price offer status } } }',
       variables: {
         filter: {
           ...filter,
@@ -46,7 +46,7 @@ export class CourseService {
 
   async get(id: String) {
     let body = {
-      query: 'query get($id: UUID!) { course(id: $id) { id categoryid category { id name } title description thumbnail url short level free currency price offer } }',
+      query: 'query get($id: UUID!) { course(id: $id) { id categoryid category { id name } title description about thumbnail url short level free currency price offer } }',
       variables: {
         id: id,
       },
@@ -69,7 +69,7 @@ export class CourseService {
     return await this.api.post(this.url, header, body);
   }
 
-  async saveFormData(body: FormData): Promise<any> {
+  async save(body: FormData): Promise<any> {
     //let header = this.header.api();
     let token = this.store!.get('xt');
     return await this.api.postForm(this.url, { authorization: token }, body);

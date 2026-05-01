@@ -16,21 +16,28 @@ class BottomNav extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
+      selectedItemColor: primaryColor,
+      unselectedItemColor: Colors.grey,
       items: [
         BottomNavigationBarItem(
           icon: Icon(Icons.home_outlined),
           activeIcon: Icon(Icons.home_outlined),
-          label: "Home",
+          label: "",
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.video_library),
+          activeIcon: Icon(Icons.video_library_outlined),
+          label: "",
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.dashboard_outlined),
           activeIcon: Icon(Icons.dashboard),
-          label: "Dashboard",
+          label: "",
         ),
         BottomNavigationBarItem(
           icon: Icon(Icons.info_outline),
           activeIcon: Icon(Icons.info),
-          label: "About",
+          label: "",
         ),
       ],
       currentIndex: currentIndex,

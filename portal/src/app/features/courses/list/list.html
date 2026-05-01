@@ -182,12 +182,12 @@
         <div class="w-full mb-3">
             <label for="description" class="block mb-2.5 text-base font-medium text-heading">Description</label>
             <textarea type="text" id="description" formControlName="description" class="input" placeholder="Description"
-                required rows="2"></textarea>
-            <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
-                  validation: 'required',
-                  message: 'Description is required',
-                  control: form.controls['description']
-                }"></ng-container>
+                rows="2"></textarea>            
+        </div>
+        <div class="w-full mb-3">
+            <label for="about" class="block mb-2.5 text-base font-medium text-heading">About</label>
+            <textarea type="text" id="about" formControlName="about" class="input" placeholder="About"
+                rows="5"></textarea>
         </div>
         <div class="w-full mb-3">
             <label for="duration" class="block mb-2.5 text-base font-medium text-heading">Duration</label>

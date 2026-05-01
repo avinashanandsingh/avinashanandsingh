@@ -1,3 +1,4 @@
+import 'package:app/components/course_card.dart';
 import 'package:app/components/home/branding_item.dart';
 import 'package:app/components/home/section.dart';
 import 'package:app/models/branding.dart';
@@ -28,7 +29,6 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
-  late Filter filterShortCourse = Filter();
 
   @override
   void initState() {
@@ -40,10 +40,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
     _pulseAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(
       CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
     );
-
-    List<Criteria> criteria = [];
-    criteria.add(Criteria(column: "short", cop: "eq", value: true));
-    filterShortCourse.criteria = criteria;
   }
 
   @override
@@ -98,8 +94,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
               ),
             ),
 
-            //const SizedBox(height: 16),
-            //const BrandingBanner(),
             const SizedBox(height: 32),
             Section(
               title: "SHORT COURSES",
@@ -127,8 +121,29 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             ),
 
             const SizedBox(height: 32),
-            const GiftBanner(),
+            FutureBuilder(
+              future: Service.course.get({
+                "criteria": [
+                  {"column": "level", "cop": "eq", "value": "L1"},
+                ],
+              }),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  );
+                } else if (snapshot.hasData) {
+                  CourseData item = snapshot.data!;
+                  return CourseCard(data: item);
+                }
+                return Container();
+              },
+            ),
 
+            //const GiftBanner(),
             const SizedBox(height: 32),
             const SectionHeader(
               title: "MEDITATION",

@@ -1,6 +1,8 @@
 import 'package:app/models/course.dart';
+import 'package:app/models/filter.dart';
 import 'package:app/services/api.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'dart:convert';
 
 class Course {
   final String url = dotenv.env['URL'] ?? '';
@@ -10,8 +12,14 @@ class Course {
     List<CourseData> data = [];
     dynamic body = {
       "query":
-          'query list (\$filter: Filter!) { courses(filter: \$filter) { count rows { id title description duration validity thumbnail url certified short level free currency price offer status review } } }',
-      "variables": {"filter": {}},
+          'query list (\$filter: Filter!) { courses(filter: \$filter) { count rows { id title description about duration validity thumbnail url certified short level free currency price offer status review modules } } }',
+      "variables": {
+        "filter": {
+          "criteria": [
+            {"column": "status", "cop": "eq", "value": "PUBLISHED"},
+          ],
+        },
+      },
     };
     dynamic result = await api.post(url, body);
 
@@ -19,11 +27,11 @@ class Course {
       dynamic rows = result?['data']['courses']?['rows'];
       for (var row in rows) {
         if (row['short'] == short) {
-          try {
-            data.add(CourseData.fromJson(row));
-          } catch (e) {
-            print(e.toString());
-          }
+          //try {
+          data.add(CourseData.fromJson(row));
+          //} catch (e) {
+          //print('e:${e.toString()}');
+          //}
         }
       }
     }
@@ -31,14 +39,15 @@ class Course {
     return data;
   }
 
-  Future<CourseData?> get(String id) async {
+  Future<CourseData?> get(Map<String, dynamic> filter) async {
     CourseData? data;
     dynamic body = {
       "query":
-          r'query get ($id: UUID!) { course(id: \$id) { id title description duration validity thumbnail url certified short level free currency price offer status review } }',
-      "variables": {"id": id},
+          r'query get ($filter: Filter!) { course(filter: $filter) { id title description about duration validity thumbnail url certified short level free currency price offer status review modules { id } } }',
+      "variables": {"filter": filter},
     };
     dynamic result = await api.post(url, body);
+    print('result ${result.toString()}');
     if (result != null) {
       dynamic row = result?['data']['course'];
 

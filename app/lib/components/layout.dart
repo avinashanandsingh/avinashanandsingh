@@ -1,11 +1,11 @@
 import 'package:app/components/error_overlay.dart';
 import 'package:app/components/invite_dialog.dart';
+import 'package:app/pages/reels_player.dart';
 import 'package:app/services/identity.dart';
 import 'package:flutter/material.dart';
 import '../components/bottom_nav.dart';
 import '../components/header.dart';
 import '../theme/theme.dart';
-import '../components/invite_dialog.dart';
 
 class Layout extends StatefulWidget {
   final Widget body;
@@ -56,12 +56,42 @@ class _LayoutState extends State<Layout> {
         ).pushReplacementNamed("/home");
         break;
       case 1:
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ReelsPlayer(
+              reels: [
+                Reel(
+                  url: "https://youtu.be/l8Ymo-PGs64",
+                  title: "My Awesome Short",
+                  description: "This is a great description for a reel.",
+                  likes: 1200,
+                ),
+                Reel(
+                  url: "https://vimeo.com/524933864",
+                  title: "Vimeo Showcase",
+                  description: "Vimeo shorts are also supported!",
+                  likes: 350,
+                ),
+                Reel(
+                  url:
+                      "https://flutter.github.io/assets-for-api-docs/assets/videos/bee.mp4",
+                  title: "Standard Video",
+                  description: "Playing standard MP4 videos from a server.",
+                  likes: 99,
+                ),
+              ],
+            ),
+          ),
+        );
+        break;
+      case 2:
         Navigator.of(
           context,
           rootNavigator: true,
         ).pushReplacementNamed("/dashboard");
         break;
-      case 2:
+      case 3:
         Navigator.of(
           context,
           rootNavigator: true,

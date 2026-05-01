@@ -9,10 +9,10 @@ class Filter {
   // Object to JSON conversion
   Map<String, dynamic> toJson() {
     return {
-      'criteria': criteria,
-      'orderBy': orderBy,
-      'offset': offset,
-      'limit': limit,
+      if (criteria != null) 'criteria': criteria,
+      if (orderBy != null) 'orderBy': orderBy,
+      if (offset != null) 'offset': offset,
+      if (limit != null) 'limit': limit,
     };
   }
 }
