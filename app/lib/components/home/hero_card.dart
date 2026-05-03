@@ -1,9 +1,7 @@
 import 'dart:async';
 import 'package:app/components/home/branding_item.dart';
-import 'package:app/models/branding.dart';
 import 'package:flutter/material.dart';
 import '../../theme/theme.dart';
-import '../../services/service.dart';
 
 class HeroCard extends StatefulWidget {
   final Animation<double> pulseAnimation;
@@ -59,43 +57,46 @@ class _HeroCardState extends State<HeroCard> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        SizedBox(
-          height: 220,
-          child: PageView.builder(
-            controller: _pageController,
-            onPageChanged: (index) {
-              setState(() {
-                _currentPage = index;
-              });
-            },
-            itemCount: widget.items.length,
-            itemBuilder: (context, index) {
-              return AnimatedBuilder(
-                animation: _pageController,
-                builder: (context, child) {
-                  double value = 1.0;
-                  if (_pageController.position.haveDimensions) {
-                    value = _pageController.page! - index;
-                    value = (1 - (value.abs() * 0.1)).clamp(0.0, 1.0);
-                  }
-                  return Center(
-                    child: SizedBox(
-                      height: Curves.easeOut.transform(value) * 220,
-                      width:
-                          Curves.easeOut.transform(value) *
-                          MediaQuery.of(context).size.width,
-                      child: child,
-                    ),
-                  );
-                },
-                child: BrandingItem(
-                  type: widget.items[index].type,
-                  title: widget.items[index].title,
-                  content: widget.items[index].content,
-                  url: widget.items[index].url,
-                ),
-              );
-            },
+        Listener(
+          child: SizedBox(
+            height: 220,
+            child: PageView.builder(
+              controller: _pageController,
+              onPageChanged: (index) {
+                setState(() {
+                  _currentPage = index;
+                });
+              },
+              itemCount: widget.items.length,
+              itemBuilder: (context, index) {
+                return AnimatedBuilder(
+                  animation: _pageController,
+                  builder: (context, child) {
+                    double value = 1.0;
+                    if (_pageController.position.haveDimensions) {
+                      value = _pageController.page! - index;
+                      value = (1 - (value.abs() * 0.1)).clamp(0.0, 1.0);
+                    }
+
+                    return Center(
+                      child: SizedBox(
+                        height: Curves.easeOut.transform(value) * 220,
+                        width:
+                            Curves.easeOut.transform(value) *
+                            MediaQuery.of(context).size.width,
+                        child: child,
+                      ),
+                    );
+                  },
+                  child: BrandingItem(
+                    type: widget.items[index].type,
+                    title: widget.items[index].title,
+                    content: widget.items[index].content,
+                    url: widget.items[index].url,
+                  ),
+                );
+              },
+            ),
           ),
         ),
         const SizedBox(height: 12),

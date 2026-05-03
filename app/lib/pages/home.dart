@@ -60,7 +60,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 16),
-            //const SectionHeader(title: "START YOUR DAY"),
             Section(
               title: "START YOUR DAY",
               child: FutureBuilder(
@@ -124,7 +123,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             FutureBuilder(
               future: Service.course.get({
                 "criteria": [
-                  {"column": "level", "cop": "eq", "value": "L1"},
+                  {"column": "level", "cop": "eq", "value": "L0"},
                 ],
               }),
               builder: (context, snapshot) {
@@ -137,7 +136,10 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                   );
                 } else if (snapshot.hasData) {
                   CourseData item = snapshot.data!;
-                  return CourseCard(data: item);
+                  return CourseCard(
+                    data: item,
+                    width: MediaQuery.widthOf(context).toDouble(),
+                  );
                 }
                 return Container();
               },
@@ -152,7 +154,28 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             const MeditationCircles(),
 
             const SizedBox(height: 36),
-            const AbundanceCard(),
+            //const AbundanceCard(),
+            FutureBuilder(
+              future: Service.course.get({
+                "criteria": [
+                  {"column": "level", "cop": "eq", "value": "L1"},
+                ],
+              }),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  );
+                } else if (snapshot.hasData) {
+                  CourseData item = snapshot.data!;
+                  return AbundanceCard(data: item);
+                }
+                return Container();
+              },
+            ),
 
             const SizedBox(height: 36),
             Section(
@@ -179,15 +202,35 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             ),
 
             const SizedBox(height: 32),
-            const SuperhumanBanner(),
-
+            //const SuperhumanBanner(),
+            FutureBuilder(
+              future: Service.course.get({
+                "criteria": [
+                  {"column": "level", "cop": "eq", "value": "L2"},
+                ],
+              }),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  );
+                } else if (snapshot.hasData) {
+                  CourseData item = snapshot.data!;
+                  return CourseCard(data: item);
+                }
+                return Container();
+              },
+            ),
             const SizedBox(height: 36),
-            const SectionHeader(
+            /*  const SectionHeader(
               title: "SHORT VIDEOS",
               subtitle: "Snackable wisdom to keep you inspired.",
             ),
-            const ShortVideos(),
-            const SizedBox(height: 48),
+            const ShortVideos(), 
+            const SizedBox(height: 48),*/
           ],
         ),
       ),

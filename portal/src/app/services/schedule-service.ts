@@ -60,7 +60,7 @@ export class ScheduleService {
       delete input.id;
       let body = {
         query:
-          'mutation update($id:String!, $input: ScheduleIn!) { updateSchedule(id: $id, input: $input) { id } }',
+          'mutation update($id:UUID!, $input: ScheduleIn!) { updateSchedule(id: $id, input: $input) { id } }',
         variables: {
           id: id,
           input: {

@@ -1,10 +1,12 @@
+import 'package:app/models/course.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../theme/theme.dart';
 import '../../pages/course_details.dart';
 
 class AbundanceCard extends StatelessWidget {
-  const AbundanceCard({super.key});
+  final CourseData data;
+  const AbundanceCard({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {
@@ -30,16 +32,14 @@ class AbundanceCard extends StatelessWidget {
             children: [
               Container(
                 height: 120,
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.only(
+                decoration: BoxDecoration(
+                  borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(24),
                     topRight: Radius.circular(24),
                   ),
                   image: DecorationImage(
-                    image: NetworkImage(
-                      'https://images.unsplash.com/photo-1490682143684-14369e18dce8?q=80&w=1000',
-                    ),
-                    fit: BoxFit.cover,
+                    image: NetworkImage(data.thumbnail ?? ''),
+                    fit: BoxFit.fitWidth,
                   ),
                 ),
                 child: Container(
@@ -75,7 +75,7 @@ class AbundanceCard extends StatelessWidget {
           ),
           const SizedBox(height: 40),
           Text(
-            "Abundance Mindset\nIntensive",
+            data.title ?? '',
             textAlign: TextAlign.center,
             style: GoogleFonts.cinzel(
               fontSize: 18,
@@ -87,13 +87,9 @@ class AbundanceCard extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24.0),
             child: Text(
-              "Unlock the hidden potential inside your mind and attract limitless success.",
-              textAlign: TextAlign.center,
-              style: GoogleFonts.lato(
-                color: Colors.grey.shade600,
-                fontSize: 13,
-                height: 1.5,
-              ),
+              data.description ?? '',
+              textAlign: TextAlign.left,
+              style: TextTheme.of(context).bodySmall,
             ),
           ),
           const SizedBox(height: 20),
@@ -101,7 +97,9 @@ class AbundanceCard extends StatelessWidget {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const CourseDetails()),
+                MaterialPageRoute(
+                  builder: (context) => CourseDetails(data: data),
+                ),
               );
             },
             style: ElevatedButton.styleFrom(

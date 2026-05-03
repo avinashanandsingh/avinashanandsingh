@@ -14,10 +14,10 @@
         </div>
     </div>
     <!-- Filter Area -->
-     <form [formGroup]="filterForm">
-    <div
-        class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border border-gray-300 rounded p-3">
-        
+    <form [formGroup]="filterForm">
+        <div
+            class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border border-gray-300 rounded p-3">
+
             <div class="flex-1 w-full">
                 <select id="courseId" class="select" formControlName="courseid">
                     <option selected value="">Select a Course</option>
@@ -28,12 +28,13 @@
             </div>
             <div class="flex-1 w-full">
                 <div id="startDate" class="flex flex-row gap-3">
-                    <input type="date" class="input" placeholder="start" formControlName="from_date"/>
-                    <input type="date" class="input" placeholder="To Date"  formControlName="to_date"/>
+                    <input type="date" class="input" placeholder="start" formControlName="from_date" />
+                    <input type="date" class="input" placeholder="To Date" formControlName="to_date" />
                 </div>
             </div>
             <div class="flex-1 w-full">
-                <input type="text" inputmode="numeric" class="input" placeholder="Capacity" formControlName="capacity" />
+                <input type="text" inputmode="numeric" class="input" placeholder="Capacity"
+                    formControlName="capacity" />
             </div>
             <div class="flex-1 w-full">
                 <select id="status" class="select" formControlName="status">
@@ -48,8 +49,8 @@
                 <button (click)="filter()" class="btn btn-primary h-10">
                     <i class="bi bi-funnel"></i>
                 </button>
-            </div>        
-    </div>
+            </div>
+        </div>
     </form>
     <!-- List Table -->
     <div class="w-full  rounded-lg shadow overflow-hidden">
@@ -197,7 +198,8 @@
             <div class="flex flex-col md:flex-row gap-3 w-full">
                 <div class="w-full">
                     <label class="label">Start Date<span class="text-red-500">*</span></label>
-                    <input type="date" id="start_date" formControlName="start_date" class="input" [min]="minDate" />
+                    <input type="date" id="start_date" formControlName="start_date" class="input"
+                        (change)="dateHandler('S', $event)" [min]="minDate" />
                     <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
                   validation: 'required',
                   message: 'Start date is required',
@@ -214,6 +216,11 @@
                   control: form.controls['end_date']
                 }">
                     </ng-container>
+                    @if(form.hasError('date_ge') && form.get('end_date')?.touched){                        
+                    <div class="space-y-2">
+                        <span class="error">Must be >= start date!</span>
+                    </div>
+                    }
                 </div>
             </div>
             <div class="flex flex-col md:flex-row gap-3 w-full">
@@ -254,6 +261,11 @@
                   control: form.controls['deadline']
                 }">
                 </ng-container>
+                @if(form.hasError('date_lt') && form.get('deadline')?.touched){
+                <div class="space-y-2">
+                    <span class="error">Deadline must be less than Start date!</span>
+                </div>
+                }
             </div>
             <div>
                 <label class="label">Maximum enrollment capacity<span class="text-red-500">*</span></label>

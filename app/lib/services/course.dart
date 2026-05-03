@@ -1,8 +1,6 @@
 import 'package:app/models/course.dart';
-import 'package:app/models/filter.dart';
 import 'package:app/services/api.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'dart:convert';
 
 class Course {
   final String url = dotenv.env['URL'] ?? '';
@@ -12,30 +10,24 @@ class Course {
     List<CourseData> data = [];
     dynamic body = {
       "query":
-          'query list (\$filter: Filter!) { courses(filter: \$filter) { count rows { id title description about duration validity thumbnail url certified short level free currency price offer status review modules } } }',
+          'query list (\$filter: Filter!) { courses(filter: \$filter) { count rows { id title description about duration validity thumbnail url certified short level free currency price offer status review modules { id } } } }',
       "variables": {
         "filter": {
           "criteria": [
             {"column": "status", "cop": "eq", "value": "PUBLISHED"},
+            if (short)
+              {"column": "short", "cop": "eq", "lop": "AND", "value": short},
           ],
         },
       },
     };
     dynamic result = await api.post(url, body);
-
     if (result != null) {
       dynamic rows = result?['data']['courses']?['rows'];
       for (var row in rows) {
-        if (row['short'] == short) {
-          //try {
-          data.add(CourseData.fromJson(row));
-          //} catch (e) {
-          //print('e:${e.toString()}');
-          //}
-        }
+        data.add(CourseData.fromJson(row));
       }
     }
-
     return data;
   }
 
@@ -47,12 +39,24 @@ class Course {
       "variables": {"filter": filter},
     };
     dynamic result = await api.post(url, body);
-    print('result ${result.toString()}');
     if (result != null) {
       dynamic row = result?['data']['course'];
-
       data = CourseData.fromJson(row);
     }
     return data;
+  }
+
+  Future<bool> isEnrolled(String courseId) async {
+    bool flag = false;
+    dynamic body = {
+      "query":
+          r'query isEnrolled ($courseId: UUID!) { isEnrolled(courseId: $courseId) }',
+      "variables": {"courseId": courseId},
+    };
+    dynamic result = await api.post(url, body);
+    if (result != null) {
+      flag = result?['data']['isEnrolled'] as bool;
+    }
+    return flag;
   }
 }

@@ -20,7 +20,7 @@ type Query {
   course(filter: Filter!): Course!
   courses(filter: Filter!): CourseResult!
   
-  schedule(id: UUID!): Schedule!
+  schedule(filter: Filter!): Schedule!
   schedules(filter: Filter!): ScheduleResult!
 
   module(id: UUID!): Module!
@@ -29,6 +29,7 @@ type Query {
   content(id: UUID!): Content!
   contents(filter: Filter!): ContentResult!
 
+  isEnrolled(courseId: UUID!): Boolean!
   enrollment(id: UUID!): Enrollment!
   enrollments(filter: Filter!): EnrollmentResult!
 
@@ -72,7 +73,7 @@ type Query {
   page(filter: Filter!): Page!
   pages(filter: Filter!): PageResult!  
   
-  setting(id: UUID!): Setting!
+  setting(filter: Filter!): Setting!
   settings(filter: Filter!): SettingResult!
 }
 

@@ -42,7 +42,7 @@ export class Module implements OnInit {
     courseid: new FormControl('', [Validators.required]),
     scheduleid: new FormControl(''),
     title: new FormControl('', [Validators.required]),
-    description: new FormControl(''),
+    duration: new FormControl('', [Validators.required]),
     url: new FormControl(''),
   });
   dialogButtons = signal<Array<{ label: string; action: any; type: any }>>([
@@ -74,7 +74,7 @@ export class Module implements OnInit {
           courseid: formData.courseid,
           scheduleid: formData.scheduleid!.length > 0 ? formData.scheduleid : null,
           title: formData.title,
-          description: formData.description,
+          duration: formData.duration,
           url: formData.url?.length > 0 ? formData.url : null,
           file: null,
         };

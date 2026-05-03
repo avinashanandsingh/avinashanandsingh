@@ -23,6 +23,7 @@ const resolvers = {
     schedules: shield,
     module: shield,
     modules: shield,
+    isEnrolled:shield,
     enrollment:shield,
     enrollments: shield,    
     meditation: shield,

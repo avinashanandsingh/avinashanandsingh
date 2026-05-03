@@ -16,6 +16,7 @@ import template from "./template";
 import referral from "./referral";
 import smtp from "./smtp";
 import timeslot from "./timeslot";
+import schedule from "./schedule";
 export default {
   enum: _enum,
   otp: otp,
@@ -37,4 +38,5 @@ export default {
   video: video,
   referral: referral,
   timeslot,
+  schedule,
 };

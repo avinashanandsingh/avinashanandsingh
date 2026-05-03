@@ -129,11 +129,11 @@ input DropIn {
 input ModuleIn {
   courseid: UUID!
   scheduleid: UUID
-  title: String
-  description: String
+  title: String!
+  duration: String!
   sort: Int! = 0
   file: File
-  url: String
+  url: String  
 }
 
 input ContentIn {

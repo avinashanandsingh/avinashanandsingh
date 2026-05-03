@@ -396,6 +396,12 @@ const mapping = [
     role: UserRole.ANONYMOUS,
   },
   {
+    name: "isEnrolled",
+    execute: entrollment.enrolled,
+    include: false,
+    role: UserRole.ANONYMOUS,
+  },
+  {
     name: "enroll",
     execute: entrollment.add,
     include: true,

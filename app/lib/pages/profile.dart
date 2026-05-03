@@ -35,6 +35,7 @@ class _ProfileState extends State<Profile> {
       child: Scaffold(
         appBar: AppBar(
           title: Text('Profile'),
+          centerTitle: false,
           titleTextStyle: TextTheme.of(context).headlineMedium,
         ),
         body: SingleChildScrollView(

@@ -1,28 +1,30 @@
 import { GraphQLError } from "graphql";
 import helper from "../../helper/index";
 import Select from "../../models/select";
-import { COP } from "../../models/enum";
-
-export default async (_: any, args: { id: string }, ctx: any): Promise<any> => {
+import Filter from "../../models/filter";
+const view = "view_schedules";
+export default async (
+  _: any,
+  args: { filter: Filter },
+  _ctx: any,
+): Promise<any> => {
   let row: any;
-  let table = "view_schedules";
-  let fields = await helper.data.columns([{ name: table }]);
+  
+  let fields = await helper.data.columns([{ name: view }]);
+  let criteria = args.filter.criteria?.map((x) => {
+    return { table: view, ...x };
+  });
+  console.log(criteria);
   let input: Select = {
     tables: [
       {
-        name: table,
+        name: view,
         columns: fields.map((x: any) => {
           return { name: x.name };
         }),
       },
     ],
-    criteria: [
-      {
-        column: "id",
-        cop: COP.eq,
-        value: args.id,
-      },
-    ],
+    criteria: criteria,
   };
   let result = await helper.data.select<any>(input);
   if (result?.count! > 0) {

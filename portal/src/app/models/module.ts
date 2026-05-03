@@ -8,7 +8,7 @@ export interface IModuleData {
   scheduleid?: string;
   schedule: ISchdeuleData;
   title: string;
-  description: string;
+  duration: string;
   sort?: number;
   url?: string;
   status?: string;

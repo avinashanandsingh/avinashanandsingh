@@ -1,12 +1,12 @@
 import 'package:app/components/image_card.dart';
-import 'package:app/components/video_card.dart';
+import 'package:app/components/layout.dart';
 import 'package:app/models/course.dart';
+import 'package:app/pages/course/private.dart';
+import 'package:app/pages/course/public.dart';
+import 'package:app/services/service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/theme.dart';
-import '../components/header.dart';
-import '../components/bottom_nav.dart';
-import 'home.dart';
 
 class CourseDetails extends StatefulWidget {
   final CourseData? data;
@@ -45,46 +45,26 @@ class _CourseDetailsState extends State<CourseDetails>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      appBar: Header(titleText: 'Hi, Raj!'),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildHeaderInfo(widget.data!),
-            _buildMetadataGrid(widget.data!),
-            //_buildVideoPlayer(),
-            ImageCard(
-              url: widget.data!.thumbnail!,
-              height: 500,
-              borderRadius: 8,
+    return FutureBuilder(
+      future: Service.identity.isLoggedIn(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: CircularProgressIndicator(strokeWidth: 2),
             ),
-            _buildTabBar(widget.data!),
-            _buildTabContent(),
-          ],
-        ),
-      ),
-      bottomNavigationBar: BottomNav(
-        currentIndex:
-            1, // Assume "My Courses" is selected since this is a course
-        onTap: (index) {
-          if (index == 0) {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (context) => const Home()),
-              (route) => false,
-            );
-          } else if (index == 2) {
-            /* showModalBottomSheet(
-              context: context,
-              isScrollControlled: true,
-              backgroundColor: Colors.transparent,
-              builder: (context) => const CreateCommunityBottomSheet(),
-            ); */
+          );
+        } else if (snapshot.hasData) {
+          if (snapshot.data!) {
+            return PrivateCourse(data: widget.data);
+          } else {
+            return PublicCourse(data: widget.data);
           }
-        },
-      ),
+        } else {
+          return PublicCourse(data: widget.data);
+        }
+      },
     );
   }
 
@@ -94,17 +74,7 @@ class _CourseDetailsState extends State<CourseDetails>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            d.title!,
-            style: TextStyle(
-              color: primaryPurple,
-              fontSize: 20,
-              fontFamily: 'Serif',
-              letterSpacing: 1.1,
-              fontWeight: FontWeight.w600,
-              height: 1.3,
-            ),
-          ),
+          Text(d.title!, style: TextTheme.of(context).headlineMedium),
           const SizedBox(height: 16),
           Row(
             children: [
@@ -311,11 +281,12 @@ class _CourseDetailsState extends State<CourseDetails>
     return TabBar(
       controller: _tabController,
       isScrollable: true,
-      labelColor: Colors.black,
+      labelColor: AppColors.textPrimary,
       unselectedLabelColor: Colors.grey,
-      indicatorColor: primaryPurple,
+      indicatorColor: AppColors.primary,
       tabAlignment: TabAlignment.start,
       indicatorWeight: 3,
+      labelStyle: TextTheme.of(context).labelSmall,
       tabs: [
         const Tab(text: "Overview"),
         const Tab(text: "Curriculum"),

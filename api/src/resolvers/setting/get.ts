@@ -1,17 +1,21 @@
 import { GraphQLError } from "graphql";
 import helper from "../../helper/index";
 import Select from "../../models/select";
+import Filter from "../../models/filter";
 
 export default async (
   _: any,
-  args: { filter: any },
+  args: { filter: Filter },
   _ctx: any,
 ): Promise<any> => {
   let row: any;
   let table = "view_settings";
+  let fields = await helper.data.columns([{ name: table }]);
 
-  let fields = await helper.data.columns([{ name: table }]);  
-  let filter = args.filter;  
+  let criteria = args.filter.criteria?.map((x) => {
+    return { table: table, ...x };
+  });
+  console.log(criteria);
   let input: Select = {
     tables: [
       {
@@ -21,11 +25,11 @@ export default async (
         }),
       },
     ],
-    criteria: filter.criteria,
+    criteria: criteria,
   };
-  let result = await helper.data.select(input);  
+  let result = await helper.data.select<any>(input);
   if (result?.count! > 0) {
-    row = result?.rows?.shift();
+    row = result.rows?.shift();
   } else {
     let msg = await helper.message.me(204);
     throw new GraphQLError("An error occured", {
@@ -37,5 +41,6 @@ export default async (
       },
     });
   }
+
   return row;
 };

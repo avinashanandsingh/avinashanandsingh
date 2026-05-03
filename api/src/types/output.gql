@@ -128,9 +128,9 @@ type Module {
   course: Course
   scheduleid: UUID
   schedule: Schedule
-  title: String
-  description: String
-  url: String
+  title: String  
+  duration: String
+  url: String  
   sort: Int
   completed: Boolean
   completedat: DateTime

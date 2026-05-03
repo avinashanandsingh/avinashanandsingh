@@ -13,17 +13,10 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard>
     with SingleTickerProviderStateMixin {
-  late TabController _tabController;
-
   static const Color primaryPurple = AppColors.primary;
   @override
   initState() {
     super.initState();
-    _tabController = TabController(
-      length: 3,
-      vsync: this,
-      initialIndex: 2,
-    ); // Defaulting to Courses for now
   }
 
   @override
@@ -31,34 +24,10 @@ class _DashboardState extends State<Dashboard>
     return Layout(
       titleText: 'Dashboard',
       isSerif: false,
-      showActions: false,
-      currentIndex: 1,
-      appBarBottom: TabBar(
-        controller: _tabController,
-        isScrollable: true,
-        labelColor: Colors.black,
-        unselectedLabelColor: Colors.grey,
-        indicatorColor: primaryPurple,
-        indicatorWeight: 3,
-        tabs: const [
-          Tab(text: "Privacy Policy"),
-          Tab(text: "Courses"),
-          //Tab(text: "Students"),
-          Tab(text: "Marketing"),
-        ],
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          const Center(child: Text("Privacy Policy")),
-          //_buildCommunityTab(),
-          //const Center(child: Text("Notifications")),
-          _buildCoursesTab(),
-          //_buildStudentsTab(),
-          const Center(child: Text("Marketing")),
-          //const Center(child: Text("Events")),
-        ],
-      ),
+      showActions: true,
+      showBack: true,
+      currentIndex: 0,
+      body: const Center(child: Text("Dashboard View")),
     );
   }
 

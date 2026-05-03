@@ -155,7 +155,15 @@ class _LayoutState extends State<Layout> {
         floatingActionButton: FutureBuilder<bool>(
           future: Identity.instance.isLoggedIn(),
           builder: (context, snapshot) {
-            if (snapshot.hasData) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              // 3. Show placeholder while loading
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              );
+            } else if (snapshot.hasData) {
               if (snapshot.data!) {
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 8.0),
@@ -172,12 +180,10 @@ class _LayoutState extends State<Layout> {
                   ),
                 );
               } else {
-                return Text('');
+                return Container();
               }
-            } else if (snapshot.hasError) {
-              return onError(snapshot.error!);
             } else {
-              return loading ?? const CircularProgressIndicator();
+              return Container();
             }
           },
         ),

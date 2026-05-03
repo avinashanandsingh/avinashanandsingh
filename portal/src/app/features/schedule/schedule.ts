@@ -12,6 +12,8 @@ import { ICourseData } from '../../models/course-model';
 import Swal from 'sweetalert2';
 import Criteria from '../../models/criteria';
 import { COP, LOP } from '../../models/enum';
+import { geDate } from '../../validator/date/date_ge';
+import { ltDate } from '../../validator/date/date_lt';
 
 @Component({
   selector: 'app-schedule',
@@ -29,6 +31,7 @@ export class Schedule implements OnInit {
   mode = signal<'ADD' | 'EDIT'>('ADD');
   dialogTitle = signal<string>('New Schedule');
   minDate = new Date(new Date().setDate(new Date().getDate()) + 1);
+  maxDate = signal<Date>(new Date());
   filterForm: FormGroup = new FormGroup({
     courseid: new FormControl(''),
     from_date: new FormControl(undefined),
@@ -37,17 +40,26 @@ export class Schedule implements OnInit {
     status: new FormControl(''),
   });
 
-  form: FormGroup = new FormGroup({
-    id: new FormControl(undefined),
-    courseid: new FormControl('', [Validators.required]),
-    title: new FormControl('', [Validators.required]),
-    start_date: new FormControl(undefined, [Validators.required]),
-    end_date: new FormControl(undefined, [Validators.required]),
-    start_time: new FormControl(undefined, [Validators.required]),
-    end_time: new FormControl(undefined, [Validators.required]),
-    deadline: new FormControl(undefined, [Validators.required]),
-    capacity: new FormControl(undefined, [Validators.required, Validators.pattern('^[0-9]*$')]),
-  });
+  form: FormGroup = new FormGroup(
+    {
+      id: new FormControl(undefined),
+      courseid: new FormControl('', [Validators.required]),
+      title: new FormControl('', [Validators.required]),
+      start_date: new FormControl(undefined, [Validators.required]),
+      end_date: new FormControl(undefined, [Validators.required]),
+      start_time: new FormControl(undefined, [Validators.required]),
+      end_time: new FormControl(undefined, [Validators.required]),
+      deadline: new FormControl(undefined, [Validators.required]),
+      capacity: new FormControl(undefined, [Validators.required, Validators.pattern('^[0-9]*$')]),
+    },
+    {
+      // Apply cross-field validator at the group level
+      validators: [
+        ltDate('start_date', 'deadline'),
+        geDate('start_date', 'end_date'),
+      ],
+    },
+  );
   dialogButtons = signal<Array<{ label: string; action: any; type: any; disabled?: boolean }>>([
     {
       label: 'Close',
@@ -70,11 +82,11 @@ export class Schedule implements OnInit {
         let result: any;
         this.show(this.loader);
         if (formData.id) {
-          result = await this.service.add(body);
-          if (result?.data?.addSchedule) {
+          result = await this.service.update(body);
+          if (result?.data?.updateSchedule) {
             Swal.fire({
               title: 'Success',
-              html: 'Schedule saved successfully',
+              html: 'Schedule updated successfully',
               icon: 'success',
               timer: 3000,
             });
@@ -89,11 +101,11 @@ export class Schedule implements OnInit {
             });
           }
         } else {
-          result = await this.service.update(body);
-          if (result?.data?.updateSchedule) {
+          result = await this.service.add(body);
+          if (result?.data?.addSchedule) {
             Swal.fire({
               title: 'Success',
-              html: 'Schedule updated successfully',
+              html: 'Schedule saved successfully',
               icon: 'success',
               timer: 3000,
             });
@@ -167,7 +179,7 @@ export class Schedule implements OnInit {
     if (result) {
       this.rowCount.set(result.count!);
       this.list.set(result.rows!);
-    }else{
+    } else {
       this.list.set([]);
     }
   }
@@ -181,6 +193,7 @@ export class Schedule implements OnInit {
     }
     switch (this.mode()) {
       case 'ADD':
+        this.form.reset({ courseid:''});
         me.set(true);
         break;
       case 'EDIT':
@@ -210,13 +223,15 @@ export class Schedule implements OnInit {
         break;
     }
   }
-  dateHandler(type: 'S' | 'E' | 'D', $event: Date | null) {
-    console.log(type, $event);
-    switch (type) {
+  dateHandler(type: 'S' | 'E' | 'D', $event: any) {
+    console.log(type, $event.target.value);
+    let mxd = new Date($event.target.value);
+    this.maxDate.set(new Date(mxd.setDate(new Date().getDate()) - 1));
+    /* switch (type) {
       case 'S':
         this.form.controls['start_date'].setValue($event);
         break;
-    }
+    } */
   }
 
   async delete(id: string): Promise<void> {

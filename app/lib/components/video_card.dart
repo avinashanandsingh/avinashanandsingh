@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
+import 'video_player_dialog.dart' as video_dialog;
 
 class VideoCard extends StatefulWidget {
   final String url;
@@ -42,7 +44,6 @@ class _VideoCardState extends State<VideoCard> {
     if (videoId != null) {
       _youtubeController = YoutubePlayerController(
         initialVideoId: videoId,
-
         flags: const YoutubePlayerFlags(autoPlay: false, mute: false),
       );
       if (mounted) {
@@ -61,7 +62,6 @@ class _VideoCardState extends State<VideoCard> {
           videoPlayerController: _videoPlayerController!,
           autoPlay: false,
           looping: false,
-          allowFullScreen: true,
           aspectRatio: _videoPlayerController!.value.aspectRatio,
           placeholder: Container(
             color: Colors.black,
@@ -90,66 +90,80 @@ class _VideoCardState extends State<VideoCard> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
-      height: widget.height,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(widget.borderRadius),
-        color: Colors.black,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withAlpha(40),
-            blurRadius: 15,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(widget.borderRadius),
-        child: Stack(
-          children: [
-            _isInitialized
-                ? _buildPlayer()
-                : const Center(child: CircularProgressIndicator()),
-            // Text Overlay (Only if not playing or using it as a caption)
-            if (widget.title != null || widget.subtitle != null)
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: IgnorePointer(
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.bottomCenter,
-                        end: Alignment.topCenter,
-                        colors: [
-                          Colors.black.withAlpha(150),
-                          Colors.transparent,
+    return GestureDetector(
+      onTap: () {
+        video_dialog.show(context, url: widget.url);
+      },
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+        height: widget.height,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(widget.borderRadius),
+          color: Colors.black,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withAlpha(40),
+              blurRadius: 15,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(widget.borderRadius),
+          child: Stack(
+            children: [
+              IgnorePointer(
+                child: _isInitialized
+                    ? _buildPlayer()
+                    : const Center(child: CircularProgressIndicator()),
+              ),
+              // Text Overlay (Only if not playing or using it as a caption)
+              if (widget.title != null || widget.subtitle != null)
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: IgnorePointer(
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.bottomCenter,
+                          end: Alignment.topCenter,
+                          colors: [
+                            Colors.black.withAlpha(150),
+                            Colors.transparent,
+                          ],
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (widget.title != null)
+                            Text(
+                              widget.title!,
+                              style: GoogleFonts.cinzel(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          if (widget.subtitle != null)
+                            Text(
+                              widget.subtitle!,
+                              style: GoogleFonts.lato(
+                                color: Colors.white.withAlpha(200),
+                                fontSize: 12,
+                              ),
+                            ),
                         ],
                       ),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        if (widget.title != null)
-                          Text(
-                            widget.title!,
-                            style: TextTheme.of(context).headlineMedium,
-                          ),
-                        if (widget.subtitle != null)
-                          Text(
-                            widget.subtitle!,
-                            style: TextTheme.of(context).labelSmall,
-                          ),
-                      ],
-                    ),
                   ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );

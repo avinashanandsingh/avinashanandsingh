@@ -3,14 +3,18 @@ import helper from "../../helper/index";
 import Select from "../../models/select";
 import Filter from "../../models/filter";
 
-export default async (_: any, args: {filter: Filter }, _ctx: any): Promise<any> => {
+export default async (
+  _: any,
+  args: { filter: Filter },
+  _ctx: any,
+): Promise<any> => {
   let row: any;
   let table = "view_courses";
   let fields = await helper.data.columns([{ name: table }]);
 
-  let criteria = args.filter.criteria?.map(x=>{
+  let criteria = args.filter.criteria?.map((x) => {
     return { table: table, ...x };
-  })
+  });
   console.log(criteria);
   let input: Select = {
     tables: [
