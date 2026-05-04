@@ -194,6 +194,7 @@ export class Schedule implements OnInit {
     switch (this.mode()) {
       case 'ADD':
         this.form.reset({ courseid:''});
+        this.dialogTitle.set('New Schedule');
         me.set(true);
         break;
       case 'EDIT':

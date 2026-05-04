@@ -64,18 +64,17 @@ export class Profile implements OnInit {
       this.user.set(result?.data?.user!);
       this.form.patchValue(userData!);
       this.load_country(userData?.countryid!);
-     
 
       await this.load_state(userData.countryid!);
       this.stateId.set(userData?.stateid!);
 
       await this.load_city(userData.countryid!, userData.stateid!);
       this.cityId.set(userData?.cityid!);
-      
+
       this.loader.set(false);
     }
   }
-  async load_country(countryId?:number): Promise<void> {
+  async load_country(countryId?: number): Promise<void> {
     let result = await this.common.country_list({});
     let nlst: IListItem[] = result?.rows!.map((item) => {
       return {
@@ -85,7 +84,7 @@ export class Profile implements OnInit {
       } as IListItem;
     });
     this.country_list.set(nlst);
-     this.country_id.set(countryId);
+    this.country_id.set(countryId);
   }
   async load_state(countryId?: number | string) {
     if (countryId) {
@@ -108,7 +107,11 @@ export class Profile implements OnInit {
       criteria.push({ column: 'countryid', cop: COP.eq, value: countryId! });
     }
     if (stateId) {
-      criteria.push({ column: 'stateid', cop: COP.eq, lop: LOP.AND, value: stateId! });
+      if (criteria.length > 0) {
+        criteria.push({ column: 'stateid', cop: COP.eq, lop: LOP.AND, value: stateId! });
+      } else {
+        criteria.push({ column: 'stateid', cop: COP.eq, value: stateId! });
+      }
     }
     let result = await this.common.city_list({
       criteria: criteria,
@@ -144,7 +147,7 @@ export class Profile implements OnInit {
   }
 
   async cityHandler(item?: IListItem): Promise<void> {
-    this.form.controls['cityid'].setValue(item?.id);    
+    this.form.controls['cityid'].setValue(item?.id);
   }
 
   select($event: Event) {

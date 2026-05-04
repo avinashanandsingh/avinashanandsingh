@@ -2,104 +2,81 @@ import { Component, effect, signal } from '@angular/core';
 import { form, FormField, pattern, required, submit, validate } from '@angular/forms/signals';
 import { Router } from '@angular/router';
 import { IdentityService } from '../../services/identity-service';
-
-interface ISignUp {
-  first_name: string;
-  last_name: string;
-  email: string;
-  phone: string;
-  password: string;
-  confirmPassword: string;
-}
-
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { equals } from '../../validator/equals';
+import Swal from 'sweetalert2';
+import { CommonModule } from '@angular/common';
+import { Loader } from "../loader/loader";
 @Component({
   selector: 'app-sign-up',
-  imports: [FormField],
+  imports: [CommonModule, ReactiveFormsModule, Loader],
   templateUrl: './sign-up.html',
   styleUrl: './sign-up.css',
 })
 export class SignUp {
-  // --- Signal State Management ---
+  me: FormGroup = new FormGroup(
+    {
+      first_name: new FormControl('', [Validators.required]),
+      last_name: new FormControl('', [Validators.required]),
+      email: new FormControl('', [Validators.required, Validators.email]),
+      phone: new FormControl('', [Validators.required, Validators.pattern('^\\+[1-9]\\d{10,14}$')]),
+      password: new FormControl('', [
+        Validators.required,
+        Validators.pattern(
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!#.%*?&])[A-Za-z\d@$.!#%*?&]{8,}$/,
+        ),
+      ]),
+      confirmPassword: new FormControl('', [
+        Validators.required,
+        Validators.pattern(
+          /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!#.%*?&])[A-Za-z\d@$.!#%*?&]{8,}$/,
+        ),
+      ]),
+    },
+    {
+      // Apply cross-field validator at the group level
+      validators: [equals('newPassword', 'confirmPassword')],
+    },
+  );
 
-  model = signal<ISignUp>({
-    first_name: '',
-    last_name: '',
-    email: '',
-    phone: '',
-    password: '',
-    confirmPassword: '',
-  });
+  loader = signal<boolean>(false);
 
-  me: any = form(this.model, (schema) => {
-    required(schema.first_name);
-    required(schema.last_name);
-    required(schema.email);
-    required(schema.password);
-    required(schema.confirmPassword);
-    validate(schema.confirmPassword, ({ value, valueOf }) => {
-      const password = valueOf(schema.password); // Access another field's value
-      if (value() !== password) {
-        return { kind: 'mismatch', message: 'Passwords do not match' };
-      }
-      return null;
-    });
-  });
-
-  // UI States
-  isLoading = signal<boolean>(false);
-  showError = signal<boolean>(false);
-  successMessage = signal<boolean>(false);
-
-  // Validation Logic
-  isPasswordValid = signal<boolean>(false);
-  isEmailValid = signal<boolean>(false);
   showPassword = signal<boolean>(false);
   showConfirmPassword = signal<boolean>(false);
   constructor(
     private router: Router,
     private identity: IdentityService,
-  ) {
-    // Update password validation signals whenever values change
-    effect(() => {
-      const currentPass = this.model().password;
-      const currentConfirm = this.model().confirmPassword;
+  ) {}
 
-      const isMatch = currentPass === currentConfirm;
-      const hasPassLength = currentPass.length >= 8;
+  async submit() {
+    if (this.me.invalid) return;
+    let entity = this.me.getRawValue();
+    delete entity.confirmPassword;
 
-      this.isPasswordValid.set(isMatch && hasPassLength);
-    });
-
-    effect(() => {
-      const currentEmail = this.model().email;
-      const isValid = currentEmail.includes('@') && currentEmail.length > 5;
-      this.isEmailValid.set(isValid);
-    });
-  }
-
-  async onSubmit(event: Event) {
-    event.preventDefault();
-
-    await submit(this.me, async () => {
-      let entity = this.model();
-      let exist: boolean = await this.identity.exist(entity.email);
-      if (exist) {
-        entity.email = entity.email.toLowerCase();
-        entity.password = window.btoa(entity.password);
-        let result = await this.identity.signup(entity);
-        if (result?.data?.signup) {
-          this.router.navigateByUrl('/verify');
-        }
+    let exist: boolean = await this.identity.exist(entity.email);
+    if (exist) {
+      Swal.fire({
+        title: 'Info',
+        html: 'Your account is already in our system.',
+        icon: 'info',
+        timer: 3000,
+      });
+    } else {
+      entity.email = entity.email.toLowerCase();
+      entity.password = window.btoa(entity.password);
+      let result = await this.identity.signup(entity);
+      if (result?.data?.signup) {
+        this.router.navigateByUrl('/verify');
+      } else {
+        let error = result?.errors?.shift();
+        let msg = error?.extensions?.originalError?.message;
+        Swal.fire({
+          title: 'Failed',
+          html: msg,
+          icon: 'error',
+          timer: 3000,
+        });
       }
-      // We can return server errors
-      /* if (response.error) {
-      return [{
-        field: myForm.email,
-        error: customError({ kind: 'server', message: response.error })
-      }];
-    } */
-
-      return undefined; // success
-    });
+    }
   }
 }

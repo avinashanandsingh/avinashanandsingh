@@ -1,3 +1,4 @@
+import 'package:app/services/aura.dart';
 import 'package:app/services/branding.dart';
 import 'package:app/services/course.dart';
 import 'package:app/services/identity.dart';
@@ -8,6 +9,7 @@ import 'package:app/services/short.dart';
 import 'package:app/services/user.dart';
 
 class Service {
+  static final aura = Aura();
   static final identity = Identity();
   static final user = User();
   static final course = Course();

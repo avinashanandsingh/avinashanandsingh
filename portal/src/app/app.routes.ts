@@ -37,6 +37,7 @@ import { Inquiry } from './features/inquiry/inquiry';
 import { Template } from './features/template/template';
 import { Page } from './features/page/page';
 import { Setting } from './features/setting/setting';
+import Verify from './components/verify/verify';
 
 export const routes: Routes = [
   {
@@ -182,6 +183,7 @@ export const routes: Routes = [
       { path: '', component: Landing },
       { path: 'signin', component: SignIn },
       { path: 'signup', component: SignUp },
+      { path: 'verify', component: Verify },
       { path: 'forgot', component: ForgotPassword },
       { path: 'reset', component: ResetPassword },
       { path: 'privacy', component: Privacy },

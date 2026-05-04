@@ -107,6 +107,18 @@ export class IdentityService implements CanActivate {
     return await this.api.post(this.url, header, body);
   }
 
+  async verify(otp: string): Promise<any> {
+    let body = {
+      query: "mutation verify ($otp: String!) { verifyEmail (otp: $otp) { succeed message } }",
+      variables: {
+        otp: otp,
+      },
+    };
+    let header = this.header.api();
+    delete header['authorization'];
+    return await this.api.post(this.url, header, body);
+  }
+
   async fogot(email: string): Promise<any> {
     let body = {
       query: 'mutation fogot ($email: String!){ forgot(email: $email) { succeed message } }',

@@ -254,6 +254,13 @@ export class Module implements OnInit {
     }
     switch (this.mode()) {
       case 'ADD':
+        this.form.reset({
+          courseid: '',
+          scheduleid: '',
+        });
+        this.preview.set('');
+        this.plainUrl.set('');
+        this.dialogTitle.set('New Module');
         me.set(true);
         break;
       case 'EDIT':

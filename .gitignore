@@ -1,3 +1,4 @@
 deploy.sh
 redeploy.sh
 .DS_Store
+aws.sh
