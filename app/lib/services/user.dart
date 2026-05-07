@@ -17,11 +17,12 @@ class User {
       String id = user["id"];
       dynamic body = {
         "query":
-            r'query get ($id: UUID!) { user (id: $id) { id avatar about first_name last_name gender dob address countryid stateid cityid email phone profession income referby { id first_name last_name email } last_login_at } }',
+            r'query get ($id: UUID!) { user (id: $id) { id avatar about first_name last_name gender dob address countryid country { id name } stateid state { id name } cityid city {id name } postal_code email phone profession income referby { id first_name last_name email } last_login_at } }',
         "variables": {"id": id},
       };
 
       dynamic result = await api.post(url, body);
+
       if (result['errors'] == null) {
         dynamic row = result['data']['user'];
         return ProfileData.fromJson(row);

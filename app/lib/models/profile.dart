@@ -1,3 +1,4 @@
+import 'package:app/models/geo.dart';
 import 'package:app/models/user.dart';
 
 class ProfileData {
@@ -11,8 +12,11 @@ class ProfileData {
   String? about;
   String? address;
   int? countryId;
+  CountryData? country;
   int? stateId;
+  StateData? state;
   int? cityId;
+  CityData? city;
   String? postalCode;
   String? email;
   String? phone;
@@ -35,9 +39,12 @@ class ProfileData {
     this.currency,
     this.income,
     this.countryId,
+    this.country,
     this.stateId,
+    this.state,
     this.referedby,
     this.cityId,
+    this.city,
     this.postalCode,
     this.lastLoginAt,
     this.dob,
@@ -54,6 +61,11 @@ class ProfileData {
       address: json['address'] as String?,
       about: json['about'] as String?,
       countryId: json['countryid']?.toInt(),
+      country: json['country'] != null
+          ? CountryData.fromJson(json['country'])
+          : null,
+      state: json['state'] != null ? StateData.fromJson(json['state']) : null,
+      city: json['city'] != null ? CityData.fromJson(json['city']) : null,
       stateId: json['stateid'] as int?,
       cityId: json['cityid'] as int?,
       postalCode: json['postal_code'] as String?,

@@ -1,6 +1,7 @@
 import 'package:app/components/course_card.dart';
 import 'package:app/components/home/branding_item.dart';
 import 'package:app/components/home/section.dart';
+import 'package:app/components/resource_carousel.dart';
 import 'package:app/models/branding.dart';
 import 'package:app/models/course.dart';
 import 'package:app/models/filter.dart';
@@ -92,7 +93,18 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                 },
               ),
             ),
-
+            ResourceCarousel(
+              items: [
+                ResourceCarouselItem(
+                  title: "Meditation Guide",
+                  url: "https://example.com/guide.pdf",
+                ),
+                ResourceCarouselItem(
+                  title: "Sleep Soundtrack",
+                  url: "https://example.com/sleep.mp3",
+                ),
+              ],
+            ),
             const SizedBox(height: 32),
             Section(
               title: "SHORT COURSES",

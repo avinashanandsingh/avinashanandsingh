@@ -29,14 +29,20 @@ class _ProfileState extends State<Profile> {
   late Future<List<StateData>> stateList = Future.value([]);
   late Future<List<CityData>> cityList = Future.value([]);
   late Future<List<EnumData>> genderList = Future.value([]);
-  late CountryData? selectedCountry = widget.data?.countryId != null
-      ? CountryData(id: widget.data!.countryId, name: 'India')
-      : null;
   @override
   void initState() {
     super.initState();
-    countryList = Service.common.countryList();
     genderList = Service.common.enumList('gender');
+    if (mounted) {
+      countryList = Service.common.countryList();
+      if (model.countryId != null) {
+        stateList = Service.common.stateList(model.countryId!);
+      }
+
+      if (model.stateId != null) {
+        cityList = Service.common.cityList(model.countryId!, model.stateId!);
+      }
+    }
   }
 
   @override
@@ -47,6 +53,124 @@ class _ProfileState extends State<Profile> {
           title: Text('Profile'),
           centerTitle: false,
           titleTextStyle: TextTheme.of(context).headlineMedium,
+          actions: [
+            PopupMenuButton<String>(
+              icon: const Icon(Icons.more_vert),
+              onSelected: (value) {
+                print(value);
+                if (value == "CHPW") {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ChangePassword(),
+                    ),
+                  );
+                } else if (value == "ORDH") {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const PaymentHistory(),
+                    ),
+                  );
+                } else if (value == "DELA") {
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text(
+                          "Delete Account",
+                          style: TextStyle(fontSize: 18),
+                        ),
+                        content: const Text(
+                          "Are you sure you, want to delete?\nThis action cannot be undone.",
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text(
+                              "Cancel",
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              Navigator.pushAndRemoveUntil(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const SignIn(),
+                                ),
+                                (route) => false,
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red.shade400,
+                              padding: EdgeInsets.all(3),
+                            ),
+                            child: const Text(
+                              "Delete",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                } else if (value == "ENRC") {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const EnrolledCourses(),
+                    ),
+                  );
+                }
+              },
+              itemBuilder: (BuildContext context) => [
+                PopupMenuItem(
+                  value: 'ORDH',
+                  padding: EdgeInsets.all(8),
+                  height: 10,
+                  child: Text(
+                    'Order History',
+                    style: TextTheme.of(context).labelSmall,
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'ENRC',
+                  padding: EdgeInsets.all(8),
+                  height: 10,
+                  child: Text(
+                    'Enrolled Courses',
+                    style: TextTheme.of(context).labelSmall,
+                  ),
+                ),
+                const PopupMenuDivider(),
+                PopupMenuItem(
+                  value: 'CHPW',
+                  padding: EdgeInsets.all(8),
+                  height: 10,
+                  child: Text(
+                    'Change Password',
+                    style: TextTheme.of(context).labelSmall,
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'DELA',
+                  padding: EdgeInsets.all(8),
+                  height: 10,
+                  child: Text(
+                    'Delete Account',
+                    style: TextTheme.of(context).labelSmall,
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
         body: SingleChildScrollView(
           padding: const EdgeInsets.all(15.0),
@@ -137,13 +261,14 @@ class _ProfileState extends State<Profile> {
                   },
                 ),
                 const SizedBox(height: 16),
-                Label(text: "Country"),
+                Label(text: "Country ${widget.data?.country?.name}"),
 
                 CustomSelectField(
                   options: countryList,
-                  //sinitialValue: selectedCountry,
-                  displayStringForOption: (option) => option.name!,
-                  onSelected: (value) {
+                  initialValue: widget.data?.country,
+                  displayStringForOption: (CountryData country) =>
+                      country.name!,
+                  onSelected: (CountryData? value) {
                     var list = Service.common.stateList(value?.id ?? 0);
                     setState(() {
                       model.countryId = value?.id;
@@ -157,8 +282,9 @@ class _ProfileState extends State<Profile> {
 
                 CustomSelectField(
                   options: stateList,
-                  displayStringForOption: (option) => option.name!,
-                  onSelected: (value) {
+                  initialValue: widget.data?.state,
+                  displayStringForOption: (StateData state) => state.name!,
+                  onSelected: (StateData? value) {
                     if (model.countryId == null) {
                       Alert.show("Please select country first", isError: true);
                       return;
@@ -179,8 +305,9 @@ class _ProfileState extends State<Profile> {
                 Label(text: "City"),
                 CustomSelectField(
                   options: cityList,
-                  displayStringForOption: (option) => option.name!,
-                  onSelected: (value) {
+                  initialValue: widget.data?.city,
+                  displayStringForOption: (CityData city) => city.name!,
+                  onSelected: (CityData? value) {
                     setState(() {
                       model.cityId = value?.id;
                     });
@@ -320,7 +447,7 @@ class _ProfileState extends State<Profile> {
                   ),
                 ),
                 const SizedBox(height: 32),
-                _buildMenuItem(
+                /* _buildMenuItem(
                   "Change Password",
                   onTap: () {
                     Navigator.push(
@@ -331,9 +458,9 @@ class _ProfileState extends State<Profile> {
                     );
                   },
                 ),
-                const Divider(height: 32),
-                _buildMenuItem(
-                  "Payment History",
+                const Divider(height: 32), */
+                /* _buildMenuItem(
+                  "Order History",
                   onTap: () {
                     Navigator.push(
                       context,
@@ -343,8 +470,8 @@ class _ProfileState extends State<Profile> {
                     );
                   },
                 ),
-                const Divider(height: 32),
-                _buildMenuItem(
+                const Divider(height: 32), */
+                /* _buildMenuItem(
                   "Enrolled Courses",
                   onTap: () {
                     Navigator.push(
@@ -354,8 +481,8 @@ class _ProfileState extends State<Profile> {
                       ),
                     );
                   },
-                ),
-                const Divider(height: 32),
+                ), */
+                /* const Divider(height: 32),
 
                 // Delete Account
                 Row(
@@ -443,7 +570,7 @@ class _ProfileState extends State<Profile> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 32), */
               ],
             ),
           ),
