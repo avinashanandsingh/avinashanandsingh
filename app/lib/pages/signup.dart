@@ -177,12 +177,12 @@ class _SignUpState extends State<SignUp> {
                                   });
                                 }
                                 if (formKey.currentState!.validate()) {
-                                  Loader.show(context);
+                                  Loader.show();
                                   try {
                                     dynamic result = await Identity.instance
                                         .signup(model);
                                     if (result!['data']!['signup'] != null) {
-                                      Loader.hide(context);
+                                      Loader.hide();
                                       Navigator.of(context).push(
                                         MaterialPageRoute(
                                           builder: (context) =>
@@ -191,7 +191,7 @@ class _SignUpState extends State<SignUp> {
                                       );
                                     } else {
                                       dynamic error = result!['errors']![0];
-                                      Loader.hide(context);
+                                      Loader.hide();
                                       String msg = error
                                           ?.extensions
                                           ?.originalError
@@ -217,7 +217,7 @@ class _SignUpState extends State<SignUp> {
                                       );
                                     }
                                   } catch (e) {
-                                    Loader.hide(context);
+                                    Loader.hide();
                                     print(e);
                                   }
                                 }

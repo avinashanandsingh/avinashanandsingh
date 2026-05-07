@@ -129,43 +129,23 @@ export default class List implements OnInit {
     }
   }
 
-  /* show(mode: 'ADD' | 'EDIT', id?: string) {
-    this.mode.set(mode);
-    switch (mode) {
-      case 'ADD':
-        this.dialogTitle.set('New Resource');
-        break;
-      case 'EDIT':
-        let row = this.list().find((x) => x.id === id);
-        this.form.patchValue(row!);
-        this.dialogTitle.set('Update Resource');
-        break;
+  show(me: WritableSignal<boolean>, mode?: 'ADD' | 'EDIT', id?: string) {    
+    if (mode!) {
+      this.mode.set(mode!);
     }
-    this.isOpen.set(true);
-  } */
 
-  show(me: WritableSignal<boolean>, id?: string) {
-    me.set(true);
-    if (id) {
-      this.mode.set('EDIT');
-    } else {
-      this.mode.set('ADD');
-    }
-    switch (this.mode()) {
+    switch (mode!) {
       case 'ADD':
-        this.dialogTitle.set('New Resource');
-        me.set(true);
+        this.form.reset();
+        this.dialogTitle.set('New Resource');        
         break;
       case 'EDIT':
         let row = this.list().find((x) => x.id === id);
         this.form.patchValue(row!);
-        this.dialogTitle.set('Update Resource');
-        me.set(true);
-        break;
-      default:
-        me.set(true);
-        break;
+        this.dialogTitle.set('Update Resource');        
+        break;      
     }
+    me.set(true);
   }
   hide(me: WritableSignal<boolean>) {
     me.set(false);

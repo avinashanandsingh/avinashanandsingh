@@ -75,6 +75,9 @@ type Query {
   
   setting(filter: Filter!): Setting!
   settings(filter: Filter!): SettingResult!
+  
+  order(filter: Filter!): Order!
+  orders(filter: Filter!): OrderResult!
 }
 
 type Mutation {
@@ -82,10 +85,10 @@ type Mutation {
   addUser(input: UserIn!): User!
   updateUser(id:UUID!, input: UserIn!): User!
   updateProfile(id:UUID!, input: ProfileIn!): User!
-  forgot(email:String!): Forgot
-  reset(otp:String!, password:String!): Reset
-  changePassword(password: String!): Reset
-  verifyEmail(otp:String!): Verifed
+  forgot(email:String!): Result
+  reset(otp:String!, password:String!): Result
+  changePassword(password: String!): Result
+  verifyEmail(otp:String!): Result
 
   addCategory(input: CategoryIn!): Category!
   updateCategory(id:UUID!, input: CategoryIn!): Category!
@@ -137,6 +140,10 @@ type Mutation {
   newInquiry(input: InquiryIn!): Inquiry!
   updateInquiry(id:UUID!, input: InquiryIn!): Inquiry!
   deleteInquiry(id:UUID!): Inquiry!
+
+  newOrder(input: OrderIn!): Order!
+  updateOrder(id:UUID!, input: OrderIn!): Order!
+  deleteOrder(id:UUID!): Order!
 
   newTemplate(input: TemplateIn!): Template!
   updateTemplate(id:UUID!, input: TemplateIn!): Template!

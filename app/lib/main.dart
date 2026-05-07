@@ -14,6 +14,8 @@ import 'package:app/services/identity.dart';
 import 'package:app/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:app/pages/splash.dart';
+import 'components/loader.dart';
+import 'utils/alert.dart';
 
 final themeProvider = ThemeProvider();
 Future<Widget> _resolveInitialScreen() async {
@@ -34,11 +36,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: navigatorKey,
       title: 'GoldPanel',
       theme: AppTheme.lightTheme,
       themeMode: themeProvider.themeMode,
       debugShowCheckedModeBanner: false,
-      scaffoldMessengerKey: snackbarKey,
       /*  builder: (context, widget) {
         return ConnectionWrapper(child: widget!);
       }, */
@@ -54,12 +56,7 @@ class MyApp extends StatelessWidget {
             body: Center(child: CircularProgressIndicator()),
           );
         },
-      ), // Default to Sign In
-      /* routes: {
-        '/signin': (context) => const SignInPage(),
-        '/signup': (context) => const SignUpPage(),
-        '/home': (context) => const HomePage(),
-      }, */
+      ),
       routes: {
         '/about': (context) => const About(),
         '/home': (context) => const Home(),

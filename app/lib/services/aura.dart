@@ -7,11 +7,10 @@ class Aura {
   final ApiService api = ApiService();
 
   Future<List<AuraData>> list() async {
-    //print('called ${filter?.toJson()}');
     List<AuraData> data = [];
     dynamic body = {
       "query":
-          'query list (\$filter: Filter!) { services(filter: \$filter) { count rows { id name price offer status timeslots { id serviceid name start_time end_time capacity } } } }',
+          r'query list ($filter: Filter!) { services(filter: $filter) { count rows { id name price offer status timeslots { id serviceid name start_time end_time capacity } } } }',
       "variables": {
         "filter": {
           "criteria": [
@@ -22,7 +21,7 @@ class Aura {
     };
     dynamic result = await api.post(url, body);
     if (result != null) {
-      dynamic rows = result?['data']['courses']?['rows'];
+      dynamic rows = result?['data']['services']?['rows'];
       for (var row in rows) {
         data.add(AuraData.fromJson(row));
       }

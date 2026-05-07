@@ -1,3 +1,4 @@
+import 'package:app/models/aura.dart';
 import 'package:app/models/profile.dart';
 import 'package:app/pages/aura_scan.dart';
 import 'package:app/pages/privacy.dart';
@@ -47,7 +48,7 @@ class ActionIconData {
                   backgroundColor: Colors.transparent,
                 ),
               ),
-              onSelected: (value) {
+              onSelected: (value) async {
                 switch (value) {
                   case 'profile':
                     Navigator.push(
@@ -58,9 +59,12 @@ class ActionIconData {
                     );
                     break;
                   case 'aura':
+                    List<AuraData> list = await Service.aura.list();
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const AuraScan()),
+                      MaterialPageRoute(
+                        builder: (context) => AuraScan(data: list),
+                      ),
                     );
                     break;
                   case 'terms':

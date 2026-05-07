@@ -4,15 +4,15 @@ class TimeslotData {
   String? name;
   String? startTime;
   String? endTime;
-  int? capacity;
+  int capacity;
 
   TimeslotData({
-    this.id,
-    this.serviceid,
-    this.name,
-    this.startTime,
-    this.endTime,
-    this.capacity,
+    this.id = '',
+    this.serviceid = '',
+    this.name = '',
+    this.startTime = '',
+    this.endTime = '',
+    this.capacity = 0,
   });
 
   factory TimeslotData.fromJson(Map<String, dynamic> json) {
@@ -20,8 +20,9 @@ class TimeslotData {
       id: json['id'] as String?,
       serviceid: json['serviceid'] as String?,
       name: json['name'] as String?,
-      startTime: json['startTime'] as String?,
-      endTime: json['endTime'] as String?,
+      startTime: json['start_time'] as String?,
+      endTime: json['end_time'] as String?,
+      capacity: (json['capacity'] ?? 0) as int,
     );
   }
 
@@ -32,6 +33,7 @@ class TimeslotData {
       'name': name,
       'startTime': startTime,
       'endTime': endTime,
+      'capacity': capacity,
     };
   }
 }
@@ -53,8 +55,8 @@ class AuraData {
     return AuraData(
       id: json['id'] as String?,
       name: json['name'] as String?,
-      price: json['price'] as double?,
-      offer: json['offer'] as double?,
+      price: double.parse(json['price']),
+      offer: double.parse(json['offer']),
       slots: lst,
     );
   }

@@ -28,7 +28,9 @@ export class Module implements OnInit {
   criteria = signal<Criteria[]>([]);
   list = signal<IModuleData[]>([]);
   course_list = signal<ICourseData[]>([]);
+  filter_course_list = signal<ICourseData[]>([]);
   schedule_list = signal<ISchdeuleData[]>([]);
+  filter_schedule_list = signal<ISchdeuleData[]>([]);
   loader = signal<boolean>(false);
   playerDialog = signal<boolean>(false);
   formDialog = signal<boolean>(false);
@@ -152,11 +154,13 @@ export class Module implements OnInit {
       type: 'btn btn-primary w-full',
     },
   ]);
+
   filterForm: FormGroup = new FormGroup({
-    courseid: new FormControl(''),
-    scheduleid: new FormControl(''),
+    filterCourseId: new FormControl(''),
+    filterScheduleId: new FormControl(''),
     status: new FormControl(''),
   });
+
   constructor(
     private service: ModuleService,
     private course: CourseService,
@@ -164,18 +168,23 @@ export class Module implements OnInit {
     private titleService: TitleService,
     private sanitizer: DomSanitizer,
   ) {}
-  async ngOnInit(): Promise<void> {
+  async ngOnInit(): Promise<void> {    
     this.titleService.title = 'Modules';
     this.show(this.loader);
     let result = await this.course.list({});
-    if (result) {
-      this.course_list.set(result.rows!);
-    }
+      this.course_list.set(result?.rows! ?? []);
+      this.filter_course_list.set(result?.rows! ?? []);
     this.hide(this.loader);
   }
+
   async filter() {
     let formData = this.filterForm.getRawValue();
-    console.log(formData);
+    let courseid = formData.filterCourseId;
+    let scheduleid = formData.filterScheduleId;
+    delete formData.filterCourseId;
+    delete formData.filterScheduleId;
+    formData['courseid'] = courseid;
+    formData['scheduleid'] = scheduleid;
     let keys = Object.keys(formData);
     let criteria: Criteria[] = [];
     keys.forEach((k) => {
@@ -190,12 +199,12 @@ export class Module implements OnInit {
         criteria.push(row);
       }
     });
-    console.log(criteria);
     this.criteria.set(criteria);
     this.show(this.loader);
     await this.load();
     this.hide(this.loader);
   }
+
   async load() {
     let result = await this.service.list({ criteria: this.criteria() });
     if (result) {
@@ -205,33 +214,62 @@ export class Module implements OnInit {
       this.list.set([]);
     }
   }
-  async load_schedules(filter: Filter) {
-    let result = await this.schedule.list(filter);
-    if (result) {
-      this.form.controls['scheduleid'].setValue('');
-      this.schedule_list.set(result.rows!);
+
+  async load_schedules(type: 'D' | 'F', filter: Filter) {
+    const result = await this.schedule.list(filter);
+    switch (type) {
+      case 'D':
+        this.schedule_list.set(result?.rows! ?? []);
+        break;
+      case 'F':
+        this.filter_schedule_list.set(result?.rows! ?? []);
+        break;
     }
   }
-  async changeHandler($event: Event): Promise<void> {
-    $event.preventDefault();
-    let el: any = $event.target as HTMLElement;
-    //console.log(el.value);
-    this.show(this.loader);
-    this.filterForm.controls['scheduleid'].setValue('');
-    await this.load_schedules({
+
+  async onValueChange(event: Event) : Promise<void> {    
+    setTimeout(() => {
+    console.log(event);
+    // Perform update logic here
+  });
+    const value = (event.target as HTMLInputElement).value;    
+    //const courseId = this.form.controls['courseid'].getRawValue();
+    this.show(this.loader);      
+    await this.load_schedules('D', {
       criteria: [
         {
           column: 'courseid',
           cop: COP.eq,
-          value: el.value,
+          value: value,
+        },
+      ],
+    });
+    this.hide(this.loader);
+    this.form.controls['scheduleid'].setValue('');
+  }
+
+  async filterChangeHandler( $event: Event): Promise<void> {
+    const el: any = $event.target as HTMLElement;
+    const courseId = el.value;
+    console.log(courseId);
+    this.show(this.loader);    
+    this.filterForm.controls['filterScheduleId'].setValue('');
+    await this.load_schedules('F', {
+      criteria: [
+        {
+          column: 'courseid',
+          cop: COP.eq,
+          value: courseId,
         },
       ],
     });
     this.hide(this.loader);
   }
+
   fileChange($event: File | null) {
     this.file.set($event);
   }
+  
   async showPlayer(id: string) {
     let row = this.list().find((x) => x.id === id);
     console.log(row);
@@ -245,14 +283,11 @@ export class Module implements OnInit {
     this.preview.set(url);
     this.playerDialog.set(true);
   }
-  async show(me: WritableSignal<boolean>, id?: string) {
-    me.set(true);
-    if (id) {
-      this.mode.set('EDIT');
-    } else {
-      this.mode.set('ADD');
+  async show(me: WritableSignal<boolean>, mode?: 'ADD' |'EDIT', id?: string) {    
+    if (mode!) {
+      this.mode.set(mode!);
     }
-    switch (this.mode()) {
+    switch (mode!) {
       case 'ADD':
         this.form.reset({
           courseid: '',
@@ -260,13 +295,12 @@ export class Module implements OnInit {
         });
         this.preview.set('');
         this.plainUrl.set('');
-        this.dialogTitle.set('New Module');
-        me.set(true);
+        this.dialogTitle.set('New Module');        
         break;
       case 'EDIT':
         let row = this.list().find((x) => x.id === id);
         this.show(this.loader);
-        await this.load_schedules({
+        await this.load_schedules('D', {
           criteria: [
             {
               column: 'courseid',
@@ -286,17 +320,13 @@ export class Module implements OnInit {
         this.preview.set(url);
 
         this.hide(this.loader);
-        this.dialogTitle.set('Update Module');
-        me.set(true);
-        break;
-      default:
-        me.set(true);
+        this.dialogTitle.set('Update Module');        
         break;
     }
+    me.set(true);
   }
   hide(me: WritableSignal<boolean>) {
-    me.set(false);
-    //this.form.reset();
+    me.set(false);    
   }
   async delete(id: string): Promise<void> {
     this.show(this.loader);

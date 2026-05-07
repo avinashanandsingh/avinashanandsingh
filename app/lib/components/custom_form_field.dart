@@ -17,6 +17,9 @@ class CustomFormField extends StatefulWidget {
   final Function(String)? onSubmitted;
   final IconData? prefixIcon;
   final bool readOnly;
+  final DateTime? initialDate;
+  final DateTime? firstDate;
+  final DateTime? lastDate;
   const CustomFormField({
     super.key,
     required this.hintText,
@@ -31,7 +34,13 @@ class CustomFormField extends StatefulWidget {
     this.onSubmitted,
     this.prefixIcon,
     this.readOnly = false,
+    this.initialDate,
+    this.firstDate,
+    this.lastDate,
   });
+  /* this.initialDate = DateTime.now(),
+    this.firstDate = DateTime(DateTime.now().year),
+    this.lastDate = DateTime(2100), */
 
   @override
   CustomFormFieldState createState() => CustomFormFieldState();
@@ -59,9 +68,9 @@ class CustomFormFieldState extends State<CustomFormField> {
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(DateTime.now().year),
-      lastDate: DateTime(2100),
+      initialDate: widget.initialDate,
+      firstDate: widget.firstDate!,
+      lastDate: widget.lastDate!,
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
@@ -81,7 +90,10 @@ class CustomFormFieldState extends State<CustomFormField> {
     if (picked != null) {
       setState(() {
         // Formats the date: 2026-04-27
-        _controller.text = DateFormat('dd-MM-yyyy').format(picked.toLocal());
+        _controller.text = DateFormat('dd/MM/yyyy').format(picked.toLocal());
+        widget.onChanged?.call(
+          DateFormat('yyyy-MM-dd').format(picked.toLocal()),
+        );
       });
     }
   }

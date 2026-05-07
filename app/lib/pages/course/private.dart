@@ -20,12 +20,15 @@ class PrivateCourseState extends State<PrivateCourse>
     with SingleTickerProviderStateMixin {
   late TabController tabController;
   late AppTheme theme = AppTheme();
-  int tabs = 2;
+  int tabs = 1;
   @override
   void initState() {
     super.initState();
+    if (widget.data!.modules != null) {
+      tabs += 1;
+    }
     if (widget.data!.certified!) {
-      tabs = 3;
+      tabs += 1;
     }
     tabController = TabController(length: tabs, vsync: this);
   }
@@ -172,6 +175,7 @@ class PrivateCourseState extends State<PrivateCourse>
   }
 
   Widget metadataGrid() {
+    int modules = widget.data?.modules?.length ?? 0;
     final metadata = [
       {
         'icon': Icons.star,
@@ -185,7 +189,11 @@ class PrivateCourseState extends State<PrivateCourse>
         'iconColor': Colors.grey,
         'text': widget.data!.certified! ? 'Certified' : 'Non-Certified',
       },
-      {'icon': Icons.grid_view, 'iconColor': Colors.grey, 'text': '5 Modules'},
+      {
+        'icon': Icons.grid_view,
+        'iconColor': Colors.grey,
+        'text': '$modules Modules',
+      },
       {
         'icon': Icons.person_outline,
         'iconColor': Colors.grey,
@@ -269,7 +277,7 @@ class PrivateCourseState extends State<PrivateCourse>
         controller: tabController,
         children: [
           overview(),
-          curriculum(),
+          if (widget.data?.modules != null) curriculum(),
           //_buildForumTab(),
           if (widget.data!.certified!) certificate(),
         ],
@@ -322,7 +330,8 @@ class PrivateCourseState extends State<PrivateCourse>
   }
 
   Widget curriculum() {
-    final ml = widget.data!.modules!;
+    final ml = widget.data?.modules;
+    print(widget.data?.toJson());
     final List<Map<String, dynamic>> list = List.empty(growable: true);
     int i = 1;
     for (var item in ml) {

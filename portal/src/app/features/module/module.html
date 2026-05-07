@@ -7,7 +7,7 @@
             <p class="text-gray-500 text-sm">Manage modules here</p>
         </div>
         <div>
-            <button (click)="show(formDialog)" class="btn btn-primary text-base items-center">
+            <button (click)="show(formDialog, 'ADD')" class="btn btn-primary text-base items-center">
                 <i class="bi bi-calendar-plus text-xl mr-2"></i>
                 Add New Module
             </button>
@@ -19,17 +19,17 @@
             class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border border-gray-300 rounded p-3">
 
             <div class="flex-1 w-full">
-                <select id="courseId" class="select" formControlName="courseid" (change)="changeHandler($event)">
+                <select id="filterCourseId" class="select" formControlName="filterCourseId" (change)="filterChangeHandler($event)">
                     <option selected value="">Select a Course</option>
-                    @for(item of course_list(); track item.id){
+                    @for(item of filter_course_list(); track item.id){
                     <option [value]="item.id">{{item.title}}</option>
                     }
                 </select>
             </div>
             <div class="flex-1 w-full">
-                <select id="scheduleId" class="select" formControlName="scheduleid">
+                <select id="filterScheduleId" class="select" formControlName="filterScheduleId">
                     <option selected value="">Select a Schedule</option>
-                    @for(item of schedule_list(); track item.id){
+                    @for(item of filter_schedule_list(); track item.id){
                     <option [value]="item.id">{{item.title}}</option>
                     }
                 </select>
@@ -137,7 +137,7 @@
                                     class="text-purple-600 hover:text-purple-900 text-base">
                                     <i class="bi bi-play-circle"></i>
                                 </button>
-                                <button (click)="show(formDialog, item.id!)"
+                                <button (click)="show(formDialog, 'EDIT', item.id!)"
                                     class="text-purple-600 hover:text-purple-900 text-base">
                                     <i class="bi bi-pencil-square"></i>
                                 </button>
@@ -165,9 +165,9 @@
         <div class="space-y-4">
             <input type="hidden" id="id" formControlName="id" />
             <div>
-                <label class="label">Course <span class="text-red-500">*</span></label>
-                <select class="select w-full" id="courseid" formControlName="courseid" required
-                    (change)="changeHandler($event)">
+                <label for="courseid" class="label">Course <span class="text-red-500">*</span></label>
+                <select class="select w-full" id="courseid" formControlName="courseid"
+                    (change)="onValueChange($event)">
                     <option selected value="">Select a course</option>
                     @for(item of course_list(); track item.id){
                     <option [value]="item.id">{{item.title}}</option>

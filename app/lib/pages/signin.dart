@@ -1,5 +1,8 @@
+import 'package:app/components/label.dart';
+import 'package:app/components/loader.dart';
 import 'package:app/models/signin.dart';
 import 'package:app/services/storage.dart';
+import 'package:app/utils/alert.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:app/components/custom_form_field.dart';
 import 'package:app/helpers/convert.dart';
@@ -90,7 +93,7 @@ class _SignInState extends State<SignIn> {
                   ),
                 ),
                 const SizedBox(height: 32),
-                _buildLabel('Username'),
+                Label(text: 'Username'),
                 CustomFormField(
                   hintText: "Username",
                   type: FieldType.text,
@@ -102,7 +105,7 @@ class _SignInState extends State<SignIn> {
                   },
                 ),
                 const SizedBox(height: 20),
-                _buildLabel('Password'),
+                Label(text: 'Password'),
                 CustomFormField(
                   hintText: "Password",
                   type: FieldType.password,
@@ -132,7 +135,7 @@ class _SignInState extends State<SignIn> {
                       ),
                       child: Text(
                         'Forgot Password?',
-                        style: GoogleFonts.inter(
+                        style: GoogleFonts.montserrat(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           color: AppColors.gradientTop,
@@ -146,27 +149,14 @@ class _SignInState extends State<SignIn> {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () async {
+                      Loader.show();
                       dynamic result = await Identity.instance.signin(model);
+                      Loader.hide();
                       if (result?['errors'] != null) {
                         dynamic error = result?['errors'][0];
-
                         String msg =
                             error['extensions']['originalError']['message'];
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              msg,
-                              style: GoogleFonts.montserrat(
-                                color: AppColors.error,
-                              ),
-                            ),
-                            backgroundColor: Colors.white,
-                            behavior: SnackBarBehavior.floating,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                        );
+                        Alert.show(msg, isError: true);
                       } else {
                         String token = result['data']['signin'];
                         await store.set("token", token);
@@ -214,14 +204,11 @@ class _SignInState extends State<SignIn> {
                     child: RichText(
                       text: TextSpan(
                         text: "Don't have an account? ",
-                        style: GoogleFonts.inter(
-                          color: Colors.black87,
-                          fontSize: 16,
-                        ),
+                        style: TextTheme.of(context).labelSmall,
                         children: [
                           TextSpan(
                             text: 'Sign Up',
-                            style: GoogleFonts.inter(
+                            style: TextTheme.of(context).labelSmall?.copyWith(
                               color: AppColors.gradientTop,
                               fontWeight: FontWeight.bold,
                             ),
@@ -234,20 +221,6 @@ class _SignInState extends State<SignIn> {
               ],
             ),
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLabel(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: Text(
-        text,
-        style: GoogleFonts.inter(
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-          color: Colors.black87,
         ),
       ),
     );

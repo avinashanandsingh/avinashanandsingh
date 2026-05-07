@@ -1,7 +1,18 @@
 import 'package:app/components/custom_form_field.dart';
 import 'package:app/components/label.dart';
+import 'package:app/components/loader.dart';
+import 'package:app/helpers/convert.dart';
+import 'package:app/services/service.dart';
+import 'package:app/theme/theme.dart';
+import 'package:app/utils/alert.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+
+class ChangePasswordData {
+  String newPassword = '';
+  String confirmPassword = '';
+}
 
 class ChangePassword extends StatefulWidget {
   const ChangePassword({super.key});
@@ -11,65 +22,36 @@ class ChangePassword extends StatefulWidget {
 }
 
 class _ChangePasswordState extends State<ChangePassword> {
-  final TextEditingController _currentPasswordController =
-      TextEditingController();
-  final TextEditingController _newPasswordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
-
-  bool _obscureCurrent = true;
-  bool _obscureNew = true;
-  bool _obscureConfirm = true;
-
+  late ChangePasswordData model = ChangePasswordData();
+  final formKey = GlobalKey<FormState>();
   @override
   void initState() {
     super.initState();
-    _newPasswordController.addListener(() {
-      setState(() {});
-    });
+    model = ChangePasswordData();
   }
 
   @override
   void dispose() {
-    _currentPasswordController.dispose();
-    _newPasswordController.dispose();
-    _confirmPasswordController.dispose();
     super.dispose();
   }
 
-  String get _newPassword => _newPasswordController.text;
+  String get _newPassword => model.newPassword;
 
-  bool get _hasMinLength => _newPassword.length >= 10;
+  bool get _hasMinLength => _newPassword.length >= 8;
   bool get _hasUppercase => _newPassword.contains(RegExp(r'[A-Z]'));
   bool get _hasLowercase => _newPassword.contains(RegExp(r'[a-z]'));
   bool get _hasNumber => _newPassword.contains(RegExp(r'[0-9]'));
   bool get _hasSpecial =>
       _newPassword.contains(RegExp(r'[!@#\$%^&*(),.?":{}|<>]'));
 
-  double get _strengthProgress {
-    int score = 0;
-    if (_hasMinLength) score++;
-    if (_hasUppercase) score++;
-    if (_hasLowercase) score++;
-    if (_hasNumber) score++;
-    if (_hasSpecial) score++;
-    return score / 5;
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F9FA), // Soft background app color
       appBar: AppBar(
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black87),
-          onPressed: () {
-            // Assume we pop back
-            Navigator.of(context).pop();
-          },
-        ),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
+        title: Text('Change Password'),
+        centerTitle: false,
+        titleTextStyle: TextTheme.of(context).headlineMedium,
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -77,74 +59,98 @@ class _ChangePasswordState extends State<ChangePassword> {
           child: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 450),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Text(
-                      'Change Password',
-                      style: TextTheme.of(context).headlineMedium,
-                    ),
-                  ),
-                  const SizedBox(height: 32),
+              child: Form(
+                key: formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Password Strength Card
+                    _buildRequirementsCard(),
+                    const SizedBox(height: 32),
 
-                  // Password Strength Card
-                  _buildRequirementsCard(),
-                  const SizedBox(height: 32),
-
-                  Label(text: "New Password"),
-                  CustomFormField(
-                    hintText: "New password",
-                    type: FieldType.password,
-                    isRequired: true,
-                  ),
-                  const SizedBox(height: 20),
-                  Label(text: "Confirm Password"),
-                  CustomFormField(
-                    hintText: "Confirm password",
-                    type: FieldType.password,
-                    isRequired: true,
-                  ),
-                  const SizedBox(height: 32),
-
-                  // Submit Button
-                  Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [
-                          Color(0xFF2B0A5E),
-                          Color(0xFF5D20A6),
-                        ], // Deep purple gradient
-                        begin: Alignment.centerLeft,
-                        end: Alignment.centerRight,
-                      ),
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // TODO: Implement change password action
+                    Label(text: "New Password"),
+                    CustomFormField(
+                      hintText: "New password",
+                      type: FieldType.password,
+                      isRequired: true,
+                      onChanged: (value) {
+                        setState(() {
+                          model.newPassword = value;
+                        });
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.transparent,
-                        shadowColor: Colors.transparent,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(24),
+                    ),
+                    const SizedBox(height: 20),
+                    Label(text: "Confirm Password"),
+                    CustomFormField(
+                      hintText: "Confirm password",
+                      type: FieldType.password,
+                      isRequired: true,
+                      onChanged: (value) {
+                        setState(() {
+                          model.confirmPassword = value;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 32),
+
+                    // Submit Button
+                    Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [
+                            Color(0xFF2B0A5E),
+                            Color(0xFF5D20A6),
+                          ], // Deep purple gradient
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
                         ),
+                        borderRadius: BorderRadius.circular(24),
                       ),
-                      child: Text(
-                        'Confirm and Change Password',
-                        style: GoogleFonts.inter(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          if (formKey.currentState?.validate() ?? false) {
+                            Loader.show();
+                            var result = await Service.identity.changePassword(
+                              newPassword: Convert.toBase64(model.newPassword),
+                            );
+                            Loader.hide();
+                            if (result!['data']!['changePassword'] != null) {
+                              var data = result['data']['changePassword'];
+                              var succeed = data['succeed'];
+                              String msg =
+                                  data['message'] ??
+                                  'Password changed successfully';
+                              Alert.show(msg, isError: !succeed);
+                            } else {
+                              dynamic error = result!['errors']![0];
+                              String msg =
+                                  error?.extensions?.originalError?.message;
+                              Alert.show(msg, isError: true);
+                            }
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.transparent,
+                          shadowColor: Colors.transparent,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                        ),
+                        child: Text(
+                          'Confirm and Change Password',
+                          style: GoogleFonts.inter(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 48),
-                ],
+                    const SizedBox(height: 48),
+                  ],
+                ),
               ),
             ),
           ),
@@ -217,51 +223,6 @@ class _ChangePasswordState extends State<ChangePassword> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildLabel(String text) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: Text(
-        text,
-        style: GoogleFonts.inter(
-          fontSize: 14,
-          fontWeight: FontWeight.w600,
-          color: Colors.black87,
-        ),
-      ),
-    );
-  }
-
-  InputDecoration _inputDecoration({
-    required String hint,
-    required bool isObscured,
-    required VoidCallback onToggleVisibility,
-  }) {
-    return InputDecoration(
-      hintText: hint,
-      hintStyle: GoogleFonts.inter(color: Colors.grey.shade500, fontSize: 14),
-      filled: true,
-      fillColor: Colors.white,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: Colors.grey.shade300),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: Color(0xFF4A2396)),
-      ),
-      suffixIcon: IconButton(
-        icon: Icon(
-          isObscured
-              ? Icons.visibility_off_outlined
-              : Icons.visibility_outlined,
-          color: Colors.grey.shade500,
-        ),
-        onPressed: onToggleVisibility,
-      ),
     );
   }
 }

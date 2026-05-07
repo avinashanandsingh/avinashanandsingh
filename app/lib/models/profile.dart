@@ -6,11 +6,16 @@ class ProfileData {
   String? role;
   String? firstName;
   String? lastName;
-  String? email;
-  String? phone;
+  String? dob;
+  String? gender;
+  String? about;
+  String? address;
   int? countryId;
   int? stateId;
   int? cityId;
+  String? postalCode;
+  String? email;
+  String? phone;
   String? profession;
   String? currency;
   double? income;
@@ -21,6 +26,9 @@ class ProfileData {
     this.avatar,
     this.firstName,
     this.lastName,
+    this.gender,
+    this.address,
+    this.about,
     this.email,
     this.phone,
     this.profession,
@@ -30,7 +38,9 @@ class ProfileData {
     this.stateId,
     this.referedby,
     this.cityId,
+    this.postalCode,
     this.lastLoginAt,
+    this.dob,
   });
 
   factory ProfileData.fromJson(Map<String, dynamic> json) {
@@ -39,11 +49,16 @@ class ProfileData {
       avatar: json['avatar'] as String?,
       firstName: json['first_name'] as String?,
       lastName: json['last_name'] as String?,
-      email: json['email'] as String?,
-      phone: json['phone'] as String?,
+      dob: json['dob'] as String?,
+      gender: json['gender'] as String?,
+      address: json['address'] as String?,
+      about: json['about'] as String?,
       countryId: json['countryid']?.toInt(),
       stateId: json['stateid'] as int?,
       cityId: json['cityid'] as int?,
+      postalCode: json['postal_code'] as String?,
+      email: json['email'] as String?,
+      phone: json['phone'] as String?,
       profession: json['profession'] as String?,
       currency: json['currency'] as String?,
       income: json['income']?.toDouble(),
@@ -59,11 +74,16 @@ class ProfileData {
       'avatar': avatar,
       'first_name': firstName,
       'last_name': lastName,
-      'email': email,
-      'phone': phone,
+      'dob': dob,
+      'gender': gender,
+      'address': address,
+      'about': about,
       'countryid': countryId,
       'stateid': stateId,
       'cityid': cityId,
+      'postal_code': postalCode,
+      'email': email,
+      'phone': phone,
       'profession': profession,
       'currency': currency,
       'income': income,

@@ -27,6 +27,7 @@ import message from "./message";
 
 import { UserRole } from "../models/enum";
 import meditation from "./meditation";
+import order from "./order";
 
 const mapping = [
   {
@@ -722,6 +723,36 @@ const mapping = [
   {
     name: "deleteSetting",
     execute: setting.delete,
+    include: true,
+    role: UserRole.ADMINISTRATOR,
+  },
+  {
+    name: "order",
+    execute: order.get,
+    include: true,
+    role: UserRole.ANONYMOUS,
+  },
+  {
+    name: "orders",
+    execute: order.list,
+    include: true,
+    role: UserRole.ANONYMOUS,
+  },
+  {
+    name: "newOrder",
+    execute: order.add,
+    include: true,
+    role: UserRole.ANONYMOUS,
+  },
+  {
+    name: "updateOrder",
+    execute: order.update,
+    include: true,
+    role: UserRole.ANONYMOUS,
+  },
+  {
+    name: "deleteOrder",
+    execute: order.delete,
     include: true,
     role: UserRole.ADMINISTRATOR,
   },

@@ -1,32 +1,34 @@
 import { GraphQLError } from "graphql";
 import helper from "../../helper/index";
 import Select from "../../models/select";
-
+import Filter from "../../models/filter";
+import Result from "../../models/result";
+const view = "view_orders";
 export default async (
   _: any,
-  args: { filter: any },
+  args: { filter: Filter },
   _ctx: any,
-): Promise<any> => {
-  let row: any;
-  let table = "view_pages";
-
-  let fields = await helper.data.columns([{ name: table }]);  
-  let filter = args.filter;  
+): Promise<Result<any> | null> => {
+  let result: Result<any> | null = null;
+  let filter = args.filter;
+  let fields = await helper.data.columns([{ name: view }]);
   let input: Select = {
     tables: [
       {
-        name: table,
+        name: view,
         columns: fields.map((x: any) => {
           return { name: x.name };
         }),
       },
     ],
-    criteria: filter.criteria,
+    criteria: filter?.criteria,
+    orderBy: filter?.orderBy,
+    offset: filter?.offset,
+    limit: filter?.limit,
   };
-  let result = await helper.data.select(input);
-  console.log(result);
+  result = await helper.data.select<any>(input);
   if (result?.count! > 0) {
-    row = result?.rows?.shift();
+    return result;
   } else {
     let msg = await helper.message.me(204);
     throw new GraphQLError("An error occured", {
@@ -38,5 +40,4 @@ export default async (
       },
     });
   }
-  return row;
 };

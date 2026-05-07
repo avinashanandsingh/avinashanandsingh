@@ -8,10 +8,9 @@ export default async (
   _ctx: any,
 ): Promise<any> => {
   let row: any;
-  let table = "view_pages";
-
-  let fields = await helper.data.columns([{ name: table }]);  
-  let filter = args.filter;  
+  let table = "view_orders";
+  let fields = await helper.data.columns([{ name: table }]);
+  let filter = args.filter;
   let input: Select = {
     tables: [
       {
@@ -23,10 +22,9 @@ export default async (
     ],
     criteria: filter.criteria,
   };
-  let result = await helper.data.select(input);
-  console.log(result);
+  let result = await helper.data.select<any>(input);
   if (result?.count! > 0) {
-    row = result?.rows?.shift();
+    row = result.rows?.shift();
   } else {
     let msg = await helper.message.me(204);
     throw new GraphQLError("An error occured", {
@@ -38,5 +36,6 @@ export default async (
       },
     });
   }
+
   return row;
 };

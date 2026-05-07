@@ -2,17 +2,22 @@ type User {
   id: UUID
   first_name: String
   last_name: String
+  about: String
   role: UserRole
-  email: String
-  password: String
-  avatar: String
-  phone: String
+  dob: DateTime
+  gender: Gender
+  address: String
   countryid: Int
   country: Country
   stateid: Int
   state: State
   cityid: Int
   city: City
+  postal_code: String
+  email: String
+  password: String
+  avatar: String
+  phone: String  
   verified: Boolean
   status: String
   profession: String
@@ -32,20 +37,10 @@ type UserResult {
   rows:[User]
 }
 
-type Forgot {
+type Result {
   succeed: Boolean
   message: String
 }
-
-type Reset {
-  succeed: Boolean
-  message: String
-}
-type Verifed {
-  succeed: Boolean
-  message: String
-}
-
 
 type Category {
   id: UUID!
@@ -397,8 +392,8 @@ type Timeslot {
 type Service {
   id: UUID
   name: String
-  price: Float
-  offer: Float
+  price: String
+  offer: String
   timeslots: [Timeslot]
   status: String
   creator: User
@@ -515,4 +510,27 @@ type Setting {
 type SettingResult {
   count: Int
   rows: [Setting]
+}
+
+type Order {
+  id: UUID
+  orderid: String
+  context: String
+  contextid: UUID
+  price: String
+  order_status: String
+  order_status_reason: String
+  payment_status: String
+  payment_status_reason: String
+  paymentid: String  
+  signature: String
+  creator: User
+  createdat: DateTime
+  updater: User
+  updatedat: DateTime
+}
+
+type OrderResult {
+  count: Int
+  rows: [Order]
 }

@@ -1,14 +1,11 @@
 class CountryData {
-  String? id;
+  int? id;
   String? name;
 
   CountryData({this.id, this.name});
 
   factory CountryData.fromJson(Map<String, dynamic> json) {
-    return CountryData(
-      id: json['id'] as String?,
-      name: json['name'] as String?,
-    );
+    return CountryData(id: json['id'] as int?, name: json['name'] as String?);
   }
 
   // Object to JSON conversion
@@ -18,13 +15,13 @@ class CountryData {
 }
 
 class StateData {
-  String? id;
+  int? id;
   String? name;
 
   StateData({this.id, this.name});
 
   factory StateData.fromJson(Map<String, dynamic> json) {
-    return StateData(id: json['id'] as String?, name: json['name'] as String?);
+    return StateData(id: json['id'] as int?, name: json['name'] as String?);
   }
 
   // Object to JSON conversion
@@ -34,13 +31,13 @@ class StateData {
 }
 
 class CityData {
-  String? id;
+  int? id;
   String? name;
 
   CityData({this.id, this.name});
 
   factory CityData.fromJson(Map<String, dynamic> json) {
-    return CityData(id: json['id'] as String?, name: json['name'] as String?);
+    return CityData(id: json['id'] as int?, name: json['name'] as String?);
   }
 
   // Object to JSON conversion

@@ -25,6 +25,7 @@ class AppColors {
   static const Color textPrimaryDark = Color(0xFFF3D5B9);
   static const Color textSecondaryDark = Color(0xFFEDC8A6);
   static const Color error = Colors.red;
+  static const Color success = Color.fromARGB(255, 46, 125, 50);
 }
 
 class AppTheme {

@@ -1,11 +1,16 @@
+import 'package:app/models/aura.dart';
+import 'package:app/models/order.dart';
+import 'package:app/services/service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../components/layout.dart';
 import '../theme/theme.dart';
 
 class AuraScan extends StatefulWidget {
-  const AuraScan({super.key});
+  final List<AuraData> data;
+  const AuraScan({super.key, required this.data});
 
   @override
   State<AuraScan> createState() => _AuraScanPageState();
@@ -13,14 +18,13 @@ class AuraScan extends StatefulWidget {
 
 class _AuraScanPageState extends State<AuraScan> {
   late Razorpay _razorpay;
-
   @override
   void initState() {
     super.initState();
     _razorpay = Razorpay();
-    //_razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
-    //_razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
-    //_razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
+    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
+    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
+    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternalWallet);
   }
 
   @override
@@ -29,16 +33,53 @@ class _AuraScanPageState extends State<AuraScan> {
     super.dispose();
   }
 
-  void _handlePaymentSuccess(PaymentSuccessResponse response) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text("Payment Successful!"),
-        backgroundColor: Colors.green,
-      ),
+  void _handlePaymentSuccess(PaymentSuccessResponse response) async {
+    print(
+      'PaymentSuccessResponse: ${response.paymentId}, ${response.signature}',
     );
+    String? orderId = await Service.store.get("latest_order_id");
+    OrderData orderData = OrderData(
+      orderStatus: "CONFIRMED",
+      orderStatusReason: 'Your payment was successful and order is confirmed',
+      paymentStatus: "PAID",
+      paymentStatusReason: 'Your payment was successful',
+      paymentid: response.paymentId,
+      signature: response.signature,
+      updatedat: DateTime.now(),
+    );
+    OrderData? order = await Service.order.update(orderId!, orderData);
+    print('updated Order: ${order?.toJson()}');
+    if (order?.id == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            "Payment was successful but failed to update order. Please contact support.",
+          ),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Payment Successful! Your order is confirmed."),
+          backgroundColor: Colors.green,
+        ),
+      );
+    }
   }
 
-  void _handlePaymentError(PaymentFailureResponse response) {
+  void _handlePaymentError(PaymentFailureResponse response) async {
+    if (response.code == 0) {
+      String? orderId = await Service.store.get("latest_order_id");
+      OrderData orderData = OrderData(
+        paymentStatus: "CANCELLED",
+        paymentStatusReason: response.message,
+
+        updatedat: DateTime.now(),
+      );
+      OrderData? order = await Service.order.update(orderId!, orderData);
+      print('updated Order: ${order?.toJson()}');
+    }
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text("Payment Failed: ${response.message}"),
@@ -48,72 +89,26 @@ class _AuraScanPageState extends State<AuraScan> {
   }
 
   void _handleExternalWallet(ExternalWalletResponse response) {
+    print('ExternalWalletResponse: ${response.walletName}');
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text("External Wallet: ${response.walletName}")),
     );
   }
 
-  void _openCheckout(int amount, String machineName) {
-    var options = {
-      'key': 'rzp_test_YOUR_KEY', // Replace with your key
-      'amount': amount * 100, // amount in the smallest currency unit
-      'name': 'Booking for Aura Scan',
-      'description': 'Aura Scan - $machineName',
-      'timeout': 300, // in seconds
-      'prefill': {'contact': '9876543210', 'email': 'user@example.com'},
-      'theme': {'color': '#5A2A82'},
-    };
-
+  void _openCheckout(dynamic options) {
     try {
       _razorpay.open(options);
     } catch (e) {
-      debugPrint('Error: $e');
+      print('Error: $e');
     }
   }
 
-  static const List<Map<String, String>> _timeSlots = [
-    {
-      'name': 'Morning Slot A',
-      'start': '09:00 AM',
-      'end': '10:00 AM',
-      'capacity': '5',
-    },
-    {
-      'name': 'Morning Slot B',
-      'start': '10:00 AM',
-      'end': '11:00 AM',
-      'capacity': '5',
-    },
-    {
-      'name': 'Morning Slot C',
-      'start': '11:00 AM',
-      'end': '12:00 PM',
-      'capacity': '3',
-    },
-    {
-      'name': 'Afternoon Slot A',
-      'start': '02:00 PM',
-      'end': '03:00 PM',
-      'capacity': '5',
-    },
-    {
-      'name': 'Afternoon Slot B',
-      'start': '03:00 PM',
-      'end': '04:00 PM',
-      'capacity': '4',
-    },
-    {
-      'name': 'Afternoon Slot C',
-      'start': '04:00 PM',
-      'end': '05:00 PM',
-      'capacity': '3',
-    },
-  ];
-
-  void _showScheduleDialog(String machineName, int price) {
+  void _showScheduleDialog(AuraData item) {
     int? selectedSlotIndex;
     DateTime? selectedDate;
-
+    double? price = (item.offer! > 0 && item.offer! <= item.price!)
+        ? item.offer!
+        : item.price!;
     showDialog(
       context: context,
       builder: (dialogContext) => StatefulBuilder(
@@ -130,7 +125,7 @@ class _AuraScanPageState extends State<AuraScan> {
               children: [
                 Expanded(
                   child: Text(
-                    machineName,
+                    item.name!,
                     style: TextTheme.of(context).headlineSmall,
                   ),
                 ),
@@ -168,13 +163,9 @@ class _AuraScanPageState extends State<AuraScan> {
                     const SizedBox(height: 20),
 
                     // ── Date Picker ──
-                    const Text(
+                    Text(
                       "Select Date",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                        color: Colors.black87,
-                      ),
+                      style: TextTheme.of(context).labelMedium,
                     ),
                     const SizedBox(height: 8),
                     InkWell(
@@ -253,13 +244,10 @@ class _AuraScanPageState extends State<AuraScan> {
                               selectedDate != null
                                   ? "${selectedDate!.day.toString().padLeft(2, '0')}/${selectedDate!.month.toString().padLeft(2, '0')}/${selectedDate!.year}"
                                   : "Tap to pick a date",
-                              style: TextStyle(
+                              style: TextTheme.of(context).labelSmall!.copyWith(
                                 color: selectedDate != null
                                     ? Colors.black87
                                     : Colors.grey,
-                                fontWeight: selectedDate != null
-                                    ? FontWeight.w500
-                                    : FontWeight.normal,
                               ),
                             ),
                             const Spacer(),
@@ -285,8 +273,8 @@ class _AuraScanPageState extends State<AuraScan> {
                       ),
                     ),
                     const SizedBox(height: 8),
-                    ...List.generate(_timeSlots.length, (index) {
-                      final slot = _timeSlots[index];
+                    ...List.generate(item.slots!.length, (index) {
+                      final slot = item.slots?[index];
                       final isSelected = selectedSlotIndex == index;
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 6),
@@ -328,7 +316,7 @@ class _AuraScanPageState extends State<AuraScan> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        slot['name']!,
+                                        slot!.name ?? 'N/A',
                                         style: TextStyle(
                                           fontWeight: FontWeight.w600,
                                           fontSize: 13,
@@ -341,7 +329,7 @@ class _AuraScanPageState extends State<AuraScan> {
                                       Row(
                                         children: [
                                           Text(
-                                            slot['start']!,
+                                            slot.startTime ?? 'N/A',
                                             style: TextStyle(
                                               fontSize: 12,
                                               color: isSelected
@@ -361,7 +349,7 @@ class _AuraScanPageState extends State<AuraScan> {
                                             ),
                                           ),
                                           Text(
-                                            slot['end']!,
+                                            slot.endTime ?? 'N/A',
                                             style: TextStyle(
                                               fontSize: 12,
                                               color: isSelected
@@ -381,17 +369,17 @@ class _AuraScanPageState extends State<AuraScan> {
                                     vertical: 3,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: int.parse(slot['capacity']!) > 0
+                                    color: slot.capacity > 0
                                         ? Colors.green.withValues(alpha: 0.1)
                                         : Colors.red.withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Text(
-                                    '${slot['capacity']} left',
+                                    '${slot.capacity} left',
                                     style: TextStyle(
                                       fontSize: 11,
                                       fontWeight: FontWeight.w600,
-                                      color: int.parse(slot['capacity']!) > 0
+                                      color: slot.capacity > 0
                                           ? Colors.green.shade700
                                           : Colors.red.shade700,
                                     ),
@@ -421,9 +409,61 @@ class _AuraScanPageState extends State<AuraScan> {
               ),
               ElevatedButton(
                 onPressed: (selectedSlotIndex != null && selectedDate != null)
-                    ? () {
+                    ? () async {
                         Navigator.pop(dialogContext);
-                        _openCheckout(price, machineName);
+                        dynamic user = await Service.identity.me();
+                        TimeslotData slot = item.slots![selectedSlotIndex!];
+                        double? amount =
+                            (item.offer! > 0 && item.offer! <= item.price!)
+                            ? item.offer!
+                            : item.price!;
+                        OrderData orderData = OrderData(
+                          context: "AURA_SCANNING",
+                          contextid: item.id,
+                          slotid: slot.id,
+                          name: "Aura Scan - $item.name - $slot.name",
+                          price: amount,
+                          orderStatus: "INITIATED",
+                          orderStatusReason:
+                              'Your order has been initiated and awaiting payment',
+                          paymentStatus: "PENDING",
+                          createdat: DateTime.now(),
+                        );
+                        OrderData? order = await Service.order.add(orderData);
+                        if (order?.id == null) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                "Failed to create order. Please try again.",
+                              ),
+                              backgroundColor: AppColors.error,
+                            ),
+                          );
+                        } else {
+                          await Service.store.set(
+                            "latest_order_id",
+                            order!.id!,
+                          );
+                          var options = {
+                            'key':
+                                dotenv.env['RAZORPAY_KEY'] ??
+                                '', // Replace with your key
+                            'currency': 'INR',
+                            'amount':
+                                1 *
+                                100, // amount in the smallest currency unit amount * 100
+                            'name': 'Booking for Aura Scan',
+                            'description':
+                                'Aura Scan - $item.name! - $slot.name!',
+                            'timeout': 300, // in seconds
+                            'prefill': {
+                              'contact': user['phone'] ?? '',
+                              'email': user['email'] ?? '',
+                            },
+                            'theme': {'color': '#5A2A82'},
+                          };
+                          _openCheckout(options);
+                        }
                       }
                     : null,
                 style: ElevatedButton.styleFrom(
@@ -438,7 +478,7 @@ class _AuraScanPageState extends State<AuraScan> {
                   elevation: 0,
                   padding: const EdgeInsets.all(8),
                 ),
-                child: const Text("Book Now"),
+                child: const Text("Pay Now"),
               ),
             ],
           );
@@ -458,7 +498,7 @@ class _AuraScanPageState extends State<AuraScan> {
           padding: const EdgeInsets.all(20.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+            children: <Widget>[
               Text(
                 "Choose option to scan your aura",
                 style: TextTheme.of(context).headlineSmall,
@@ -469,19 +509,12 @@ class _AuraScanPageState extends State<AuraScan> {
                 style: TextStyle(color: Colors.grey),
               ),
               const SizedBox(height: 24),
-              _buildMachineBox(
-                "Machine 1",
-                500,
-                "Standard aura analysis with basic chakra alignment report.",
-                Icons.radar_outlined,
-              ),
-              const SizedBox(height: 20),
-              _buildMachineBox(
-                "Machine 2",
-                750,
-                "Advanced deep-scan technology with comprehensive energy field visualization.",
-                Icons.biotech_outlined,
-              ),
+
+              // Multiline loop rendering
+              for (var item in widget.data) ...[
+                _buildMachineBox(item, Icons.radar_outlined),
+                const SizedBox(height: 20),
+              ],
               const SizedBox(height: 40),
               // Why Aura Scan Section
               Container(
@@ -527,14 +560,12 @@ class _AuraScanPageState extends State<AuraScan> {
     );
   }
 
-  Widget _buildMachineBox(
-    String name,
-    int price,
-    String description,
-    IconData icon,
-  ) {
+  Widget _buildMachineBox(AuraData item, IconData icon) {
+    double? price = (item.offer! > 0 && item.offer! <= item.price!)
+        ? item.offer!
+        : item.price!;
     return GestureDetector(
-      onTap: () => _showScheduleDialog(name, price),
+      onTap: () => _showScheduleDialog(item),
       child: Container(
         width: double.infinity,
         decoration: BoxDecoration(
@@ -593,27 +624,18 @@ class _AuraScanPageState extends State<AuraScan> {
                     ),
                     const SizedBox(height: 20),
                     Text(
-                      name,
+                      item.name!,
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                         color: Colors.black87,
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Text(
-                      description,
-                      style: TextStyle(
-                        color: Colors.grey.shade600,
-                        fontSize: 14,
-                        height: 1.4,
-                      ),
-                    ),
                     const SizedBox(height: 20),
                     Row(
                       children: [
                         const Text(
-                          "Click to Schedule",
+                          "Book Now",
                           style: TextStyle(
                             color: AppColors.primary,
                             fontWeight: FontWeight.w600,

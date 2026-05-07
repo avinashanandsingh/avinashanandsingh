@@ -184,14 +184,14 @@ class _VerifyOtpState extends State<VerifyOtp> {
                           otp += _controllers[i].text;
                         }
 
-                        Loader.show(context);
+                        Loader.show();
                         try {
                           dynamic result = await Identity.instance.verifyEmail(
                             otp,
                           );
                           dynamic verified = result?['data']?['verifyEmail'];
                           if (verified != null) {
-                            Loader.hide(context);
+                            Loader.hide();
                             if (verified['succeed']) {
                               Navigator.of(context).push(
                                 MaterialPageRoute(
@@ -219,7 +219,7 @@ class _VerifyOtpState extends State<VerifyOtp> {
                             dynamic error = result?.errors?[0];
                             String msg =
                                 error?.extensions?.originalError?.message;
-                            Loader.hide(context);
+                            Loader.hide();
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
@@ -237,7 +237,7 @@ class _VerifyOtpState extends State<VerifyOtp> {
                             );
                           }
                         } catch (e) {
-                          Loader.hide(context);
+                          Loader.hide();
                           print(e);
                         }
                         /* Navigator.push(

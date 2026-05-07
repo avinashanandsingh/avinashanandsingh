@@ -10,7 +10,7 @@ import UpdateModel from "../../models/update";
 import DeleteModal from "../../models/delete";
 import Table from "../../models/table";
 import { QueryResult } from "pg";
-import Result  from "../../models/result";
+import Result from "../../models/result";
 //const letters = new RegExp(/^[_a-zA-Z0-9]+$/);
 class Data {
   public Distinct: Distinct = new Distinct();
@@ -58,7 +58,7 @@ class Data {
     });
 
     var query = `SELECT table_name as table, column_name as name, data_type as type, character_octet_length length, is_nullable nullable FROM information_schema.columns WHERE table_name IN(${tbls.join(
-      ","
+      ",",
     )})`;
     try {
       let result = await db.read(query, []);
@@ -90,18 +90,18 @@ class Data {
     let query: string = this.Select.build(args);
     let from = query.substring(query.indexOf("FROM")).trim();
     let count = from;
-    if(query.indexOf("ORDER BY") > -1) {
-      count = from.substring(0, from.indexOf("ORDER BY")-1).trim();
-    } else if(query.indexOf("LIMIT") > -1) {
-      count = from.substring(0, from.indexOf("LIMIT")-1).trim();
+    if (query.indexOf("ORDER BY") > -1) {
+      count = from.substring(0, from.indexOf("ORDER BY") - 1).trim();
+    } else if (query.indexOf("LIMIT") > -1) {
+      count = from.substring(0, from.indexOf("LIMIT") - 1).trim();
     }
-        
-     query = `SELECT json_build_object(
+
+    query = `SELECT json_build_object(
       'count', (SELECT count(1) ${count}),
       'rows', json_agg(x)
     ) data
-    FROM (${query}) x;`;    
-    
+    FROM (${query}) x;`;
+
     delete args["groupBy"];
     const values: any[] = [];
     if (args?.criteria !== undefined) {
@@ -118,33 +118,33 @@ class Data {
           alias: column.alias,
         });
       });
-    });    
+    });
     try {
-      let data = await db.read(query, values);    
-      result = data?.rows?.shift().data;      
+      let data = await db.read(query, values);
+      result = data?.rows?.shift().data;
     } catch (e) {
       throw e;
     }
-    return result as Result<T> || null;
+    return (result as Result<T>) || null;
   }
 
   async distinct<T>(args: any): Promise<Result<T> | null> {
     let data: Result<T> | null = null;
     var query: string = this.Distinct.build(args);
     let from = query.substring(query.indexOf("FROM")).trim();
-    let count ="";
-    if(query.indexOf("ORDER BY") > -1) {
-      count = from.substring(0, from.indexOf("ORDER BY")-1).trim();
-    } else if(query.indexOf("LIMIT") > -1) {
-      count = from.substring(0, from.indexOf("LIMIT")-1).trim();
+    let count = "";
+    if (query.indexOf("ORDER BY") > -1) {
+      count = from.substring(0, from.indexOf("ORDER BY") - 1).trim();
+    } else if (query.indexOf("LIMIT") > -1) {
+      count = from.substring(0, from.indexOf("LIMIT") - 1).trim();
     }
-        
-     query = `SELECT json_build_object(
+
+    query = `SELECT json_build_object(
       'count', (SELECT count(1) ${count}),
       'rows', json_agg(x)
     ) data
-    FROM (${query}) x;`;    
-    
+    FROM (${query}) x;`;
+
     delete args.input["groupBy"];
     const values: any[] = [];
     this.extactValues(args.criteria, values);
@@ -187,11 +187,11 @@ class Data {
         });
         rows.push(item);
       });
-      return rows; */      
+      return rows; */
     } catch (e) {
       throw e;
     }
-    return data as Result<T> || null;
+    return (data as Result<T>) || null;
   }
 
   async count(args: any) {
@@ -245,7 +245,7 @@ class Data {
     var query = this.Insert.build(args);
     let row: any;
     try {
-      let result = await db.write(query, values);      
+      let result = await db.write(query, values);
       if (result !== undefined) {
         row = result?.rows?.shift();
       }
@@ -263,31 +263,8 @@ class Data {
     this.extact(args.criteria, values);
     try {
       let result: any = await db.write(query, values);
-      let table: Table = new Table();
-      table.name = args.table;
-      let tables: Table[] = [table];
-      let columns = await this.columns(tables);      
-      if (result?.rowCount > 0) {
-        result?.rows.forEach((item: any) => {
-          var keys = Object.keys(item);
-          keys.forEach((x) => {
-            var tbl_col = columns.find((c) => {
-              return c.name === x;
-            });
-            if (
-              tbl_col.type === "bigint" ||
-              tbl_col.type === "integer" ||
-              tbl_col.type === "real" ||
-              tbl_col.type === "numeric"
-            ) {
-              item[x] = Number(item[x]);
-            } else if (tbl_col.type === "boolean") {
-              item[x] = Boolean(item[x]);
-            }
-          });
-          rows.push(item);
-        });
-        row = rows.shift();
+      if (result !== undefined) {
+        row = result.rows?.shift();
       }
     } catch (e) {
       throw e;
@@ -375,7 +352,7 @@ class Data {
               content: res.rows[0],
             };
           }
-        })
+        }),
       );
       await db.write("COMMIT", []);
     } catch (e) {

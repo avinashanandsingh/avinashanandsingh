@@ -26,33 +26,10 @@ class _DashboardState extends State<Dashboard>
       isSerif: false,
       showActions: true,
       showBack: true,
-      currentIndex: 0,
+      showBottomNav: true,
+      currentIndex: 2,
       body: const Center(child: Text("Dashboard View")),
     );
-  }
-
-  Future<bool> isLoggedIn({
-    required BuildContext context,
-    required bool isAuthenticated,
-    required String loginRoute,
-  }) async {
-    if (!isAuthenticated) {
-      // Wait until the current frame is done (microtask queue)
-      await Future.microtask(() {});
-
-      // Check if context is still mounted
-      if (context.mounted) {
-        // Use rootNavigator to bypass nested navigator locks
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          Navigator.of(
-            context,
-            rootNavigator: true,
-          ).pushReplacementNamed(loginRoute);
-        });
-      }
-      return false;
-    }
-    return true;
   }
 
   Widget _buildCoursesTab() {

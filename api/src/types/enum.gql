@@ -5,6 +5,12 @@ enum UserRole {
   GUEST
 }
 
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+}
+
 enum CourseStatus {
   PUBLISHED
   DRAFT
@@ -15,7 +21,7 @@ enum Context {
   COURSE
   MODULE
   SHORT_VIDEO
-  SERVICE
+  AURA_SCANNING
   SCARED_VIBE_AUDIO
 }
 
@@ -63,6 +69,21 @@ enum Status {
   INACTIVE
   PENDING  
   REJECTED
+}
+
+enum OrderStatus {
+  INITIATED
+  CONFIRMED
+  CANCELLED
+  FAILED
+}
+
+enum PaymentStatus {
+  PENDING
+  CANCELLED
+  PAID
+  REFUNDED
+  FAILED
 }
 
 enum ResourceType {

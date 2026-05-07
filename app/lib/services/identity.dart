@@ -105,6 +105,54 @@ class Identity extends ChangeNotifier {
     return result;
   }
 
+  Future<dynamic> forgot(String email) async {
+    dynamic result;
+    try {
+      dynamic body = {
+        "query":
+            r'mutation forgot ($email: String!) { forgot (email: $email) { succeed message } }',
+        "variables": {"email": email},
+      };
+
+      result = await api.post(url, body);
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+    return result;
+  }
+
+  Future<dynamic> reset(String otp, String newPassword) async {
+    dynamic result;
+    try {
+      dynamic body = {
+        "query":
+            r'mutation reset ($otp: String!, $password: String!) { reset (otp: $otp, password: $password) { succeed message } }',
+        "variables": {"otp": otp, "password": newPassword},
+      };
+
+      result = await api.post(url, body);
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+    return result;
+  }
+
+  Future<dynamic> changePassword({required String newPassword}) async {
+    dynamic result = {};
+    try {
+      dynamic body = {
+        "query":
+            r'mutation changePassword ($password: String!) { changePassword (password: $password) { succeed message } }',
+        "variables": {"password": newPassword},
+      };
+
+      result = await api.post(url, body);
+    } catch (e) {
+      throw Exception(e.toString());
+    }
+    return result;
+  }
+
   Future<dynamic> verifyEmail(String otp) async {
     dynamic result = {};
     try {

@@ -1,10 +1,13 @@
-import 'package:app/components/alert.dart';
 import 'package:app/components/custom_form_field.dart';
+import 'package:app/components/custom_select_field.dart';
 import 'package:app/components/label.dart';
 import 'package:app/components/loader.dart';
+import 'package:app/models/common.dart';
+import 'package:app/models/geo.dart';
 import 'package:app/models/profile.dart';
 import 'package:app/pages/signin.dart';
 import 'package:app/services/service.dart';
+import 'package:app/utils/alert.dart';
 import 'package:flutter/material.dart';
 import '../theme/theme.dart';
 import 'change_password.dart';
@@ -22,11 +25,18 @@ class _ProfileState extends State<Profile> {
   static const Color primaryPurple = AppColors.primary;
   final formKey = GlobalKey<FormState>();
   late ProfileData model = widget.data!;
-  bool _agreedToTerms = false;
-
+  late Future<List<CountryData>> countryList = Future.value([]);
+  late Future<List<StateData>> stateList = Future.value([]);
+  late Future<List<CityData>> cityList = Future.value([]);
+  late Future<List<EnumData>> genderList = Future.value([]);
+  late CountryData? selectedCountry = widget.data?.countryId != null
+      ? CountryData(id: widget.data!.countryId, name: 'India')
+      : null;
   @override
   void initState() {
     super.initState();
+    countryList = Service.common.countryList();
+    genderList = Service.common.enumList('gender');
   }
 
   @override
@@ -45,6 +55,18 @@ class _ProfileState extends State<Profile> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                Label(text: "About"),
+                CustomFormField(
+                  hintText: "About",
+                  type: FieldType.multiline,
+                  initialValue: widget.data?.about,
+                  onChanged: (value) {
+                    setState(() {
+                      model.about = value;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
                 Label(text: "First Name"),
                 CustomFormField(
                   hintText: "First Name",
@@ -73,7 +95,111 @@ class _ProfileState extends State<Profile> {
                   },
                 ),
                 const SizedBox(height: 16),
+                Label(text: "Date of Birth"),
+                CustomFormField(
+                  hintText: "Date of Birth",
+                  type: FieldType.date,
+                  initialValue: widget.data?.dob,
+                  initialDate: DateTime(1990),
+                  firstDate: DateTime(1900),
+                  lastDate: DateTime.now(),
+                  onChanged: (value) {
+                    print(value);
+                    setState(() {
+                      model.dob = value;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+                Label(text: "Gender"),
+                CustomSelectField<EnumData>(
+                  options: genderList,
+                  initialValue: model.gender != null
+                      ? EnumData(value: model.gender)
+                      : null,
+                  displayStringForOption: (option) => option.value!,
+                  onSelected: (value) {
+                    setState(() {
+                      model.gender = value?.value;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+                Label(text: "Address"),
+                CustomFormField(
+                  hintText: "Address",
+                  type: FieldType.multiline,
+                  initialValue: widget.data?.address,
+                  onChanged: (value) {
+                    setState(() {
+                      model.address = value;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+                Label(text: "Country"),
 
+                CustomSelectField(
+                  options: countryList,
+                  //sinitialValue: selectedCountry,
+                  displayStringForOption: (option) => option.name!,
+                  onSelected: (value) {
+                    var list = Service.common.stateList(value?.id ?? 0);
+                    setState(() {
+                      model.countryId = value?.id;
+                      stateList = list;
+                    });
+                  },
+                ),
+
+                const SizedBox(height: 16),
+                Label(text: "State"),
+
+                CustomSelectField(
+                  options: stateList,
+                  displayStringForOption: (option) => option.name!,
+                  onSelected: (value) {
+                    if (model.countryId == null) {
+                      Alert.show("Please select country first", isError: true);
+                      return;
+                    }
+
+                    var list = Service.common.cityList(
+                      model.countryId!,
+                      value?.id,
+                    );
+                    setState(() {
+                      model.stateId = value?.id;
+                      cityList = list;
+                    });
+                  },
+                ),
+
+                const SizedBox(height: 16),
+                Label(text: "City"),
+                CustomSelectField(
+                  options: cityList,
+                  displayStringForOption: (option) => option.name!,
+                  onSelected: (value) {
+                    setState(() {
+                      model.cityId = value?.id;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+                Label(text: "Postal Code"),
+                CustomFormField(
+                  hintText: "Postal Code",
+                  type: FieldType.text,
+                  prefixIcon: Icons.location_on_outlined,
+                  initialValue: widget.data?.postalCode,
+                  onChanged: (value) {
+                    setState(() {
+                      model.postalCode = value;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
                 Label(text: "Email Address"),
                 CustomFormField(
                   hintText: "Email Address",
@@ -159,73 +285,27 @@ class _ProfileState extends State<Profile> {
                   initialValue: widget.data?.referedby?.email,
                 ),
                 const SizedBox(height: 32),
-                /* 
-              _buildLabel("What motivated you to join?"),
-              _buildTextField("Write your answer here", maxLines: 4),
-              const SizedBox(height: 16),
-
-              _buildLabel("What outcome do you desire?"),
-              _buildTextField("Write your answer here", maxLines: 4),
-              const SizedBox(height: 16), */
-                // Checkbox and Agreement Text
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(
-                      height: 24,
-                      width: 24,
-                      child: Checkbox(
-                        value: _agreedToTerms,
-                        onChanged: (val) {
-                          setState(() {
-                            _agreedToTerms = val ?? false;
-                          });
-                        },
-                        side: BorderSide(color: Colors.grey.shade400),
-                        activeColor: primaryPurple,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: RichText(
-                        text: TextSpan(
-                          style: TextStyle(
-                            color: Colors.grey.shade600,
-                            fontSize: 13,
-                            height: 1.4,
-                          ),
-                          children: const [
-                            TextSpan(
-                              text:
-                                  "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
-                            ),
-                            TextSpan(
-                              text: "*",
-                              style: TextStyle(color: Colors.red),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 24),
-
                 // Submit Button
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () async {
                       if (formKey.currentState!.validate()) {
-                        Loader.show(context);
-                        String? id = await Service.user.update(model);
-                        if (id != null) {
-                          Alert.success(
-                            context,
+                        Loader.show();
+                        dynamic result = await Service.user.update(model);
+                        Loader.hide();
+                        if (result!['data']!['updateProfile'] != null) {
+                          Alert.show(
                             "Profile updated successfully",
+                            isError: false,
                           );
+                        } else {
+                          dynamic error = result!['errors']![0];
+                          Loader.hide();
+                          String msg =
+                              error?.extensions?.originalError?.message;
+                          Alert.show(msg, isError: true);
                         }
-                        Loader.hide(context);
                       }
                     },
                     style: ElevatedButton.styleFrom(
@@ -241,7 +321,7 @@ class _ProfileState extends State<Profile> {
                 ),
                 const SizedBox(height: 32),
                 _buildMenuItem(
-                  "Reset Password",
+                  "Change Password",
                   onTap: () {
                     Navigator.push(
                       context,

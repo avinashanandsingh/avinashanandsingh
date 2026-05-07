@@ -7,7 +7,7 @@
       <p class="text-gray-500 text-sm">Manage resources here</p>
     </div>
     <div>
-      <button (click)="show(formDialog)" class="btn btn-primary text-base">
+      <button (click)="show(formDialog,'ADD')" class="btn btn-primary text-base">
         <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
         </svg>
@@ -74,7 +74,7 @@
 
             <td class="p-3 whitespace-nowrap text-right text-base font-medium w-20">
               <div class="flex flex-row gap-3">
-                <button (click)="show(formDialog, row.id!)"
+                <button (click)="show(formDialog, 'EDIT', row.id!)"
                   class="text-purple-600 hover:text-purple-900 text-base">
                   <i class="bi bi-pencil-square"></i>
                 </button>

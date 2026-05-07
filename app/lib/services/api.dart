@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:app/services/storage.dart';
+import 'package:app/utils/alert.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../helpers/globals.dart';
@@ -16,6 +17,7 @@ class ApiService {
   };
   Future<dynamic> post(String url, Object? query) async {
     dynamic response;
+    dynamic result;
     String? token = await store.get("token");
     if (token != null) {
       headers.addAll({"authorization": token});
@@ -30,43 +32,28 @@ class ApiService {
       } else {
         response = await http.get(Uri.parse(url), headers: headers);
       }
-      return jsonDecode(response.body);
+      result = jsonDecode(response.body);
     } catch (e) {
-      handleConnectionError(e);
+      rethrow;
     }
-    return response;
+    return result;
   }
 
   void handleConnectionError(Object e) {
     if (e is HttpException) {
       String msg = e.message;
-      snackbarKey.currentState?.showSnackBar(
-        SnackBar(
-          content: Text(msg),
-          backgroundColor: Colors.redAccent,
-          duration: Duration(seconds: 5),
-        ),
-      );
+      Alert.show("Error: $msg", isError: true);
     } else if (e is SocketException) {
       // Use the key to show the snackbar
 
       if (e.osError?.errorCode == 111 ||
           e.message.contains('Connection refused')) {
-        snackbarKey.currentState?.showSnackBar(
-          const SnackBar(
-            content: Text("Backend service is down. Please try again later."),
-            backgroundColor: Colors.redAccent,
-            duration: Duration(seconds: 5),
-          ),
+        Alert.show(
+          "Backend service is down. Please try again later.",
+          isError: true,
         );
       } else {
-        snackbarKey.currentState?.showSnackBar(
-          const SnackBar(
-            content: Text("No internet connection."),
-            backgroundColor: Colors.redAccent,
-            duration: Duration(seconds: 5),
-          ),
-        );
+        Alert.show("No internet connection.", isError: true);
       }
     }
   }
