@@ -96,6 +96,7 @@ class _SignInState extends State<SignIn> {
                 Label(text: 'Username'),
                 CustomFormField(
                   hintText: "Username",
+                  prefixIcon: Icons.email_outlined,
                   type: FieldType.text,
                   isRequired: true,
                   onChanged: (value) {
@@ -109,6 +110,7 @@ class _SignInState extends State<SignIn> {
                 CustomFormField(
                   hintText: "Password",
                   type: FieldType.password,
+                  prefixIcon: Icons.password_outlined,
                   isRequired: true,
                   onChanged: (value) {
                     setState(() {

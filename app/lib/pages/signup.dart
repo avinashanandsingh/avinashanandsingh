@@ -4,6 +4,7 @@ import 'package:app/helpers/convert.dart';
 import 'package:app/models/register.dart';
 import 'package:app/pages/verify_otp.dart';
 import 'package:app/services/identity.dart';
+import 'package:app/utils/alert.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/theme.dart';
@@ -181,7 +182,9 @@ class _SignUpState extends State<SignUp> {
                                   try {
                                     dynamic result = await Identity.instance
                                         .signup(model);
-                                    if (result!['data']!['signup'] != null) {
+                                    Loader.hide();
+                                    print(result);
+                                    if (result!['errors'] == null) {
                                       Loader.hide();
                                       Navigator.of(context).push(
                                         MaterialPageRoute(
@@ -190,34 +193,12 @@ class _SignUpState extends State<SignUp> {
                                         ),
                                       );
                                     } else {
-                                      dynamic error = result!['errors']![0];
-                                      Loader.hide();
-                                      String msg = error
-                                          ?.extensions
-                                          ?.originalError
-                                          ?.message;
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            msg,
-                                            style: GoogleFonts.montserrat(
-                                              color: AppColors.error,
-                                            ),
-                                          ),
-                                          backgroundColor: Colors.white,
-                                          behavior: SnackBarBehavior.floating,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              8,
-                                            ),
-                                          ),
-                                        ),
-                                      );
+                                      dynamic error = result?['errors']?[0];
+                                      String msg =
+                                          error?['extensions']?['originalError']?['message'];
+                                      Alert.show(msg, isError: true);
                                     }
                                   } catch (e) {
-                                    Loader.hide();
                                     print(e);
                                   }
                                 }

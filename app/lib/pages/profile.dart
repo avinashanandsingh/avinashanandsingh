@@ -57,7 +57,6 @@ class _ProfileState extends State<Profile> {
             PopupMenuButton<String>(
               icon: const Icon(Icons.more_vert),
               onSelected: (value) {
-                print(value);
                 if (value == "CHPW") {
                   Navigator.push(
                     context,

@@ -1,6 +1,7 @@
 import 'package:app/models/aura.dart';
 import 'package:app/models/order.dart';
 import 'package:app/services/service.dart';
+import 'package:app/utils/alert.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
@@ -18,9 +19,11 @@ class AuraScan extends StatefulWidget {
 
 class _AuraScanPageState extends State<AuraScan> {
   late Razorpay _razorpay;
+  late bool _isProcessing; // Add a flag
   @override
   void initState() {
     super.initState();
+    _isProcessing = false;
     _razorpay = Razorpay();
     _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handlePaymentSuccess);
     _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handlePaymentError);
@@ -34,6 +37,8 @@ class _AuraScanPageState extends State<AuraScan> {
   }
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) async {
+    setState(() => _isProcessing = false);
+
     print(
       'PaymentSuccessResponse: ${response.paymentId}, ${response.signature}',
     );
@@ -50,25 +55,20 @@ class _AuraScanPageState extends State<AuraScan> {
     OrderData? order = await Service.order.update(orderId!, orderData);
     print('updated Order: ${order?.toJson()}');
     if (order?.id == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(
-            "Payment was successful but failed to update order. Please contact support.",
-          ),
-          backgroundColor: AppColors.error,
-        ),
+      Alert.show(
+        "Payment was successful but failed to update order. Please contact support.",
+        isError: true,
       );
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Payment Successful! Your order is confirmed."),
-          backgroundColor: Colors.green,
-        ),
+      Alert.show(
+        "Payment Successful! Your order is confirmed.",
+        isError: false,
       );
     }
   }
 
   void _handlePaymentError(PaymentFailureResponse response) async {
+    setState(() => _isProcessing = false);
     if (response.code == 0) {
       String? orderId = await Service.store.get("latest_order_id");
       OrderData orderData = OrderData(
@@ -80,23 +80,34 @@ class _AuraScanPageState extends State<AuraScan> {
       OrderData? order = await Service.order.update(orderId!, orderData);
       print('updated Order: ${order?.toJson()}');
     }
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("Payment Failed: ${response.message}"),
-        backgroundColor: AppColors.error,
-      ),
-    );
+    print(response.error.toString());
+    Alert.show("Payment Failed: ${response.message}", isError: true);
   }
 
   void _handleExternalWallet(ExternalWalletResponse response) {
-    print('ExternalWalletResponse: ${response.walletName}');
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("External Wallet: ${response.walletName}")),
-    );
+    Alert.show("External Wallet: ${response.walletName}", isError: true);
   }
 
-  void _openCheckout(dynamic options) {
+  void _openCheckout(String desc, String phone, String email) {
+    Map<String, dynamic> options = {
+      'key': dotenv.env['RAZORPAY_KEY'] ?? '', // Replace with your key
+      'currency': 'INR',
+      'amount': 1 * 100, // amount in the smallest currency unit amount * 100
+      'name': 'Booking for Aura Scan',
+      'description': desc,
+      'timeout': 300, // in seconds
+      'prefill': {
+        //"name": "${user['first_name'] ?? ''} ${user['last_name'] ?? ''}",
+        "contact": phone,
+        "email": email,
+      },
+      'theme': {'color': '#5A2A82'},
+      //"order_id": order.id,
+    };
+    if (_isProcessing) return; // Prevent double clicks
+    setState(() => _isProcessing = true);
     try {
+      print(options.toString());
       _razorpay.open(options);
     } catch (e) {
       print('Error: $e');
@@ -111,12 +122,14 @@ class _AuraScanPageState extends State<AuraScan> {
         : item.price!;
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) {
           return AlertDialog(
             backgroundColor: Colors.white,
+            insetPadding: EdgeInsets.all(15),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(24),
+              borderRadius: BorderRadius.circular(8),
             ),
             titlePadding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
             contentPadding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
@@ -165,7 +178,7 @@ class _AuraScanPageState extends State<AuraScan> {
                     // ── Date Picker ──
                     Text(
                       "Select Date",
-                      style: TextTheme.of(context).labelMedium,
+                      style: TextTheme.of(context).labelSmall,
                     ),
                     const SizedBox(height: 8),
                     InkWell(
@@ -264,13 +277,9 @@ class _AuraScanPageState extends State<AuraScan> {
                     const SizedBox(height: 20),
 
                     // ── Time Slots ──
-                    const Text(
+                    Text(
                       "Available Time Slots",
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14,
-                        color: Colors.black87,
-                      ),
+                      style: TextTheme.of(context).labelSmall,
                     ),
                     const SizedBox(height: 8),
                     ...List.generate(item.slots!.length, (index) {
@@ -444,25 +453,12 @@ class _AuraScanPageState extends State<AuraScan> {
                             "latest_order_id",
                             order!.id!,
                           );
-                          var options = {
-                            'key':
-                                dotenv.env['RAZORPAY_KEY'] ??
-                                '', // Replace with your key
-                            'currency': 'INR',
-                            'amount':
-                                1 *
-                                100, // amount in the smallest currency unit amount * 100
-                            'name': 'Booking for Aura Scan',
-                            'description':
-                                'Aura Scan - $item.name! - $slot.name!',
-                            'timeout': 300, // in seconds
-                            'prefill': {
-                              'contact': user['phone'] ?? '',
-                              'email': user['email'] ?? '',
-                            },
-                            'theme': {'color': '#5A2A82'},
-                          };
-                          _openCheckout(options);
+
+                          _openCheckout(
+                            'Aura Scan - ${item.name!} - ${slot.name!}',
+                            user['phone'] ?? '',
+                            user['email'] ?? '',
+                          );
                         }
                       }
                     : null,
