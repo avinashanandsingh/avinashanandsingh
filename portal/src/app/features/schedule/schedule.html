@@ -261,9 +261,9 @@
                   control: form.controls['deadline']
                 }">
                 </ng-container>
-                @if(form.hasError('date_lt') && form.get('deadline')?.touched){
+                @if(form.hasError('date_le') && form.get('deadline')?.touched){
                 <div class="space-y-2">
-                    <span class="error">Deadline must be less than Start date!</span>
+                    <span class="error">Deadline must be less than or equal to Start date!</span>
                 </div>
                 }
             </div>

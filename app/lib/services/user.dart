@@ -12,26 +12,27 @@ class User {
   // Verify user is logged in
   Future<ProfileData?> me() async {
     String? token = await store.get("token");
-    if (token != null) {
-      dynamic user = JwtDecoder.decode(token);
-      String id = user["id"];
-      dynamic body = {
-        "query":
-            r'query get ($id: UUID!) { user (id: $id) { id avatar about first_name last_name gender dob address countryid country { id name } stateid state { id name } cityid city {id name } postal_code email phone profession income referby { id first_name last_name email } last_login_at } }',
-        "variables": {"id": id},
-      };
+    ProfileData? data;
+    try {
+      if (token != null) {
+        dynamic user = JwtDecoder.decode(token);
+        String id = user["id"];
+        dynamic body = {
+          "query":
+              r'query get ($id: UUID!) { user (id: $id) { id avatar about first_name last_name gender dob address countryid country { id name } stateid state { id name } cityid city {id name } postal_code email phone profession income referby { id first_name last_name email } last_login_at } }',
+          "variables": {"id": id},
+        };
 
-      dynamic result = await api.post(url, body);
-
-      if (result['errors'] == null) {
-        dynamic row = result['data']['user'];
-        return ProfileData.fromJson(row);
-      } else {
-        return null;
+        dynamic result = await api.post(url, body);
+        if (result['errors'] == null) {
+          dynamic row = result['data']['user'];
+          data = ProfileData.fromJson(row);
+        }
       }
-    } else {
-      return null;
+    } catch (e) {
+      print(e);
     }
+    return data;
   }
 
   Future<dynamic> update(ProfileData entity) async {

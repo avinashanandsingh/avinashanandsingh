@@ -31,7 +31,7 @@ class UserData {
       phone: json['phone'] as String?,
       profession: json['profession'] as String?,
       currency: json['currency'] as String?,
-      income: json['income'] as double?,
+      income: json['income']?.toDouble(),
       status: json['status'] as String?,
     );
   }

@@ -38,6 +38,7 @@ import { Template } from './features/template/template';
 import { Page } from './features/page/page';
 import { Setting } from './features/setting/setting';
 import Verify from './components/verify/verify';
+import { Question } from './features/question/question';
 
 export const routes: Routes = [
   {
@@ -55,6 +56,12 @@ export const routes: Routes = [
       {
         path: 'courses',
         component: CourseList,
+        canActivate: [IdentityService],
+        data: { roles: [UserRole.ADMINISTRATOR] },
+      },
+      {
+        path: 'questions',
+        component: Question,
         canActivate: [IdentityService],
         data: { roles: [UserRole.ADMINISTRATOR] },
       },

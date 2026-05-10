@@ -1,0 +1,189 @@
+<div class="p-6 bg-white space-y-3 rounded min-h-screen">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800">Enrolment Q&A</h1>
+            <p class="text-gray-500 text-sm">Manage enrolment questions here</p>
+        </div>
+        <div>
+            <button (click)="show(formDialog, 'ADD')" class="btn btn-primary text-base items-center">
+                <i class="bi bi-calendar-plus text-xl mr-2"></i>
+                New Question
+            </button>
+        </div>
+    </div>
+
+    <div class="w-full mx-auto overflow-hidden bg-white border border-gray-200 rounded-xl shadow-sm">
+        <table class="w-full text-left border-collapse">
+            <thead class="bg-gray-100 border-b border-gray-200 text-gray-600 uppercase text-base font-semibold">
+                <tr>
+                    <th class="px-6 py-4">Course</th>
+                    <th class="px-6 py-4">Type</th>
+                    <th class="px-6 py-4">Question</th>
+                    <th class="px-6 py-4">Description</th>
+                    <th class="px-6 py-4">Status</th>
+                    <th class="px-6 py-4 text-right">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @for (row of list(); track row.id) {
+                <tr class="group cursor-pointer hover:bg-blue-50/50 transition-colors border-b border-gray-100 last:border-0"
+                    [class.bg-purple-100]="expandedRowId() === row.id">
+                    <td class="px-6 py-4 font-medium text-gray-900">{{ row.course?.title }}</td>
+                    <td class="px-6 py-4 text-gray-600">{{ row.type }}</td>
+                    <td class="px-6 py-4 text-gray-600">{{ row.title }}</td>
+                    <td class="px-6 py-4 text-gray-600">{{ row.description }}</td>
+                    <td class="px-6 py-4 text-gray-600">{{ row.status }}</td>
+                    <td class="px-6 py-4 text-right">
+
+                        @if(row.status !== "DELETED"){
+                        <button (click)="show(formDialog, 'EDIT', row.id!)"
+                            class="text-purple-600 hover:text-purple-900 text-base pr-3">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+                        <button (click)="delete(row.id!)" class="text-purple-600 hover:text-purple-900 text-base pr-3">
+                            <i class="bi bi-trash"></i>
+                        </button>
+                        }
+                        <span class="inline-block transition-transform duration-300" (click)="toggleRow(row.id!)"
+                            [class.rotate-180]="expandedRowId() === row.id">
+                            <i class="bi bi-caret-down text-xl"></i>
+                        </span>
+
+                    </td>
+                </tr>
+
+                @if (expandedRowId() === row.id) {
+                <tr>
+                    <td colspan="6" class="p-0 bg-gray-50">
+                        <div class="px-6 py-2 border-l-4 border-blue-500 animate-fadeIn w-full">
+                            <h4 class="text-xs font-bold uppercase text-gray-400 mb-1">Options</h4>
+
+                            <table class="w-full text-left border-collapse">
+                                <thead
+                                    class="bg-gray-100 border-b border-gray-200 text-gray-600 uppercase text-base font-semibold">
+                                    <tr>
+                                        <th class="px-6 py-4">Option</th>
+                                        <th class="px-6 py-4 text-right">Actions</th>
+                                    </tr>
+                                </thead>
+                                @for (opt of sorted_option(row.options!); track opt.id) {
+                                <tr>
+                                    <td class="px-6 py-4 font-medium text-gray-900">{{ opt.title }}</td>
+                                    <td class="px-6 py-4 text-right">
+                                        <button class="text-purple-600 hover:text-purple-900 text-base pr-3">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                }
+                            </table>
+
+                        </div>
+                    </td>
+                </tr>
+                }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<loader [isOpen]="loader"></loader>
+<app-dialog [buttons]="dialogButtons" [isOpen]="formDialog" [title]="dialogTitle()" [backdrop]="false"
+    (close)="hide(formDialog)">
+    <form [formGroup]="parentForm">
+        <input type="hidden" id="id" formControlName="id" />
+        <div class="mb-3">
+            <label class="label">Course <span class="text-red-500">*</span></label>
+            <select class="select w-full" id="courseid" formControlName="courseid" required>
+                <option selected value="">Select a course</option>
+                @for(item of course_list(); track item.id){
+                <option [value]="item.id">{{item.title}}</option>
+                }
+            </select>
+            <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'Course is required',
+                  control: parentForm.controls['courseid']
+                }">
+            </ng-container>
+        </div>
+
+        <div class="mb-3">
+            <label class="label">Type <span class="text-red-500">*</span></label>
+            <select class="select w-full" id="type" formControlName="type" required>
+                <option selected value="">Select a type</option>
+                @for(item of typelist(); track $index){
+                <option [value]="item.value">{{item.value}}</option>
+                }
+            </select>
+            <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'Type is required',
+                  control: parentForm.controls['type']
+                }">
+            </ng-container>
+        </div>
+
+        <div class="mb-3">
+            <label class="label">Title <span class="text-red-500">*</span></label>
+            <input id="title" formControlName="title" type="text" placeholder="Title" required
+                class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border" />
+            <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'Title is required',
+                  control: parentForm.controls['title']
+                }">
+            </ng-container>
+        </div>
+        <div class="mb-3">
+            <label class="label">Description</label>
+            <input id="title" formControlName="description" type="text" placeholder="Description"
+                class="input w-full" />
+        </div>
+        @if(parentForm.controls['type'].getRawValue() !='Open Ended'){
+        <fieldset class="border border-gray-300 p-4 rounded-md">
+            <legend class="px-2 text-base font-semibold text-gray-700">Options</legend>
+            <div formArrayName="options" class="mb-3">
+                <div *ngFor="let row of options.controls; let i=index" [formGroupName]="i" class="mb-3">
+                    <div class="flex flex-row gap-3">
+                        <input type="text" formControlName="title" placeholder="Title" class="input">
+                        <input type="text" formControlName="sort" placeholder="Sort" class="block p-2 text-base border-2 border-gray-300 rounded-md transition-colors w-1/4">
+                        @if(i > 0){
+                        <button type="button" (click)="removeRow(i)" class="btn btn-danger"><i
+                                class="bi bi-trash"></i></button>
+                        }
+                    </div>
+                    @if(row.get('title')?.invalid && row.get('title')?.touched){
+                    <div class="error">
+                        Title is required.
+                    </div>
+                    }
+                    @if(row.get('sort')?.invalid && row.get('sort')?.touched){
+                    <div class="error">
+                        Sort is required.
+                    </div>
+                    }
+                </div>
+            </div>
+            <button type="button" (click)="addRow()" class="btn btn-primary justify-end">New Option</button>
+        </fieldset>
+        }
+
+    </form>
+</app-dialog>
+<ng-template #formError let-control="control" let-message="message" let-validation="validation">
+    @if(control.hasError(validation) && (control.dirty || control.touched)) {
+    <ng-container>
+        <div class="fv-plugins-message-container">
+            <div class="fv-help-block mt-1">
+                <span class="error">
+                    {{ message }}
+                </span>
+            </div>
+        </div>
+    </ng-container>
+    }
+</ng-template>

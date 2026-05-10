@@ -101,7 +101,7 @@ class _SignInState extends State<SignIn> {
                   isRequired: true,
                   onChanged: (value) {
                     setState(() {
-                      model.username = value;
+                      model.username = value.trim().toLowerCase();
                     });
                   },
                 ),

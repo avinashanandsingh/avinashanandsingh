@@ -4,6 +4,8 @@ import city from "./city";
 import user from "./user";
 import category from "./category";
 import course from "./course";
+import question from "./question";
+import option from "./option";
 import schedule from "./schedule";
 import _module from "./module";
 import entrollment from "./entrollment";
@@ -267,6 +269,66 @@ const mapping = [
   {
     name: "archiveCourse",
     execute: course.archive,
+    include: true,
+    role: UserRole.ADMINISTRATOR,
+  },
+  {
+    name: "questions",
+    execute: question.list,
+    include: false,
+    role: UserRole.ANONYMOUS,
+  },
+  {
+    name: "question",
+    execute: question.get,
+    include: false,
+    role: UserRole.ANONYMOUS,
+  },
+  {
+    name: "newQuestion",
+    execute: question.add,
+    include: true,
+    role: UserRole.ADMINISTRATOR,
+  },
+  {
+    name: "updateQuestion",
+    execute: question.update,
+    include: true,
+    role: UserRole.ADMINISTRATOR,
+  },
+  {
+    name: "deleteQuestion",
+    execute: question.delete,
+    include: true,
+    role: UserRole.ADMINISTRATOR,
+  },
+  {
+    name: "options",
+    execute: option.list,
+    include: false,
+    role: UserRole.ANONYMOUS,
+  },
+  {
+    name: "option",
+    execute: option.get,
+    include: false,
+    role: UserRole.ANONYMOUS,
+  },
+  {
+    name: "newOption",
+    execute: option.add,
+    include: true,
+    role: UserRole.ADMINISTRATOR,
+  },
+  {
+    name: "updateOption",
+    execute: option.update,
+    include: true,
+    role: UserRole.ADMINISTRATOR,
+  },
+  {
+    name: "deleteOption",
+    execute: option.delete,
     include: true,
     role: UserRole.ADMINISTRATOR,
   },

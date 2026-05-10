@@ -78,6 +78,12 @@ type Query {
   
   order(filter: Filter!): Order!
   orders(filter: Filter!): OrderResult!
+
+  question(filter: Filter!): Question!
+  questions(filter: Filter!): QuestionResult!
+  
+  option(filter: Filter!): Option!
+  options(filter: Filter!): OptionResult!
 }
 
 type Mutation {
@@ -110,6 +116,14 @@ type Mutation {
   enroll(input: EnrollIn!): Enrollment!
   drop(id:UUID!, input: DropIn!): Enrollment!
   updateEnrollment(id:UUID!, input: EnrollIn!):Enrollment!
+
+  newQuestion(input: QuestionIn!): Question!
+  updateQuestion(id: UUID!, input: QuestionIn!): Question!
+  deleteQuestion(id: UUID): Question!
+
+  newOption(input: OptionIn!): Option!
+  updateOption(input: OptionIn!): Option!
+  deleteOption(id: UUID): Option!
 
   addMeditation(input: MeditationIn!): Meditation!
   updateMeditation(id:UUID!, input: MeditationIn!): Meditation!

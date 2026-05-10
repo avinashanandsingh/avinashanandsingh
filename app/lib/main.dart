@@ -15,7 +15,6 @@ import 'package:app/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:app/pages/splash.dart';
 import 'components/loader.dart';
-import 'utils/alert.dart';
 
 final themeProvider = ThemeProvider();
 Future<Widget> _resolveInitialScreen() async {

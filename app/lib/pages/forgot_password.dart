@@ -6,7 +6,6 @@ import 'package:app/pages/signin.dart';
 import 'package:app/services/service.dart';
 import 'package:app/utils/alert.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../theme/theme.dart';
 
 class ForgotPassword extends StatefulWidget {

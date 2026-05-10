@@ -17,7 +17,7 @@ type User {
   email: String
   password: String
   avatar: String
-  phone: String  
+  phone: String
   verified: Boolean
   status: String
   profession: String
@@ -26,7 +26,7 @@ type User {
   referby: User
   creator: User
   createdat: Date
-  updater: User  
+  updater: User
   updatedat: Date
 
   courses: [Course!]
@@ -34,7 +34,7 @@ type User {
 
 type UserResult {
   count: Int
-  rows:[User]
+  rows: [User]
 }
 
 type Result {
@@ -57,12 +57,12 @@ type Category {
 
 type CategoryResult {
   count: Int
-  rows:[Category]
+  rows: [Category]
 }
 
 type Course {
   id: UUID
-  title: String  
+  title: String
   description: String
   about: String
   thumbnail: String
@@ -89,14 +89,14 @@ type Course {
 
 type CourseResult {
   count: Int
-  rows:[Course]
+  rows: [Course]
 }
 
 type Schedule {
   id: String
   courseid: UUID
   course: Course
-  title: String  
+  title: String
   start_date: Date
   end_date: Date
   start_time: String
@@ -104,17 +104,17 @@ type Schedule {
   deadline: DateTime
   capacity: Int
   enrollment_count: Int
-  status: String  
+  status: String
   creator: User
   createdat: DateTime
   updater: User
   updatedat: DateTime
-  modules:[Module]
+  modules: [Module]
 }
 
 type ScheduleResult {
   count: Int
-  rows:[Schedule]
+  rows: [Schedule]
 }
 
 type Module {
@@ -123,9 +123,9 @@ type Module {
   course: Course
   scheduleid: UUID
   schedule: Schedule
-  title: String  
+  title: String
   duration: String
-  url: String  
+  url: String
   sort: Int
   completed: Boolean
   completedat: DateTime
@@ -138,7 +138,7 @@ type Module {
 
 type ModuleResult {
   count: Int
-  rows:[Module]
+  rows: [Module]
 }
 
 type Content {
@@ -155,12 +155,12 @@ type Content {
   createdat: Date
   updater: User
   updatedat: Date
-  course: Course  
+  course: Course
 }
 
 type ContentResult {
   count: Int
-  rows:[Content]
+  rows: [Content]
 }
 
 type Enrollment {
@@ -183,23 +183,23 @@ type Enrollment {
 
 type EnrollmentResult {
   count: Int
-  rows:[Enrollment]
+  rows: [Enrollment]
 }
 
 type UserProgress {
   id: UUID
   enrollmentid: UUID
-  moduleid: UUID  
+  moduleid: UUID
   completedat: DateTime
   time_spent_seconds: Int
   completed: Boolean
   course: Course
-  module: Module  
+  module: Module
 }
 
 type ProgressResult {
   count: Int
-  rows:[UserProgress]
+  rows: [UserProgress]
 }
 
 type Notification {
@@ -216,19 +216,19 @@ type Notification {
 
 type NotificationResult {
   count: Int
-  rows:[Notification]
+  rows: [Notification]
 }
 
 type SearchResult {
   users: [User!]
-  courses: [Course!]  
+  courses: [Course!]
 }
 
 type Country {
   id: Int
   name: String
   iso2: String
-  iso3: String 
+  iso3: String
   phonecode: Int
   currency: String
   symbol: String
@@ -239,23 +239,23 @@ type Country {
 
 type CountryResult {
   count: Int
-  rows:[Country]
+  rows: [Country]
 }
 
 type State {
   id: Int
   name: String
   countryid: Int
-  country: String  
+  country: String
   code: String
-  type: String  
+  type: String
   latitude: Float
-  longitude: Float  
+  longitude: Float
 }
 
 type StateResult {
   count: Int
-  rows:[State]
+  rows: [State]
 }
 
 type City {
@@ -264,14 +264,14 @@ type City {
   stateid: Int
   state: String
   countryid: Int
-  country: String    
+  country: String
   latitude: Float
-  longitude: Float  
+  longitude: Float
 }
 
 type CityResult {
   count: Int
-  rows:[City]
+  rows: [City]
 }
 
 type Short {
@@ -281,8 +281,8 @@ type Short {
   url: String
   status: String
   sort: Int
-	likes: Int
-	hits: Int
+  likes: Int
+  hits: Int
   creator: User
   createdat: DateTime
   updater: User
@@ -291,7 +291,7 @@ type Short {
 
 type ShortResult {
   count: Int
-  rows:[Short]
+  rows: [Short]
 }
 
 type Smtp {
@@ -313,7 +313,7 @@ type Resource {
   title: String
   url: String
   status: String
-  display_order: Int	
+  display_order: Int
   creator: User
   createdat: DateTime
   updater: User
@@ -322,7 +322,7 @@ type Resource {
 
 type ResourceResult {
   count: Int
-  rows:[Resource]
+  rows: [Resource]
 }
 
 type Sacredvibe {
@@ -331,7 +331,7 @@ type Sacredvibe {
   duration: String
   url: String
   status: String
-  sort: Int	
+  sort: Int
   creator: User
   createdat: DateTime
   updater: User
@@ -340,7 +340,7 @@ type Sacredvibe {
 
 type SacredvibeResult {
   count: Int
-  rows:[Sacredvibe]
+  rows: [Sacredvibe]
 }
 
 type Meditation {
@@ -351,7 +351,7 @@ type Meditation {
   thumbnail: String
   url: String
   status: String
-  sort: Int	
+  sort: Int
   creator: User
   createdat: DateTime
   updater: User
@@ -360,7 +360,7 @@ type Meditation {
 
 type MeditationResult {
   count: Int
-  rows:[Meditation]
+  rows: [Meditation]
 }
 
 type Referral {
@@ -370,7 +370,7 @@ type Referral {
   email: String
   referrer: UUID
   referby: User
-  referredat: DateTime  
+  referredat: DateTime
   acceptedat: DateTime
 }
 
@@ -400,14 +400,12 @@ type Service {
   createdat: DateTime
   updater: User
   updatedat: DateTime
-  
 }
 
 type ServiceResult {
   count: Int
   rows: [Service]
 }
-
 
 type Review {
   id: UUID
@@ -416,7 +414,7 @@ type Review {
   userid: UUID
   user: User
   title: String
-  content: String  
+  content: String
   public: Boolean
   createdat: DateTime
 }
@@ -427,7 +425,7 @@ type ReviewResult {
 }
 
 type Inquiry {
-  id: UUID  
+  id: UUID
   subject: String
   message: String
   status: String
@@ -443,11 +441,11 @@ type InquiryResult {
 }
 
 type Template {
-  id: UUID  
+  id: UUID
   type: String
   category: String
   subject: String
-  body: String  
+  body: String
   creator: User
   createdat: DateTime
   updater: User
@@ -465,10 +463,10 @@ type Enum {
 }
 
 type Page {
-  id: UUID  
+  id: UUID
   type: String
-  title: String  
-  body: String  
+  title: String
+  body: String
   creator: User
   createdat: DateTime
   updater: User
@@ -481,7 +479,7 @@ type PageResult {
 }
 
 type Branding {
-  id: UUID  
+  id: UUID
   type: String
   title: String
   content: String
@@ -522,7 +520,7 @@ type Order {
   order_status_reason: String
   payment_status: String
   payment_status_reason: String
-  paymentid: String  
+  paymentid: String
   signature: String
   creator: User
   createdat: DateTime
@@ -533,4 +531,35 @@ type Order {
 type OrderResult {
   count: Int
   rows: [Order]
+}
+
+type Option {
+  id: UUID
+  questionid: UUID
+  title: String
+  sort: Int
+}
+
+type OptionResult {
+  count: Int
+  rows: [Option]
+}
+type Question {
+  id: UUID
+  courseid: String
+  course: Course
+  type: String
+  title: String
+  description: String
+  status: String
+  options: [Option]
+  creator: User
+  createdat: DateTime
+  updater: User
+  updatedat: DateTime
+}
+
+type QuestionResult {
+  count: Int
+  rows: [Question]
 }

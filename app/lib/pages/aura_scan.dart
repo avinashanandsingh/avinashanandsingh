@@ -1,5 +1,7 @@
 import 'package:app/models/aura.dart';
 import 'package:app/models/order.dart';
+import 'package:app/models/user.dart';
+import 'package:app/pages/home.dart';
 import 'package:app/services/service.dart';
 import 'package:app/utils/alert.dart';
 import 'package:flutter/material.dart';
@@ -88,7 +90,7 @@ class _AuraScanPageState extends State<AuraScan> {
     Alert.show("External Wallet: ${response.walletName}", isError: true);
   }
 
-  void _openCheckout(String desc, String phone, String email) {
+  void _openCheckout(String desc, UserData user) {
     Map<String, dynamic> options = {
       'key': dotenv.env['RAZORPAY_KEY'] ?? '', // Replace with your key
       'currency': 'INR',
@@ -97,9 +99,9 @@ class _AuraScanPageState extends State<AuraScan> {
       'description': desc,
       'timeout': 300, // in seconds
       'prefill': {
-        //"name": "${user['first_name'] ?? ''} ${user['last_name'] ?? ''}",
-        "contact": phone,
-        "email": email,
+        "name": "${user.firstName ?? ''} ${user.lastName ?? ''}",
+        "contact": user.phone,
+        "email": user.email,
       },
       'theme': {'color': '#5A2A82'},
       //"order_id": order.id,
@@ -420,6 +422,7 @@ class _AuraScanPageState extends State<AuraScan> {
                 onPressed: (selectedSlotIndex != null && selectedDate != null)
                     ? () async {
                         Navigator.pop(dialogContext);
+                        var payment = await Service.setting.get('PAYMENT');
                         dynamic user = await Service.identity.me();
                         TimeslotData slot = item.slots![selectedSlotIndex!];
                         double? amount =
@@ -449,16 +452,17 @@ class _AuraScanPageState extends State<AuraScan> {
                             ),
                           );
                         } else {
-                          await Service.store.set(
-                            "latest_order_id",
-                            order!.id!,
-                          );
-
-                          _openCheckout(
-                            'Aura Scan - ${item.name!} - ${slot.name!}',
-                            user['phone'] ?? '',
-                            user['email'] ?? '',
-                          );
+                          if (payment == 'ON') {
+                            await Service.store.set(
+                              "latest_order_id",
+                              order!.id!,
+                            );
+                            UserData userData = UserData.fromJson(user);
+                            _openCheckout(
+                              'Aura Scan - ${item.name!} - ${slot.name!}',
+                              userData,
+                            );
+                          }
                         }
                       }
                     : null,
@@ -485,71 +489,79 @@ class _AuraScanPageState extends State<AuraScan> {
 
   @override
   Widget build(BuildContext context) {
-    return Layout(
-      titleText: 'AURA SCAN',
-      isSerif: false,
-      showBack: true,
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(
-                "Choose option to scan your aura",
-                style: TextTheme.of(context).headlineSmall,
-              ),
-              const SizedBox(height: 8),
-              const Text(
-                "Experience advanced aura analysis with our state-of-the-art machines.",
-                style: TextStyle(color: Colors.grey),
-              ),
-              const SizedBox(height: 24),
-
-              // Multiline loop rendering
-              for (var item in widget.data) ...[
-                _buildMachineBox(item, Icons.radar_outlined),
-                const SizedBox(height: 20),
-              ],
-              const SizedBox(height: 40),
-              // Why Aura Scan Section
-              Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      AppColors.primary,
-                      AppColors.primary.withValues(alpha: 0.8),
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(20),
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text('Aura Scanning'),
+          centerTitle: false,
+          titleTextStyle: TextTheme.of(context).headlineMedium,
+        ),
+        body: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  "Choose option to scan your aura",
+                  style: TextTheme.of(context).headlineSmall,
                 ),
-                child: const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.info_outline, color: Colors.white, size: 24),
-                        SizedBox(width: 10),
-                        Text(
-                          "Why Aura Scan?",
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                const SizedBox(height: 8),
+                const Text(
+                  "Experience advanced aura analysis with our state-of-the-art machines.",
+                  style: TextStyle(color: Colors.grey),
+                ),
+                const SizedBox(height: 24),
+
+                // Multiline loop rendering
+                for (var item in widget.data) ...[
+                  _buildMachineBox(item, Icons.radar_outlined),
+                  const SizedBox(height: 20),
+                ],
+                const SizedBox(height: 40),
+                // Why Aura Scan Section
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        AppColors.primary,
+                        AppColors.primary.withValues(alpha: 0.8),
                       ],
                     ),
-                    SizedBox(height: 12),
-                    Text(
-                      "Understanding your energy field can help identify emotional blocks and optimize your overall well-being. Our non-invasive scanning technology provides instant feedback on your mental and spiritual state.",
-                      style: TextStyle(color: Colors.white70, height: 1.5),
-                    ),
-                  ],
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            Icons.info_outline,
+                            color: Colors.white,
+                            size: 24,
+                          ),
+                          SizedBox(width: 10),
+                          Text(
+                            "Why Aura Scan?",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 12),
+                      Text(
+                        "Understanding your energy field can help identify emotional blocks and optimize your overall well-being. Our non-invasive scanning technology provides instant feedback on your mental and spiritual state.",
+                        style: TextStyle(color: Colors.white70, height: 1.5),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

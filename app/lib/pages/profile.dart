@@ -260,13 +260,13 @@ class _ProfileState extends State<Profile> {
                   },
                 ),
                 const SizedBox(height: 16),
-                Label(text: "Country ${widget.data?.country?.name}"),
+                Label(text: "Country"),
 
                 CustomSelectField(
                   options: countryList,
                   initialValue: widget.data?.country,
-                  displayStringForOption: (CountryData country) =>
-                      country.name!,
+                  displayStringForOption: (CountryData? country) =>
+                      country?.name ?? '',
                   onSelected: (CountryData? value) {
                     var list = Service.common.stateList(value?.id ?? 0);
                     setState(() {
@@ -282,7 +282,8 @@ class _ProfileState extends State<Profile> {
                 CustomSelectField(
                   options: stateList,
                   initialValue: widget.data?.state,
-                  displayStringForOption: (StateData state) => state.name!,
+                  displayStringForOption: (StateData? state) =>
+                      state?.name ?? '',
                   onSelected: (StateData? value) {
                     if (model.countryId == null) {
                       Alert.show("Please select country first", isError: true);
@@ -305,7 +306,7 @@ class _ProfileState extends State<Profile> {
                 CustomSelectField(
                   options: cityList,
                   initialValue: widget.data?.city,
-                  displayStringForOption: (CityData city) => city.name!,
+                  displayStringForOption: (CityData? city) => city?.name ?? '',
                   onSelected: (CityData? value) {
                     setState(() {
                       model.cityId = value?.id;

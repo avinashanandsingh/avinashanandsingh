@@ -14,6 +14,7 @@ import Criteria from '../../models/criteria';
 import { COP, LOP } from '../../models/enum';
 import { geDate } from '../../validator/date/date_ge';
 import { ltDate } from '../../validator/date/date_lt';
+import { leDate } from '../../validator/date/date_le';
 
 @Component({
   selector: 'app-schedule',
@@ -55,7 +56,7 @@ export class Schedule implements OnInit {
     {
       // Apply cross-field validator at the group level
       validators: [
-        ltDate('start_date', 'deadline'),
+        leDate('start_date', 'deadline'),
         geDate('start_date', 'end_date'),
       ],
     },

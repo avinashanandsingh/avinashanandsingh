@@ -29,6 +29,11 @@
                     </svg>
                     Courses
                 </a>
+                <a [routerLink]="['/questions']" [class.side-bar-item-active]="isLinkActive('/questions')"
+                    class="side-bar-item">
+                    <i class="bi bi-patch-question"></i>
+                    Questions
+                </a>
                 <a [routerLink]="['/schedules']" [class.side-bar-item-active]="isLinkActive('/schedules')"
                     class="side-bar-item">
                     <i class="bi bi-calendar-event"></i>

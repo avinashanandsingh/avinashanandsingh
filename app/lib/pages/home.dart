@@ -105,7 +105,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                 ),
               ],
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: 8),
             Section(
               title: "SHORT COURSES",
               subtitle: "Bite-sized transformational journeys.",
