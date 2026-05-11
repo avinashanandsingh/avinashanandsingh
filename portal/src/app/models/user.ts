@@ -8,6 +8,7 @@ export interface IUser {
   phone: string;
   role: UserRole;
   status: Status;
+  reason: string;
   avatar?: string;
   verified?: boolean;
   createdat: Date;

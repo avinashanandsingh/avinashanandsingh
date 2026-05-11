@@ -105,6 +105,12 @@ const mapping = [
     role: UserRole.ADMINISTRATOR,
   },
   {
+    name: "deleteUser",
+    execute: user.delete,
+    include: true,
+    role: UserRole.ADMINISTRATOR,
+  },
+  {
     name: "user",
     execute: user.get,
     include: true,

@@ -5,8 +5,10 @@ import 'package:app/services/course.dart';
 import 'package:app/services/identity.dart';
 import 'package:app/services/order.dart';
 import 'package:app/services/page.dart';
+import 'package:app/services/qna.dart';
 import 'package:app/services/resource.dart';
 import 'package:app/services/sacredvibe.dart';
+import 'package:app/services/schedule.dart';
 import 'package:app/services/setting.dart';
 import 'package:app/services/short.dart';
 import 'package:app/services/storage.dart';
@@ -26,4 +28,6 @@ class Service {
   static final store = Storage();
   static final order = Order();
   static final resource = Resource();
+  static final qna = Qna();
+  static final schedule = Schedule();
 }

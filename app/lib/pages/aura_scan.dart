@@ -1,14 +1,12 @@
 import 'package:app/models/aura.dart';
 import 'package:app/models/order.dart';
 import 'package:app/models/user.dart';
-import 'package:app/pages/home.dart';
 import 'package:app/services/service.dart';
 import 'package:app/utils/alert.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import '../components/layout.dart';
 import '../theme/theme.dart';
 
 class AuraScan extends StatefulWidget {
@@ -443,13 +441,9 @@ class _AuraScanPageState extends State<AuraScan> {
                         );
                         OrderData? order = await Service.order.add(orderData);
                         if (order?.id == null) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                "Failed to create order. Please try again.",
-                              ),
-                              backgroundColor: AppColors.error,
-                            ),
+                          Alert.show(
+                            "Failed to create order. Please try again.",
+                            isError: true,
                           );
                         } else {
                           if (payment == 'ON') {

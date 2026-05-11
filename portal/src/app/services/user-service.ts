@@ -32,7 +32,7 @@ export class UserService {
   async list(filter: Filter): Promise<Data<IUser>> {
     let body = {
       query:
-        'query list ($filter: Filter!) { users(filter: $filter) { count rows { id role first_name last_name email phone countryid country { id name } stateid state { id, name } cityid city { id name } avatar status createdat creator { id first_name last_name email phone } updatedat updater { id first_name last_name email phone } referby { id first_name last_name email phone } } } }',
+        'query list ($filter: Filter!) { users(filter: $filter) { count rows { id role first_name last_name email phone countryid country { id name } stateid state { id, name } cityid city { id name } avatar status reason createdat creator { id first_name last_name email phone } updatedat updater { id first_name last_name email phone } referby { id first_name last_name email phone } } } }',
       variables: {
         filter: {
           ...filter,
@@ -47,7 +47,7 @@ export class UserService {
   async get(id: String) {
     let body = {
       query:
-        'query get($id: UUID!) { user (id: $id) { id role first_name last_name email phone countryid stateid cityid avatar status profession income createdat creator { id first_name last_name email phone } updatedat updater { id first_name last_name email phone } } }',
+        'query get($id: UUID!) { user (id: $id) { id role first_name last_name email phone countryid stateid cityid avatar status reason profession income createdat creator { id first_name last_name email phone } updatedat updater { id first_name last_name email phone } } }',
       variables: {
         id: id,
       },
@@ -62,9 +62,21 @@ export class UserService {
     return await this.api.postForm(this.url, { authorization: token }, body);
   }
 
+  async changeStatus(input: any) {
+    let body = {
+      query:
+        'mutation changeStatus($input: UserStatusIn!) { changeUserStatus (input: $input) { id } }',
+      variables: {
+        input: input,
+      },
+    };
+    let header = this.header.api();
+    return await this.api.post(this.url, header, body);
+  }
+
   async delete(id: String) {
     let body = {
-      query: 'mutation delete($id: UUID!) { deleteTemplate (id: $id) { id } }',
+      query: 'mutation delete($id: UUID!) { deleteUser (id: $id) { id } }',
       variables: {
         id: id,
       },

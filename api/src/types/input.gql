@@ -50,6 +50,12 @@ input UserIn {
   income: Float
 }
 
+input UserStatusIn {
+  userid: UUID!
+  status: Status!
+  reason: String!
+}
+
 input ProfileIn {
   first_name: String! @constraint(pattern: "^[a-zA-Z\\s]*$", maxLength: 50)
   last_name: String!

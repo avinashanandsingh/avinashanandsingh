@@ -20,6 +20,7 @@ type User {
   phone: String
   verified: Boolean
   status: String
+  reason: String
   profession: String
   income: Float
   last_login_at: DateTime
@@ -36,6 +37,19 @@ type UserResult {
   count: Int
   rows: [User]
 }
+
+type UserStatus {
+  id: UUID
+  userid: String
+  user: User
+  status: String
+  reason: String
+  active: Boolean
+  createdby: UUID
+  creator: User
+  createdat: DateTime
+}
+
 
 type Result {
   succeed: Boolean

@@ -18,20 +18,19 @@ import { Pager } from '../../../components/pager/pager';
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    StatusDialog,
     ResetDialog,
     Dialog,
     Loader,
     Upload,
-    Pager,
-  ],
+    Pager
+],
   templateUrl: './manage.html',
   styleUrl: './manage.css',
 })
 export default class Manage {
   rowCount = signal<number>(1);
   limit: number = Number(import.meta.env.NG_APP_LIMIT);
-  offset: number=0;
+  offset: number = 0;
   total = signal<number>(0);
   list = signal<IUser[]>([]);
   viewMode = signal<'list' | 'card'>('list');
@@ -65,6 +64,11 @@ export default class Manage {
     last_name: new FormControl('', [Validators.required]),
     email: new FormControl('', [Validators.required, Validators.email]),
     phone: new FormControl('', [Validators.required, Validators.pattern('^\\+[1-9]\\d{10,14}$')]),
+  });
+  statusForm: FormGroup = new FormGroup({
+    userid: new FormControl(''),
+    status: new FormControl('', Validators.required),
+    reason: new FormControl('', Validators.required),
   });
 
   dialogButtons = signal<Array<{ label: string; action: any; type: any }>>([
@@ -159,6 +163,48 @@ export default class Manage {
     },
   ]);
 
+  statusDialogButtons = signal<Array<{ label: string; action: any; type: any }>>([
+    {
+      label: 'Close',
+      action: () => {
+        this.hide(this.statusDialogOpen);
+      },
+      type: 'btn btn-secondary w-full',
+    },
+    {
+      label: 'Save',
+      action: async () => {
+        if (this.statusForm.invalid) return;
+        this.show(this.loader);
+        let formData = this.statusForm.getRawValue();
+        let result = await this.service.changeStatus(formData);
+        if (formData.id) {
+          if (result?.data?.changeUserStatus) {
+            Swal.fire({
+              title: 'Success',
+              html: 'Status changed successfully',
+              icon: 'success',
+              timer: 3000,
+            });
+          } else {
+            let error = result?.errors?.shift();
+            let msg = error?.extensions?.originalError?.message;
+            Swal.fire({
+              title: 'Failed',
+              html: msg,
+              icon: 'error',
+              timer: 3000,
+            });
+          }
+        }
+        this.load({});
+        this.statusForm.reset();
+        this.hide(this.loader);
+        this.hide(this.statusDialogOpen);
+      },
+      type: 'btn btn-primary w-full',
+    },
+  ]);
   // --- Constructor ---
   constructor(
     private service: UserService,
@@ -187,13 +233,13 @@ export default class Manage {
   async load(filter: Filter): Promise<void> {
     let result = await this.service.list(filter);
     this.total.set(Math.ceil(result?.count! / this.limit));
-    this.rowCount.set(result?.count!);    
+    this.rowCount.set(result?.count!);
     this.list.set(result?.rows!);
   }
 
-  async pageChange($event: number):Promise<void> {    
+  async pageChange($event: number): Promise<void> {
     this.offset = ($event - 1) * this.limit;
-    console.log("offset:", this.offset);
+    console.log('offset:', this.offset);
     this.show(this.loader);
     await this.load({
       offset: this.offset,
@@ -245,6 +291,7 @@ export default class Manage {
 
   openStatusDialog(user: IUser): void {
     this.selectedUser = user;
+    this.statusForm.patchValue({ userid: user.id, status: user.status, reason: user.reason });
     this.statusDialogOpen.set(true);
   }
 
@@ -285,9 +332,34 @@ export default class Manage {
     this.selectedUser = null;
   }
 
-  deleteUser(user: IUser): void {
-    if (confirm(`Are you sure you want to delete ${user.first_name} ${user.last_name}?`)) {
-      this.list.set(this.list().filter((u) => u.id !== user.id));
+  async deleteUser(user: IUser): Promise<void> {
+    let dialog = await Swal.fire({
+      title: 'Are you sure, want to delete?',
+      showDenyButton: true,
+      showCancelButton: false,
+      confirmButtonText: 'Confirm',
+      denyButtonText: 'Cancel',
+      customClass: {
+        actions: 'my-actions',
+        cancelButton: 'order-1 right-gap',
+        confirmButton: 'order-2',
+        denyButton: 'order-3',
+      },
+    });
+
+    if (dialog.isConfirmed) {
+      this.show(this.loader);
+      let result = await this.service.delete(user.id!);
+      if (result) {
+        Swal.fire({
+          title: 'Success',
+          html: 'User has been deleted',
+          icon: 'success',
+          timer: 3000,
+        });
+        await this.load({});
+        this.hide(this.loader);
+      }
     }
   }
 }

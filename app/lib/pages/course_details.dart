@@ -1,6 +1,5 @@
-import 'package:app/components/image_card.dart';
-import 'package:app/components/layout.dart';
 import 'package:app/models/course.dart';
+import 'package:app/models/qna.dart';
 import 'package:app/pages/course/private.dart';
 import 'package:app/pages/course/public.dart';
 import 'package:app/services/service.dart';
@@ -20,7 +19,6 @@ class _CourseDetailsState extends State<CourseDetails>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
   //final int _bottomNavIndex = 1;
-
   static const Color primaryPurple = AppColors.primary;
 
   final TextEditingController _commentController = TextEditingController();

@@ -2,11 +2,15 @@ import 'package:app/components/layout.dart';
 import 'package:app/components/price_tag.dart';
 import 'package:app/components/review_dialog.dart' as review_dialog;
 import 'package:app/models/course.dart';
+import 'package:app/models/qna.dart';
+import 'package:app/pages/enroll.dart';
+import 'package:app/pages/signin.dart';
 import 'package:app/services/identity.dart';
 import 'package:app/services/service.dart';
 import 'package:app/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:app/helpers/globals.dart';
 
 class PrivateCourse extends StatefulWidget {
   final CourseData? data;
@@ -21,9 +25,11 @@ class PrivateCourseState extends State<PrivateCourse>
   late TabController tabController;
   late AppTheme theme = AppTheme();
   int tabs = 1;
+  late Future<List<QnaData>> qna = Service.qna.list(widget.data?.id ?? '');
   @override
   void initState() {
     super.initState();
+    qna = Service.qna.list(widget.data?.id ?? '');
     if (widget.data!.modules != null) {
       tabs += 1;
     }
@@ -52,6 +58,7 @@ class PrivateCourseState extends State<PrivateCourse>
           padding: EdgeInsets.all(15),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.max,
             spacing: 15,
             children: [
               headerInfo(),
@@ -79,12 +86,18 @@ class PrivateCourseState extends State<PrivateCourse>
                           onPressed: () async {
                             bool flag = await Identity.instance.isLoggedIn();
                             if (flag) {
-                              print('clicked');
+                              navigatorKey.currentState?.push(
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      Enroll(course: widget.data!),
+                                ),
+                              );
                             } else {
-                              Navigator.of(
-                                context,
-                                rootNavigator: true,
-                              ).pushReplacementNamed("/signin");
+                              navigatorKey.currentState?.push(
+                                MaterialPageRoute(
+                                  builder: (context) => SignIn(),
+                                ),
+                              );
                             }
                           },
                           child: Text(
@@ -108,13 +121,19 @@ class PrivateCourseState extends State<PrivateCourse>
                                 bool flag = await Identity.instance
                                     .isLoggedIn();
                                 if (flag) {
+                                  navigatorKey.currentState?.push(
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          Enroll(course: widget.data!),
+                                    ),
+                                  );
                                 } else {
-                                  Navigator.of(
-                                    context,
-                                    rootNavigator: true,
-                                  ).pushReplacementNamed("/signin");
+                                  navigatorKey.currentState?.push(
+                                    MaterialPageRoute(
+                                      builder: (context) => SignIn(),
+                                    ),
+                                  );
                                 }
-                                print('clicked');
                               },
                               child: Text(
                                 'Enroll Now',
@@ -264,7 +283,7 @@ class PrivateCourseState extends State<PrivateCourse>
       labelStyle: TextTheme.of(context).labelSmall,
       tabs: [
         const Tab(text: "Overview"),
-        const Tab(text: "Curriculum"),
+        if (widget.data?.modules != null) const Tab(text: "Curriculum"),
         if (widget.data!.certified!) const Tab(text: "Certificates"),
       ],
     );
@@ -272,7 +291,7 @@ class PrivateCourseState extends State<PrivateCourse>
 
   Widget tabContent() {
     return SizedBox(
-      height: MediaQuery.of(context).size.height * 1.2,
+      height: MediaQuery.of(context).size.height,
       child: TabBarView(
         controller: tabController,
         children: [
@@ -286,9 +305,7 @@ class PrivateCourseState extends State<PrivateCourse>
   }
 
   Widget overview() {
-    return ListView(
-      padding: const EdgeInsets.all(10.0),
-      physics: const NeverScrollableScrollPhysics(),
+    return Column(
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -320,9 +337,12 @@ class PrivateCourseState extends State<PrivateCourse>
           ],
         ),
         const SizedBox(height: 12),
-        Text(widget.data!.description!),
+        Text(widget.data!.description!.trim()),
         if (widget.data!.about != null) ...[
-          Text(widget.data!.about!, style: TextTheme.of(context).bodyMedium),
+          Text(
+            widget.data!.about!.trim(),
+            style: TextTheme.of(context).bodyMedium,
+          ),
         ],
         const SizedBox(height: 16),
       ],

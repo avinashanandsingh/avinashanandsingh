@@ -46,11 +46,12 @@
                             <i class="bi bi-trash"></i>
                         </button>
                         }
+                        @if(row.options !== null){
                         <span class="inline-block transition-transform duration-300" (click)="toggleRow(row.id!)"
                             [class.rotate-180]="expandedRowId() === row.id">
                             <i class="bi bi-caret-down text-xl"></i>
                         </span>
-
+                        }
                     </td>
                 </tr>
 
@@ -113,7 +114,7 @@
 
         <div class="mb-3">
             <label class="label">Type <span class="text-red-500">*</span></label>
-            <select class="select w-full" id="type" formControlName="type" required>
+            <select class="select w-full" id="type" formControlName="type" required (change)="typeChange($event)">
                 <option selected value="">Select a type</option>
                 @for(item of typelist(); track $index){
                 <option [value]="item.value">{{item.value}}</option>

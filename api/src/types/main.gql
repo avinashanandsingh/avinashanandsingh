@@ -90,7 +90,9 @@ type Mutation {
   signup(input: SignUp!): User!
   addUser(input: UserIn!): User!
   updateUser(id:UUID!, input: UserIn!): User!
+  deleteUser(id: UUID!): User!
   updateProfile(id:UUID!, input: ProfileIn!): User!
+  changeUserStatus(input: UserStatusIn!): UserStatus!
   forgot(email:String!): Result
   reset(otp:String!, password:String!): Result
   changePassword(password: String!): Result

@@ -48,7 +48,9 @@ export class Question implements OnInit {
     {
       label: 'Save',
       action: async () => {
+        console.log(this.parentForm.invalid);
         if (this.parentForm.invalid) return;
+
         let formData = this.parentForm.getRawValue();
         formData.options = formData.options.map((x: any) => {
           return {
@@ -110,7 +112,7 @@ export class Question implements OnInit {
   ]);
 
   expandedRowId = signal<string | null>(null);
-
+  type = signal<string>('');
   constructor(
     private service: QuestionService,
     private course: CourseService,
@@ -128,13 +130,6 @@ export class Question implements OnInit {
   }
   async ngOnInit(): Promise<void> {
     this.titleService.title = 'Enrolment Q&A';
-    if (this.options.length == 0) {
-      const row = this.fb.group({
-        title: ['', Validators.required],
-        sort: ['', Validators.required],
-      });
-      this.options.push(row);
-    }
     this.show(this.loader);
     let result: any = await this.course.list({});
     this.course_list.set(result?.rows ?? []);
@@ -152,6 +147,23 @@ export class Question implements OnInit {
     return this.parentForm.get('options') as FormArray;
   }
 
+  typeChange($event: Event) {
+    let type = ($event.target as HTMLInputElement).value;
+    console.log('type:', type);
+    this.type.set(type);
+    if (type !== 'Open Ended') {
+      if (this.options.length == 0) {
+        const row = this.fb.group({
+          title: ['', Validators.required],
+          sort: ['', Validators.required],
+        });
+        this.options.push(row);
+      }
+    } else {
+      this.options.clear();
+    }
+  }
+
   setItems(items: any[]) {
     const itemArray = this.parentForm.get('options') as FormArray;
 
@@ -162,12 +174,14 @@ export class Question implements OnInit {
     items
       .sort((a, b) => a.sort - b.sort)
       .forEach((item) => {
-        itemArray.push(
-          this.fb.group({
-            title: ['', Validators.required],
-            sort: ['', Validators.required],
-          }),
-        );
+        if (this.type() !== 'Open Ended') {
+          itemArray.push(
+            this.fb.group({
+              title: ['', Validators.required],
+              sort: ['', Validators.required],
+            }),
+          );
+        }
       });
 
     // 3. Now patch the values
@@ -179,11 +193,13 @@ export class Question implements OnInit {
     return options.sort((a, b) => a.sort! - b.sort!);
   }
   addRow() {
-    const row = this.fb.group({
-      title: ['', Validators.required],
-      sort: ['', Validators.required],
-    });
-    this.options.push(row);
+    if (this.type() !== 'Open Ended') {
+      const row = this.fb.group({
+        title: ['', Validators.required],
+        sort: ['', Validators.required],
+      });
+      this.options.push(row);
+    }
   }
 
   removeRow(index: number) {

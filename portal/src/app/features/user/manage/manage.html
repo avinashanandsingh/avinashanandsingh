@@ -106,11 +106,12 @@
                             </span>
                         </div>
                         <p class="text-gray-500 text-sm">{{ user.email }}</p>
-                        <p class="text-gray-400 text-xs">{{ user.phone }}</p>                        
+                        <p class="text-gray-400 text-xs">{{ user.phone }}</p>
                         @if(user.referby?.id){
                         <div class="flex flex-row gap-3">
                             <h3 class="font-semibold text-gray-800">Refered By</h3>
-                            <div class="text-gray-400 text-base">{{ user.referby?.first_name }} {{ user.referby?.last_name }}</div>
+                            <div class="text-gray-400 text-base">{{ user.referby?.first_name }} {{
+                                user.referby?.last_name }}</div>
                         </div>
                         }
                     </div>
@@ -125,11 +126,11 @@
                             title="Change Status">
                             <i class="bi bi-person-gear"></i>
                         </button>
-                        <button (click)="openResetDialog(user)"
+                        <!--  <button (click)="openResetDialog(user)"
                             class="w-8 h-8 text-gray-500 hover:text-purple-600 hover:bg-purple-50 rounded transition cursor-pointer"
                             title="Reset Password">
                             <i class="bi bi-key"></i>
-                        </button>
+                        </button> -->
                         <button (click)="deleteUser(user)"
                             class="w-8 h-8 text-gray-500 hover:text-red-600 hover:bg-red-50 rounded transition cursor-pointer"
                             title="Delete">
@@ -191,10 +192,10 @@
                         </div>
                         @if(user.referby?.id){
                         <div class="flex justify-between">
-                            <span>Refered By:</span>                            
+                            <span>Refered By:</span>
                             <span class="px-2 py-0.5 text-xs font-medium">
                                 {{ user.referby?.first_name }} {{ user.referby?.last_name }}
-                            </span>                                                        
+                            </span>
                         </div>
                         }
                     </div>
@@ -216,10 +217,10 @@
                                 class="w-8 h-8 text-gray-500 hover:text-blue-600 rounded hover:bg-blue-50 transition cursor-pointer">
                                 <i class="bi bi-person-gear"></i>
                             </button>
-                            <button (click)="openResetDialog(user)"
+                            <!-- <button (click)="openResetDialog(user)"
                                 class="w-8 h-8 text-gray-500 hover:text-purple-600 rounded hover:bg-purple-50 transition cursor-pointer">
                                 <i class="bi bi-key"></i>
-                            </button>
+                            </button> -->
                             <button (click)="deleteUser(user)"
                                 class="w-8 h-8 text-gray-500 hover:text-red-600 rounded hover:bg-red-50 transition cursor-pointer">
                                 <i class="bi bi-trash"></i>
@@ -337,10 +338,60 @@
 </app-dialog>
 
 
-@if(statusDialogOpen()){
-<user-status-dialog [user]="selectedUser" (confirm)="changeStatus($event.newStatus, $event.reason)"
-    (cancel)="statusDialogOpen.set(false)"></user-status-dialog>
-}
+<app-dialog [isOpen]="statusDialogOpen" title="Change Status" [buttons]="statusDialogButtons" [backdrop]="false">
+    <form [formGroup]="statusForm">
+        <input type="hidden" formControlName="userid">
+        <p class="text-gray-600 mb-4">
+            Change the status of <span class="font-medium">{{ selectedUser?.first_name }} {{ selectedUser?.last_name
+                }}</span>
+        </p>
+
+        <!-- Status Options -->
+        <div class="space-y-3 mb-6">
+            <label
+                class="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition">
+                <input type="radio" [value]="'ACTIVE'" formControlName="status"
+                    class="h-4 w-4 text-blue-600 focus:ring-blue-500" />
+                <span class="flex items-center space-x-2">
+                    <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                    <span class="text-green-600 font-medium">Active</span>
+                </span>
+            </label>
+
+            <label
+                class="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition">
+                <input type="radio" [value]="'INACTIVE'" formControlName="status"
+                    class="h-4 w-4 text-blue-600 focus:ring-blue-500" />
+                <span class="flex items-center space-x-2">
+                    <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                    <span class="text-red-600 font-medium">Inactive</span>
+                </span>
+            </label>
+
+        </div>
+        <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'Status is required',
+                  control: statusForm.controls['status']
+                }">
+        </ng-container>
+        <!-- Reason -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Reason for Change</label>
+            <textarea name="reason" rows="3" class="input" formControlName="reason"
+                placeholder="Explain the reason for this status change..."></textarea>
+            <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'Reason is required',
+                  control: statusForm.controls['reason']
+                }">
+            </ng-container>
+        </div>
+
+
+    </form>
+</app-dialog>
+
 @if(resetDialogOpen()){
 <password-reset-dialog [user]="selectedUser" (reset)="resetPassword($event)" (cancel)="resetDialogOpen.set(false)" />
 }

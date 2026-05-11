@@ -14,7 +14,6 @@ import 'package:app/services/identity.dart';
 import 'package:app/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:app/pages/splash.dart';
-import 'components/loader.dart';
 
 final themeProvider = ThemeProvider();
 Future<Widget> _resolveInitialScreen() async {
