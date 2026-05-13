@@ -2,14 +2,10 @@ import { GraphQLError } from "graphql";
 import helper from "../../helper/index";
 import dotenv from "dotenv";
 import Insert from "../../models/insert";
-import User from "../../models/user";
+
 dotenv.config();
-export default async (
-  _: any,
-  args: { input: User },
-  ctx: any,
-): Promise<any> => {
-  const user:any = ctx.user;
+export default async (_: any, args: { input: any }, ctx: any): Promise<any> => {
+  const user: any = ctx.user;
 
   let input: Insert = {
     table: "schedules",

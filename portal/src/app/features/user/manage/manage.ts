@@ -1,6 +1,5 @@
 import { Component, signal, WritableSignal } from '@angular/core';
 import { IUser } from '../../../models/user';
-import StatusDialog from '../status-dialog/status-dialog';
 import { ResetDialog } from '../reset-dialog/reset-dialog';
 import { CommonModule } from '@angular/common';
 import { Dialog } from '../../../components/dialog/dialog';

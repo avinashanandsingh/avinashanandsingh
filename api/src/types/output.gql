@@ -114,7 +114,9 @@ type Schedule {
   start_date: Date
   end_date: Date
   start_time: String
+  formatted_start_time: String
   end_time: String
+  formatted_end_time: String
   deadline: DateTime
   capacity: Int
   enrollment_count: Int

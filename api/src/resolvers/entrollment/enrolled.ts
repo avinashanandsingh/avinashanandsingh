@@ -4,11 +4,10 @@ import { COP, LOP } from "../../models/enum";
 const view = "view_enrollments";
 export default async (
   _: any,
-  args: { courseId: string },
+  args: { courseId: string, userId: string},
   ctx: any,
 ): Promise<any> => {
   let row: any;
-  let flag: boolean = false;
   let user = ctx.user;
   let schedule = await helper.schedule.find({
     criteria: [
@@ -26,7 +25,6 @@ export default async (
     ],
   });
   let fields = await helper.data.columns([{ name: view }]);
-  console.log(schedule);
   if (schedule) {
     let input: Select = {
       tables: [
@@ -48,23 +46,24 @@ export default async (
           table: view,
           column: "scheduleid",
           cop: COP.eq,
+          lop: LOP.AND,
           value: schedule.id,
         },
       ],
     };
-    if (user) {
+    if (args.userId) {
       input.criteria?.push({
         table: view,
         column: "userid",
         cop: COP.eq,
         lop: LOP.AND,
-        value: user.id,
+        value: args.userId,
       });
     }
     let result = await helper.data.select<any>(input);
     console.log(result);
-    flag = result?.count! > 0;
+    row = result?.rows?.shift();
   }
 
-  return flag;
+  return row;
 };

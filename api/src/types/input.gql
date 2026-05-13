@@ -121,13 +121,13 @@ input EnrollIn {
   courseid: UUID
   scheduleid: UUID
   enrolledat: DateTime
+  expiredat: DateTime
   completedat: DateTime
-  progress_percentage: Float
-  grade: Float
   certificate_issued_at: DateTime
   droppedat: DateTime
   droppedby: UUID
   notes: String
+  qna: JSON
 }
 
 input DropIn {
@@ -216,10 +216,10 @@ input ReferralIn {
 }
 
 input ReviewIn {
-  context: Context
-  contextid: UUID
-  title: String
-  content: String
+  context: Context!
+  contextid: UUID!
+  rating: Int!
+  content: String!
 }
 
 input InquiryIn {

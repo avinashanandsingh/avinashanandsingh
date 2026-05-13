@@ -1,8 +1,11 @@
 import 'package:app/components/layout.dart';
 import 'package:app/components/price_tag.dart';
 import 'package:app/models/course.dart';
+import 'package:app/pages/course_details.dart';
+import 'package:app/pages/signin.dart';
 import 'package:app/services/identity.dart';
 import 'package:flutter/material.dart';
+import 'package:app/helpers/globals.dart';
 
 class PublicCourse extends StatefulWidget {
   final CourseData? data;
@@ -69,14 +72,15 @@ class PublicCourseState extends State<PublicCourse>
                     TextButton(
                       onPressed: () async {
                         bool flag = await Identity.instance.isLoggedIn();
-                        if (flag) {
-                        } else {
-                          Navigator.of(
-                            context,
-                            rootNavigator: true,
-                          ).pushReplacementNamed("/signin");
+                        if (!flag) {
+                          navigatorKey.currentState?.push(
+                            MaterialPageRoute(
+                              builder: (context) => SignIn(
+                                redirect: CourseDetails(data: widget.data),
+                              ),
+                            ),
+                          );
                         }
-                        print('clicked');
                       },
                       child: Text(
                         'Enroll Now',

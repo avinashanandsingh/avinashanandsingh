@@ -25,10 +25,10 @@ class CourseCard extends StatelessWidget {
     Widget cardContent = Container(
       width: width,
       height: height,
-      margin: const EdgeInsets.symmetric(horizontal: 8),
+      margin: const EdgeInsets.symmetric(horizontal: 5),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: AppColors.primary.withAlpha(20),
@@ -44,23 +44,6 @@ class CourseCard extends StatelessWidget {
       ),
       child: Stack(
         children: [
-          // Gradient overlay for text readability
-          /* Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                gradient: LinearGradient(
-                  colors: [
-                    Colors.transparent,
-                    AppColors.primary.withAlpha(220),
-                  ],
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                ),
-              ),
-            ),
-          ), */
-          // Title & CTA in Foreground
           Positioned(
             bottom: 16,
             left: 16,
@@ -116,7 +99,7 @@ class CourseCard extends StatelessWidget {
             context,
             MaterialPageRoute(builder: (_) => CourseDetails(data: data)),
           ),
-      child: Padding(padding: const EdgeInsets.all(8), child: cardContent),
+      child: cardContent,
     );
   }
 }

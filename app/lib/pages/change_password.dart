@@ -3,9 +3,7 @@ import 'package:app/components/label.dart';
 import 'package:app/components/loader.dart';
 import 'package:app/helpers/convert.dart';
 import 'package:app/services/service.dart';
-import 'package:app/theme/theme.dart';
 import 'package:app/utils/alert.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 

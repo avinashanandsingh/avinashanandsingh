@@ -1,23 +1,47 @@
+import 'dart:convert';
+
 import 'package:app/components/custom_form_field.dart';
-import 'package:app/components/custom_select_field.dart';
 import 'package:app/components/label.dart';
+import 'package:app/components/loader.dart';
+import 'package:app/models/enroll.dart';
 import 'package:app/models/qna.dart';
 import 'package:app/models/schedule.dart';
+import 'package:app/pages/home.dart';
 import 'package:app/services/service.dart';
+import 'package:app/utils/alert.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:app/helpers/globals.dart';
 
 class UserQnA {
-  final String? questionId;
+  final String? id;
+  final String? question;
+  //final String? type;
   List<OptionData>? options;
   String? answer;
-  UserQnA({this.questionId, this.options});
+  UserQnA({this.id, this.question, this.options});
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'question': question,
+      'answer': answer,
+      'options': options,
+    };
+  }
 }
 
 class QnaForm extends StatefulWidget {
   final List<QnaData> data;
   final String? courseId;
+  final String? scheduleId;
 
-  const QnaForm({super.key, required this.data, this.courseId});
+  const QnaForm({
+    super.key,
+    required this.data,
+    required this.courseId,
+    this.scheduleId,
+  });
 
   @override
   State<QnaForm> createState() => QnaFormState();
@@ -25,15 +49,19 @@ class QnaForm extends StatefulWidget {
 
 class QnaFormState extends State<QnaForm> {
   List<UserQnA> model = List.empty(growable: true);
-  late Future<List<ScheduleData>> scheduleList = Future.value([]);
   @override
   void initState() {
     super.initState();
-    if (mounted) {
-      scheduleList = Service.schedule.list(widget.courseId!);
-    }
+
     for (var item in widget.data) {
-      model.add(UserQnA(questionId: item.id, options: item.options));
+      model.add(
+        UserQnA(
+          id: item.id,
+          //type: item.type,
+          question: item.title,
+          options: item.options,
+        ),
+      );
     }
   }
 
@@ -44,14 +72,6 @@ class QnaFormState extends State<QnaForm> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Label(text: "Select a Schedule/Batch"),
-          CustomSelectField<ScheduleData>(
-            options: scheduleList,
-            onSelected: (value) {
-              print(value?.id!);
-            },
-          ),
-          SizedBox(height: 16),
           for (var item in widget.data) ...[
             Label(text: item.title!),
             if (item.type! == "Open Ended") ...[
@@ -59,21 +79,16 @@ class QnaFormState extends State<QnaForm> {
                 hintText: 'Write your answer here',
                 type: FieldType.multiline,
                 onChanged: (value) {
-                  model.where((q) => q.questionId == item.id).first.answer =
-                      value;
+                  model.where((q) => q.id == item.id).first.answer = value;
                 },
               ),
             ],
             if (item.type! == "Single Choice") ...[
               RadioGroup<String>(
-                groupValue: model
-                    .where((q) => q.questionId == item.id)
-                    .first
-                    .answer,
+                groupValue: model.where((q) => q.id == item.id).first.answer,
                 onChanged: (String? value) {
                   setState(() {
-                    model.where((q) => q.questionId == item.id).first.answer =
-                        value!;
+                    model.where((q) => q.id == item.id).first.answer = value!;
                   });
                 },
                 child: Column(
@@ -92,7 +107,7 @@ class QnaFormState extends State<QnaForm> {
               for (var o in item.options!) ...[
                 CheckboxListTile(
                   value: model
-                      .where((q) => q.questionId == item.id)
+                      .where((q) => q.id == item.id)
                       .first
                       .options
                       ?.where((e) => e.id == o.id)
@@ -105,7 +120,7 @@ class QnaFormState extends State<QnaForm> {
                   onChanged: (value) {
                     setState(() {
                       model
-                              .where((q) => q.questionId == item.id)
+                              .where((q) => q.id == item.id)
                               .first
                               .options
                               ?.where((e) => e.id == o.id)
@@ -120,8 +135,58 @@ class QnaFormState extends State<QnaForm> {
             const SizedBox(height: 16),
           ],
           ElevatedButton(
-            onPressed: () {
-              print('clicked');
+            onPressed: () async {
+              Loader.show();
+              EnrollData enrol = EnrollData();
+              enrol.courseId = widget.courseId;
+              var course = await Service.course.get({
+                "criteria": [
+                  {"column": "id", "cop": "eq", "value": widget.courseId},
+                ],
+              });
+
+              ScheduleData? schedule = await Service.schedule.get({
+                "criteria": [
+                  {"column": "courseid", "cop": "eq", "value": widget.courseId},
+                  {
+                    "column": "status",
+                    "cop": "eq",
+                    "lop": "AND",
+                    "value": "ACTIVE",
+                  },
+                ],
+              });
+
+              enrol.scheduleId = schedule?.id;
+              var today = DateTime.now();
+              enrol.enrolledat = DateFormat("yyyy-MM-dd").format(today);
+              if ((course?.validity ?? 0) > 0) {
+                var exp = today.add(Duration(days: course?.validity ?? 0));
+                enrol.expiredat = DateFormat("yyyy-MM-dd").format(exp);
+              }
+              for (var item in model) {
+                item.options?.removeWhere((z) => z.isChecked == false);
+              }
+
+              String qnaData = jsonEncode(
+                model.map((u) => u.toJson()).toList(),
+              );
+              enrol.qna = qnaData;
+
+              var result = await Service.course.enroll(enrol);
+
+              Loader.hide();
+              if (result['errors'] != null) {
+                dynamic error = result!['errors']![0];
+                String msg =
+                    error?['extensions']?['originalError']?['message'] ??
+                    error?['message'];
+                Alert.show(msg, isError: true);
+              } else {
+                navigatorKey.currentState?.push(
+                  MaterialPageRoute(builder: (context) => Home()),
+                );
+              }
             },
             style: ButtonStyle(
               padding: WidgetStatePropertyAll(EdgeInsets.all(8)),

@@ -13,7 +13,6 @@ import Swal from 'sweetalert2';
 import Criteria from '../../models/criteria';
 import { COP, LOP } from '../../models/enum';
 import { geDate } from '../../validator/date/date_ge';
-import { ltDate } from '../../validator/date/date_lt';
 import { leDate } from '../../validator/date/date_le';
 
 @Component({
@@ -26,9 +25,11 @@ export class Schedule implements OnInit {
   rowCount = signal<number>(1);
   list = signal<ISchdeuleData[]>([]);
   course_list = signal<ICourseData[]>([]);
+  schedule = signal<ISchdeuleData | null>(null);
   criteria = signal<Criteria[]>([]);
   loader = signal<boolean>(false);
   formDialog = signal<boolean>(false);
+  statusDialogOpen = signal<boolean>(false);
   mode = signal<'ADD' | 'EDIT'>('ADD');
   dialogTitle = signal<string>('New Schedule');
   minDate = new Date(new Date().setDate(new Date().getDate()) + 1);
@@ -55,12 +56,14 @@ export class Schedule implements OnInit {
     },
     {
       // Apply cross-field validator at the group level
-      validators: [
-        leDate('start_date', 'deadline'),
-        geDate('start_date', 'end_date'),
-      ],
+      validators: [leDate('start_date', 'deadline'), geDate('start_date', 'end_date')],
     },
   );
+  statusForm: FormGroup = new FormGroup({
+    id: new FormControl(''),
+    status: new FormControl('', Validators.required),
+  });
+
   dialogButtons = signal<Array<{ label: string; action: any; type: any; disabled?: boolean }>>([
     {
       label: 'Close',
@@ -128,7 +131,48 @@ export class Schedule implements OnInit {
       type: 'btn btn-primary w-full',
     },
   ]);
-
+  statusDialogButtons = signal<Array<{ label: string; action: any; type: any }>>([
+    {
+      label: 'Close',
+      action: () => {
+        this.hide(this.statusDialogOpen);
+      },
+      type: 'btn btn-secondary w-full',
+    },
+    {
+      label: 'Save',
+      action: async () => {
+        if (this.statusForm.invalid) return;
+        this.show(this.loader);
+        let formData = this.statusForm.getRawValue();
+        let result = await this.service.changeStatus(formData.id, formData.status);
+        if (formData.id) {
+          if (result?.data?.changeScheduleStatus) {
+            Swal.fire({
+              title: 'Success',
+              html: 'Status changed successfully',
+              icon: 'success',
+              timer: 3000,
+            });
+          } else {
+            let error = result?.errors?.shift();
+            let msg = error?.extensions?.originalError?.message;
+            Swal.fire({
+              title: 'Failed',
+              html: msg,
+              icon: 'error',
+              timer: 3000,
+            });
+          }
+        }
+        this.load({});
+        this.statusForm.reset();
+        this.hide(this.loader);
+        this.hide(this.statusDialogOpen);
+      },
+      type: 'btn btn-primary w-full',
+    },
+  ]);
   constructor(
     private titleService: TitleService,
     private service: ScheduleService,
@@ -172,6 +216,7 @@ export class Schedule implements OnInit {
       return x;
     });
     this.show(this.loader);
+    this.criteria.set(criteria);
     await this.load({ criteria: criteria, orderBy: [{ column: 'start_date', asc: false }] });
     this.hide(this.loader);
   }
@@ -184,30 +229,37 @@ export class Schedule implements OnInit {
       this.list.set([]);
     }
   }
-
-  show(me: WritableSignal<boolean>, id?: string) {
-    me.set(true);
-    if (id) {
-      this.mode.set('EDIT');
-    } else {
-      this.mode.set('ADD');
+  async statusChange(id: string, status: string): Promise<void> {
+    console.log(id, status);
+    this.loader.set(true);
+    await this.service.changeStatus(id, status);
+    await this.load({criteria: this.criteria()});
+    this.loader.set(false);
+  }
+  showStatusDialog(id: string) {
+    console.log(id);
+    this.statusDialogOpen.set(true);
+    let sch = this.list().find((x) => x.id === id);
+    this.statusForm.patchValue({ id: sch!.id, status: sch!.status });
+    this.schedule.set(sch!);
+  }
+  show(me: WritableSignal<boolean>, mode?: 'ADD' | 'EDIT', id?: string) {
+    if (mode!) {
+      this.mode.set(mode);
     }
-    switch (this.mode()) {
+
+    switch (mode!) {
       case 'ADD':
-        this.form.reset({ courseid:''});
+        this.form.reset({ courseid: '' });
         this.dialogTitle.set('New Schedule');
-        me.set(true);
         break;
       case 'EDIT':
         let row = this.list().find((x) => x.id === id);
         this.form.patchValue(row!);
         this.dialogTitle.set('Update Schedule');
-        me.set(true);
-        break;
-      default:
-        me.set(true);
         break;
     }
+    me.set(true);
   }
   hide(me: WritableSignal<boolean>) {
     me.set(false);

@@ -23,7 +23,13 @@ class OptionData {
   }
 
   Map<String, dynamic> toJson() {
-    return {'id': id, 'questionid': questionId, 'title': title, 'sort': sort};
+    return {
+      'id': id,
+      'questionid': questionId,
+      'title': title,
+      'sort': sort,
+      'checked': isChecked,
+    };
   }
 }
 

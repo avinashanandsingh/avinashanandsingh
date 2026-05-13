@@ -29,7 +29,7 @@ type Query {
   content(id: UUID!): Content!
   contents(filter: Filter!): ContentResult!
 
-  isEnrolled(courseId: UUID!): Boolean!
+  isEnrolled(courseId: UUID!, userId: UUID): Enrollment!
   enrollment(id: UUID!): Enrollment!
   enrollments(filter: Filter!): EnrollmentResult!
 
@@ -109,6 +109,7 @@ type Mutation {
 
   addSchedule(input: ScheduleIn!): Schedule
   updateSchedule(id:UUID!, input: ScheduleIn!): Schedule
+  changeScheduleStatus(id:UUID!, status: Status!): Schedule
   deleteSchedule(id:UUID!): Schedule
 
   addModule(input: ModuleIn!): Module!

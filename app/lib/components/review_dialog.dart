@@ -1,33 +1,44 @@
+import 'package:app/components/loader.dart';
+import 'package:app/models/course.dart';
+import 'package:app/services/service.dart';
 import 'package:app/theme/theme.dart';
+import 'package:app/utils/alert.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:app/helpers/globals.dart';
 
-void show(BuildContext context) {
+void show(BuildContext context, dynamic ref) {
   showDialog(
     context: context,
     barrierDismissible: false,
     builder: (BuildContext context) {
-      return ReviewDialog();
+      return ReviewDialog(ref: ref);
     },
   );
 }
 
 class ReviewDialog extends StatefulWidget {
-  const ReviewDialog({super.key});
+  final dynamic ref;
+  const ReviewDialog({super.key, this.ref});
 
   @override
   State<ReviewDialog> createState() => ReviewDialogState();
 }
 
 class ReviewDialogState extends State<ReviewDialog> {
+  String? content;
+  int rating = 0;
   @override
   void initState() {
     super.initState();
+    content = '';
+    rating = 0;
+
+    print(widget.ref.toString());
   }
 
   @override
   Widget build(BuildContext context) {
-    int selectedStars = 0;
     return StatefulBuilder(
       builder: (context, setState) {
         return AlertDialog(
@@ -48,21 +59,23 @@ class ReviewDialogState extends State<ReviewDialog> {
                 children: List.generate(5, (index) {
                   return IconButton(
                     icon: Icon(
-                      index < selectedStars ? Icons.star : Icons.star_border,
+                      index < rating ? Icons.star : Icons.star_border,
                       color: Colors.amber,
                       size: 36,
                     ),
                     onPressed: () {
                       setState(() {
-                        selectedStars = index + 1;
+                        rating = index + 1;
                       });
                     },
                   );
                 }),
               ),
               const SizedBox(height: 16),
+
               TextField(
                 maxLines: 4,
+                style: TextTheme.of(context).labelSmall,
                 decoration: InputDecoration(
                   hintText: "What did you think of this course?",
                   hintStyle: TextStyle(
@@ -85,6 +98,11 @@ class ReviewDialogState extends State<ReviewDialog> {
                     borderSide: const BorderSide(color: AppColors.primary),
                   ),
                 ),
+                onChanged: (value) {
+                  setState(() {
+                    content = value;
+                  });
+                },
               ),
             ],
           ),
@@ -101,15 +119,31 @@ class ReviewDialogState extends State<ReviewDialog> {
               ),
             ),
             ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: const Text("Review submitted successfully!"),
-                    backgroundColor: Colors.green.shade600,
-                    behavior: SnackBarBehavior.floating,
-                  ),
-                );
+              onPressed: () async {
+                dynamic result;
+                if (widget.ref is CourseData) {
+                  Loader.show();
+                  result = await Service.course.postReview(
+                    widget.ref?.id,
+                    rating,
+                    content!,
+                  );
+                  Loader.hide();
+                  print(result);
+                  if (result?['errors'] == null) {
+                    Navigator.pop(context);
+                    Alert.show(
+                      "Review submitted successfully!",
+                      isError: false,
+                    );
+                  } else {
+                    dynamic error = result!['errors']![0];
+                    String msg =
+                        error?['extensions']?['originalError']?['message'] ??
+                        error?['message'];
+                    Alert.show(msg, isError: true);
+                  }
+                }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.primary,

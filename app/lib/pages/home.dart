@@ -1,24 +1,20 @@
 import 'package:app/components/course_card.dart';
 import 'package:app/components/home/branding_item.dart';
+import 'package:app/components/home/course_container.dart';
 import 'package:app/components/home/section.dart';
 import 'package:app/components/resource_carousel.dart';
 import 'package:app/models/branding.dart';
 import 'package:app/models/course.dart';
-import 'package:app/models/filter.dart';
 import 'package:app/models/sacredvibe.dart';
 import 'package:app/services/service.dart';
 import 'package:flutter/material.dart';
 import '../components/layout.dart';
 import '../components/home/section_header.dart';
 import '../components/home/hero_card.dart';
-//import '../components/home/branding_banner.dart';
 import '../components/home/short_courses.dart';
-import '../components/home/gift_banner.dart';
 import '../components/home/meditation_circles.dart';
 import '../components/home/abundance_card.dart';
 import '../components/home/sacred_vibes_tile.dart';
-import '../components/home/superhuman_banner.dart';
-import '../components/home/short_videos.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -88,8 +84,9 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                           )
                           .toList(),
                     );
+                  } else {
+                    return Container();
                   }
-                  return Container();
                 },
               ),
             ),
@@ -114,7 +111,17 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                 print("Load...");
               },
               child: FutureBuilder(
-                future: Service.course.list(true),
+                future: Service.course.list({
+                  "criteria": [
+                    {"column": "status", "cop": "eq", "value": "PUBLISHED"},
+                    {
+                      "column": "short",
+                      "cop": "eq",
+                      "lop": "AND",
+                      "value": true,
+                    },
+                  ],
+                }),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(
@@ -132,6 +139,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             ),
 
             const SizedBox(height: 32),
+
             FutureBuilder(
               future: Service.course.get({
                 "criteria": [
@@ -148,9 +156,12 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                   );
                 } else if (snapshot.hasData) {
                   CourseData item = snapshot.data!;
-                  return CourseCard(
-                    data: item,
-                    width: MediaQuery.widthOf(context).toDouble(),
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                    child: CourseCard(
+                      data: item,
+                      width: MediaQuery.widthOf(context).toDouble(),
+                    ),
                   );
                 }
                 return Container();
@@ -216,6 +227,46 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             const SizedBox(height: 32),
             //const SuperhumanBanner(),
             FutureBuilder(
+              future: Service.course.list({
+                "criteria": [
+                  {"column": "status", "cop": "eq", "value": "PUBLISHED"},
+                  {
+                    "column": "short",
+                    "cop": "eq",
+                    "lop": "AND",
+                    "value": false,
+                  },
+                  {
+                    "column": "level",
+                    "cop": "ni",
+                    "lop": "AND",
+                    "value": ["L0", "L1"],
+                  },
+                ],
+              }),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  );
+                } else if (snapshot.hasData) {
+                  return CourseContainer(
+                    pulseAnimation: _pulseAnimation,
+                    items: [
+                      for (var item in snapshot.data!) ...[
+                        CourseCard(data: item),
+                      ],
+                    ],
+                  );
+                }
+                return Container();
+              },
+            ),
+
+            /* FutureBuilder(
               future: Service.course.get({
                 "criteria": [
                   {"column": "level", "cop": "eq", "value": "L2"},
@@ -235,14 +286,8 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                 }
                 return Container();
               },
-            ),
-            const SizedBox(height: 36),
-            /*  const SectionHeader(
-              title: "SHORT VIDEOS",
-              subtitle: "Snackable wisdom to keep you inspired.",
-            ),
-            const ShortVideos(), 
-            const SizedBox(height: 48),*/
+            ), */
+            const SizedBox(height: 48),
           ],
         ),
       ),

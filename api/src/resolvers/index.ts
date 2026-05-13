@@ -90,6 +90,7 @@ const resolvers = {
     deleteOption: shield,
     addSchedule: shield,
     updateSchedule: shield,
+    changeScheduleStatus: shield,
     deleteSchedule: shield,
     addModule: shield,
     updateModule: shield,
@@ -133,6 +134,7 @@ const resolvers = {
     deleteSetting: shield,
     addSmtp: shield,
     updateSmtp: shield,
+    enroll: shield,
   },
   /* Subscription: {
     access: {      

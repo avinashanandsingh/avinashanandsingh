@@ -363,6 +363,12 @@ const mapping = [
     role: UserRole.ADMINISTRATOR,
   },
   {
+    name: "changeScheduleStatus",
+    execute: schedule.changeStatus,
+    include: true,
+    role: UserRole.ADMINISTRATOR,
+  },
+  {
     name: "deleteSchedule",
     execute: schedule.delete,
     include: true,
@@ -371,20 +377,20 @@ const mapping = [
   {
     name: "reviews",
     execute: review.list,
-    include: true,
+    include: false,
     role: UserRole.ANONYMOUS,
   },
   {
     name: "review",
     execute: review.get,
-    include: true,
+    include: false,
     role: UserRole.ANONYMOUS,
   },
   {
     name: "postReview",
     execute: review.add,
     include: true,
-    role: UserRole.ADMINISTRATOR,
+    role: UserRole.ANONYMOUS,
   },
   {
     name: "deleteReview",
@@ -474,7 +480,7 @@ const mapping = [
     name: "enroll",
     execute: entrollment.add,
     include: true,
-    role: UserRole.STUDENT,
+    role: UserRole.ANONYMOUS,
   },
   {
     name: "updateEnrollment",

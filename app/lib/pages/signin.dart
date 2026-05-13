@@ -10,7 +10,7 @@ import 'package:app/pages/forgot_password.dart';
 import 'package:app/services/identity.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'package:app/helpers/globals.dart';
 import '../theme/theme.dart';
 import 'signup.dart';
 
@@ -42,10 +42,16 @@ class _SignInState extends State<SignIn> {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios, color: Colors.black, size: 18),
           onPressed: () {
-            Navigator.of(
-              context,
-              rootNavigator: true,
-            ).pushReplacementNamed("/home");
+            if (widget.redirect != null) {
+              navigatorKey.currentState?.push(
+                MaterialPageRoute(builder: (context) => widget.redirect!),
+              );
+            } else {
+              Navigator.of(
+                context,
+                rootNavigator: true,
+              ).pushReplacementNamed("/home");
+            }
           },
         ),
       ),

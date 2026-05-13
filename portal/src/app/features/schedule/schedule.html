@@ -7,7 +7,7 @@
             <p class="text-gray-500 text-sm">Manage course schedules here</p>
         </div>
         <div>
-            <button (click)="show(formDialog)" class="btn btn-primary text-base items-center">
+            <button (click)="show(formDialog, 'ADD')" class="btn btn-primary text-base items-center">
                 <i class="bi bi-calendar-plus text-xl mr-2"></i>
                 Add New Schedule
             </button>
@@ -41,7 +41,7 @@
                     <option selected value="">Select a Status</option>
                     <option value="">All</option>
                     <option value="ACTIVE">Active</option>
-                    <!-- <option value="INACTIVE">Inctive</option> -->
+                    <option value="INACTIVE">Inctive</option>
                     <option value="DELETED">Deleted</option>
                 </select>
             </div>
@@ -121,25 +121,25 @@
                             <div class="text-base font-medium text-gray-900">{{ row.capacity }}</div>
                         </td>
                         <td class="p-3 whitespace-nowrap text-base text-gray-500">
-                            @switch (row.status) {
-                            @case ('ACTIVE') {
-                            <span class="px-2 py-1 rounded-sm text-base bg-green-100 text-green-700">
-                                {{ row.status | titlecase}}
-                            </span>
-                            }
-                            @case('INACTIVE'){
-                            <span class="px-2 py-1 rounded-sm text-base bg-gray-100 text-gray-600">Inactive</span>
-                            }
-                            @case('DELETED'){
-                            <span class="px-2 py-1 rounded-sm text-base bg-red-50 text-red-700">Deleted</span>
-                            }
+                            @if(row.status !== 'DELETED'){
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input 
+                                    type="checkbox" 
+                                    class="sr-only peer" 
+                                    [checked]="(row.status === 'ACTIVE')" 
+                                    (change)="statusChange(row.id!, (row.status === 'ACTIVE') ? 'INACTIVE' :'ACTIVE')"/>
+                               
+                                <div
+                                    class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:inset-s-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600">
+                                </div>
+                            </label>
                             }
                         </td>
 
                         <td class="p-3 whitespace-nowrap text-right text-base font-medium w-20">
                             <div class="flex flex-row gap-3">
                                 @if(row.status !== "DELETED"){
-                                <button (click)="show(formDialog, row.id!)"
+                                <button (click)="show(formDialog, 'EDIT', row.id!)"
                                     class="text-purple-600 hover:text-purple-900 text-base">
                                     <i class="bi bi-pencil-square"></i>
                                 </button>
@@ -216,7 +216,7 @@
                   control: form.controls['end_date']
                 }">
                     </ng-container>
-                    @if(form.hasError('date_ge') && form.get('end_date')?.touched){                        
+                    @if(form.hasError('date_ge') && form.get('end_date')?.touched){
                     <div class="space-y-2">
                         <span class="error">Must be >= start date!</span>
                     </div>

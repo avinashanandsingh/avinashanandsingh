@@ -1,16 +1,22 @@
+import 'package:app/components/custom_tab_view.dart';
 import 'package:app/components/layout.dart';
 import 'package:app/components/price_tag.dart';
 import 'package:app/components/review_dialog.dart' as review_dialog;
+import 'package:app/components/review_widget.dart';
+import 'package:app/components/video_card.dart';
 import 'package:app/models/course.dart';
 import 'package:app/models/qna.dart';
+import 'package:app/pages/course_details.dart';
 import 'package:app/pages/enroll.dart';
 import 'package:app/pages/signin.dart';
 import 'package:app/services/identity.dart';
 import 'package:app/services/service.dart';
 import 'package:app/theme/theme.dart';
+import 'package:app/utils/alert.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:app/helpers/globals.dart';
+import 'package:intl/intl.dart';
 
 class PrivateCourse extends StatefulWidget {
   final CourseData? data;
@@ -24,7 +30,7 @@ class PrivateCourseState extends State<PrivateCourse>
     with SingleTickerProviderStateMixin {
   late TabController tabController;
   late AppTheme theme = AppTheme();
-  int tabs = 1;
+  int tabs = 2;
   late Future<List<QnaData>> qna = Service.qna.list(widget.data?.id ?? '');
   @override
   void initState() {
@@ -47,76 +53,144 @@ class PrivateCourseState extends State<PrivateCourse>
 
   @override
   Widget build(BuildContext context) {
-    return Layout(
-      titleText: widget.data!.title!,
-      isSerif: false,
-      showHeader: true,
-      showBack: true,
-      showBottomNav: true,
-      body: SingleChildScrollView(
-        child: Container(
-          padding: EdgeInsets.all(15),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.max,
-            spacing: 15,
-            children: [
-              headerInfo(),
-              metadataGrid(),
-              SizedBox(height: 5),
-              tabBar(),
-              //SizedBox(height: 3),
-              tabContent(),
-              SizedBox(height: 5),
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(widget.data!.title!),
+          titleTextStyle: TextTheme.of(context).headlineSmall,
+          centerTitle: false,
+        ),
+        body: Container(
+          padding: EdgeInsets.all(0),
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize:
+                  MainAxisSize.min, // Tells column to be only as big as needed
+              children: [
+                headerInfo(),
+                metadataGrid(),
 
-              FutureBuilder<bool>(
-                future: Service.course.isEnrolled(widget.data!.id!),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
-                    );
-                  } else if (snapshot.hasData) {
-                    if (!snapshot.data!) {
-                      if (widget.data!.free!) {
-                        return TextButton(
-                          onPressed: () async {
-                            bool flag = await Identity.instance.isLoggedIn();
-                            if (flag) {
-                              navigatorKey.currentState?.push(
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      Enroll(course: widget.data!),
-                                ),
-                              );
-                            } else {
-                              navigatorKey.currentState?.push(
-                                MaterialPageRoute(
-                                  builder: (context) => SignIn(),
-                                ),
-                              );
-                            }
-                          },
-                          child: Text(
-                            'Enroll Now',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
+                Divider(),
+                Container(
+                  padding: EdgeInsets.all(15),
+                  child: FutureBuilder(
+                    future: Service.schedule.get({
+                      "criteria": [
+                        {
+                          "column": "courseid",
+                          "cop": "eq",
+                          "value": widget.data?.id,
+                        },
+                        {
+                          "column": "status",
+                          "cop": "eq",
+                          "lop": "AND",
+                          "value": "ACTIVE",
+                        },
+                      ],
+                    }),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: CircularProgressIndicator(strokeWidth: 2),
                           ),
                         );
+                      } else if (snapshot.hasData) {
+                        if (snapshot.data != null) {
+                          String formattedStartDate = DateFormat.yMMMMEEEEd()
+                              .format(
+                                DateTime.parse(snapshot.data!.startDate!),
+                              );
+                          String formattedEndDate = DateFormat.yMMMMEEEEd()
+                              .format(DateTime.parse(snapshot.data!.endDate!));
+
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                snapshot.data!.title!,
+                                style: TextTheme.of(context).headlineSmall,
+                              ),
+
+                              Row(
+                                children: [
+                                  Text(
+                                    "Start Date: ",
+                                    style: TextTheme.of(context).labelSmall!
+                                        .copyWith(fontWeight: FontWeight.bold),
+                                  ),
+                                  Text(
+                                    formattedStartDate,
+                                    style: TextTheme.of(context).labelSmall,
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  Text(
+                                    "End Date: ",
+                                    style: TextTheme.of(context).labelSmall!
+                                        .copyWith(fontWeight: FontWeight.bold),
+                                  ),
+                                  Text(
+                                    formattedEndDate,
+                                    style: TextTheme.of(context).labelSmall,
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  Text(
+                                    "Time: ",
+                                    style: TextTheme.of(context).labelSmall!
+                                        .copyWith(fontWeight: FontWeight.bold),
+                                  ),
+                                  Text(
+                                    "${snapshot.data!.formattedStartTime!} to ${snapshot.data!.formattedEndTime!}",
+                                    style: TextTheme.of(context).labelSmall,
+                                  ),
+                                ],
+                              ),
+                              /* Row(
+                                children: [
+                                  Text(
+                                    "End Time: ",
+                                    style: TextTheme.of(context).labelSmall!
+                                        .copyWith(fontWeight: FontWeight.bold),
+                                  ),
+                                  Text(snapshot.data!.formattedEndTime!),
+                                ],
+                              ), */
+                            ],
+                          );
+                        } else {
+                          return Container();
+                        }
                       } else {
-                        return Row(
-                          children: [
-                            PriceTag(
-                              offer: widget.data!.offer ?? 0.00,
-                              price: widget.data!.price ?? 0.00,
-                            ),
-                            Spacer(),
-                            TextButton(
+                        return Container();
+                      }
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsetsGeometry.symmetric(horizontal: 15),
+                  child: FutureBuilder<bool>(
+                    future: Service.course.isEnrolled(widget.data!.id!),
+                    builder: (context, snapshot) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
+                        );
+                      } else if (snapshot.hasData) {
+                        if (!snapshot.data!) {
+                          if (widget.data!.free!) {
+                            return TextButton(
                               onPressed: () async {
                                 bool flag = await Identity.instance
                                     .isLoggedIn();
@@ -130,7 +204,11 @@ class PrivateCourseState extends State<PrivateCourse>
                                 } else {
                                   navigatorKey.currentState?.push(
                                     MaterialPageRoute(
-                                      builder: (context) => SignIn(),
+                                      builder: (context) => SignIn(
+                                        redirect: CourseDetails(
+                                          data: widget.data,
+                                        ),
+                                      ),
                                     ),
                                   );
                                 }
@@ -142,18 +220,66 @@ class PrivateCourseState extends State<PrivateCourse>
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                            ),
-                          ],
-                        );
+                            );
+                          } else {
+                            return Row(
+                              children: [
+                                PriceTag(
+                                  offer: widget.data!.offer ?? 0.00,
+                                  price: widget.data!.price ?? 0.00,
+                                ),
+                                Spacer(),
+                                TextButton(
+                                  onPressed: () async {
+                                    bool flag = await Identity.instance
+                                        .isLoggedIn();
+                                    if (flag) {
+                                      navigatorKey.currentState?.push(
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              Enroll(course: widget.data!),
+                                        ),
+                                      );
+                                    } else {
+                                      navigatorKey.currentState?.push(
+                                        MaterialPageRoute(
+                                          builder: (context) => SignIn(
+                                            redirect: CourseDetails(
+                                              data: widget.data,
+                                            ),
+                                          ),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  child: Text(
+                                    'Enroll Now',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          }
+                        } else {
+                          return Container();
+                        }
                       }
-                    } else {
                       return Container();
-                    }
-                  }
-                  return Container();
-                },
-              ),
-            ],
+                    },
+                  ),
+                ),
+
+                Divider(),
+                Padding(
+                  padding: EdgeInsetsGeometry.symmetric(horizontal: 8),
+                  child: VideoCard(url: widget.data!.url!),
+                ),
+                tabContent(),
+              ],
+            ),
           ),
         ),
       ),
@@ -161,35 +287,38 @@ class PrivateCourseState extends State<PrivateCourse>
   }
 
   Widget headerInfo() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(widget.data!.title!, style: TextTheme.of(context).headlineSmall),
-        const SizedBox(height: 16),
-        Row(
-          children: [
-            const CircleAvatar(
-              radius: 20,
-              backgroundColor: Colors.grey,
-              child: Icon(Icons.person, color: Colors.white),
-            ),
-            const SizedBox(width: 12),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  "Avinash Anand Singh",
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-                ),
-                Text(
-                  "avinashanandsingh@gmail.com",
-                  style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ],
+    return Container(
+      padding: EdgeInsets.only(left: 15, right: 15, bottom: 15),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          //Text(widget.data!.title!, style: TextTheme.of(context).headlineSmall),
+          //const SizedBox(height: 16),
+          Row(
+            children: [
+              const CircleAvatar(
+                radius: 20,
+                backgroundColor: Colors.grey,
+                child: Icon(Icons.person, color: Colors.white),
+              ),
+              const SizedBox(width: 12),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Avinash Anand Singh",
+                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                  ),
+                  Text(
+                    "avinashanandsingh@gmail.com",
+                    style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 
@@ -236,16 +365,16 @@ class PrivateCourseState extends State<PrivateCourse>
     ];
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      padding: const EdgeInsets.symmetric(horizontal: 15.0),
       child: GridView.builder(
         physics: const NeverScrollableScrollPhysics(),
         shrinkWrap: true,
         itemCount: metadata.length,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          childAspectRatio: 5,
-          crossAxisSpacing: 8,
-          mainAxisSpacing: 8,
+          childAspectRatio: 8,
+          crossAxisSpacing: 2,
+          mainAxisSpacing: 2,
         ),
         itemBuilder: (context, index) {
           final item = metadata[index];
@@ -260,7 +389,7 @@ class PrivateCourseState extends State<PrivateCourse>
               Expanded(
                 child: Text(
                   item['text'] as String,
-                  style: TextStyle(fontSize: 12, color: Colors.grey.shade800),
+                  style: TextTheme.of(context).labelSmall,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -290,22 +419,38 @@ class PrivateCourseState extends State<PrivateCourse>
   }
 
   Widget tabContent() {
-    return SizedBox(
-      height: MediaQuery.of(context).size.height,
-      child: TabBarView(
-        controller: tabController,
-        children: [
-          overview(),
-          if (widget.data?.modules != null) curriculum(),
-          //_buildForumTab(),
-          if (widget.data!.certified!) certificate(),
-        ],
-      ),
+    return CustomTabView(
+      controller: tabController,
+      tabs: [
+        Tab(text: "Overview"),
+        if (widget.data?.modules != null) Tab(text: "Curriculum"),
+        if (widget.data!.certified!) Tab(text: "Certificates"),
+        Tab(text: 'Review'),
+      ],
+      children: [
+        overview(),
+        if (widget.data?.modules != null) curriculum(),
+        //_buildForumTab(),
+        if (widget.data!.certified!) certificate(),
+        Container(padding: EdgeInsets.all(15), child: ReviewWidget()),
+      ],
     );
+
+    /* return TabBarView(
+      controller: tabController,
+      children: [
+        overview(),
+        if (widget.data?.modules != null) curriculum(),
+        //_buildForumTab(),
+        if (widget.data!.certified!) certificate(),
+      ],
+    ); */
   }
 
   Widget overview() {
-    return Column(
+    return ListView(
+      padding: const EdgeInsets.all(16.0),
+      physics: const NeverScrollableScrollPhysics(),
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -319,7 +464,7 @@ class PrivateCourseState extends State<PrivateCourse>
               ),
             ),
             TextButton.icon(
-              onPressed: () => review_dialog.show(context),
+              onPressed: () => review_dialog.show(context, widget.data),
               icon: const Icon(
                 Icons.rate_review_outlined,
                 size: 16,
@@ -337,6 +482,7 @@ class PrivateCourseState extends State<PrivateCourse>
           ],
         ),
         const SizedBox(height: 12),
+
         Text(widget.data!.description!.trim()),
         if (widget.data!.about != null) ...[
           Text(
@@ -344,18 +490,17 @@ class PrivateCourseState extends State<PrivateCourse>
             style: TextTheme.of(context).bodyMedium,
           ),
         ],
-        const SizedBox(height: 16),
       ],
     );
   }
 
   Widget curriculum() {
     final ml = widget.data?.modules;
-    print(widget.data?.toJson());
+    //print(widget.data?.toJson());
     final List<Map<String, dynamic>> list = List.empty(growable: true);
     int i = 1;
     for (var item in ml) {
-      print(item);
+      //print(item);
       list.add({
         "num": i,
         "id": item['id'],

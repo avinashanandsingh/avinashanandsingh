@@ -38,7 +38,6 @@ class EnrollState extends State<Enroll> {
                   ),
                 );
               } else if (snapshot.hasData) {
-                print(widget.course.id);
                 return QnaForm(
                   data: snapshot.data!,
                   courseId: widget.course.id,

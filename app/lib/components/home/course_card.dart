@@ -5,9 +5,9 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../theme/theme.dart';
 import '../../pages/course_details.dart';
 
-class AbundanceCard extends StatelessWidget {
+class CourseCard extends StatelessWidget {
   final CourseData data;
-  const AbundanceCard({super.key, required this.data});
+  const CourseCard({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +33,7 @@ class AbundanceCard extends StatelessWidget {
             children: [
               Container(
                 height: 120,
+                width: double.infinity,
                 decoration: BoxDecoration(
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(24),
@@ -139,38 +140,6 @@ class AbundanceCard extends StatelessWidget {
             },
           ),
           const SizedBox(height: 24),
-          /* Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 8,
-                height: 8,
-                decoration: const BoxDecoration(
-                  color: AppColors.accentGold,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Container(
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Container(
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24), */
         ],
       ),
     );

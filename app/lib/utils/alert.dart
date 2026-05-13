@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:app/components/loader.dart';
+import 'package:app/helpers/globals.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 // for navigatorKey
@@ -165,11 +165,9 @@ class _AlertOverlayState extends State<_AlertOverlay>
                     Expanded(
                       child: Text(
                         widget.message,
-                        style: GoogleFonts.inter(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
+                        style: TextTheme.of(
+                          context,
+                        ).labelSmall!.copyWith(color: Colors.white),
                       ),
                     ),
                     const SizedBox(width: 8),
