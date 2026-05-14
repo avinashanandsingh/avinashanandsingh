@@ -489,6 +489,12 @@ const mapping = [
     role: UserRole.ADMINISTRATOR,
   },
   {
+    name: "changeEnrollmentStatus",
+    execute: entrollment.changeStatus,
+    include: true,
+    role: UserRole.ADMINISTRATOR,
+  },
+  {
     name: "meditations",
     execute: meditation.list,
     include: false,

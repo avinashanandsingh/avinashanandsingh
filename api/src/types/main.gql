@@ -119,6 +119,7 @@ type Mutation {
   enroll(input: EnrollIn!): Enrollment!
   drop(id:UUID!, input: DropIn!): Enrollment!
   updateEnrollment(id:UUID!, input: EnrollIn!):Enrollment!
+  changeEnrollmentStatus(id: UUID!, status: EnrollmentStatus!): Enrollment!
 
   newQuestion(input: QuestionIn!): Question!
   updateQuestion(id: UUID!, input: QuestionIn!): Question!

@@ -48,6 +48,7 @@ enum DiscussionStatus {
 }
 
 enum EnrollmentStatus {
+  INITIATED
   ENROLLED
   COMPLETED
   DROPPED

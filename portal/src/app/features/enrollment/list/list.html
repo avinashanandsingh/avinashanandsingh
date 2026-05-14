@@ -7,6 +7,43 @@
         </div>       
     </div>
 
+<!-- Filter Area -->
+    <form [formGroup]="filterForm">
+        <div
+            class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border border-gray-300 rounded p-3">
+
+            <div class="flex-1 w-full">
+                <input type="hidden" formControlName="courseid"/>
+                <app-lov [items]="course_list()" [config]="{ minLength: 5, placeholder:'Select a Course', showImage: false }" (selected)="courseHandler($event!)"></app-lov>
+            </div>
+            <div class="flex-1 w-full">
+                <input type="hidden" formControlName="scheduleid"/>
+                <app-lov [items]="schedule_list()" [config]="{ minLength: 5, placeholder:'Select a Schedule', showImage: false }" (selected)="scheduleHandler($event!)"></app-lov>
+            </div>
+            <div class="flex-1 w-full">
+                <div id="enrolledat" class="flex flex-row gap-3">
+                    <input type="date" class="input" placeholder="From Date" formControlName="from_date" />
+                    <input type="date" class="input" placeholder="To Date" formControlName="to_date" />
+                </div>
+            </div>
+            
+            <div class="flex-1 w-full">
+                <select id="status" class="select" formControlName="status">
+                    <option selected value="">Select a Status</option>
+                    <option value="">All</option>
+                    <option value="INITIATED">Initiated</option>
+                    <option value="ENROLLED">Enrolled</option>
+                    <option value="COMPLETED">Completed</option>
+                    <option value="DROPPED">Dropped</option>
+                </select>
+            </div>
+            <div class="w-10">
+                <button (click)="filter()" class="btn btn-primary h-10">
+                    <i class="bi bi-funnel"></i>
+                </button>
+            </div>
+        </div>
+    </form>
 
     <!-- Listing Table -->
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
@@ -14,7 +51,9 @@
             <table class="w-full text-left text-base text-gray-600">
                 <thead class="bg-gray-50 text-base uppercase text-gray-500 border-b border-gray-100">
                     <tr>
+                        <th class="px-6 py-4 font-semibold">Course</th>
                         <th class="px-6 py-4 font-semibold">Schedule</th>
+                        <th class="px-6 py-4 font-semibold">Enrollee</th>
                         <th class="py-4 font-semibold  text-start">Enrolled&nbsp;Date</th>
                         <th class="py-4 font-semibold  text-start">Completed&nbsp;Date</th>
                         <th class="py-4 font-semibold  text-start">Certified Date</th>
@@ -26,10 +65,106 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
-                    
+                     @for(row of list(); track row.id){
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ row.course!.title }}</div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ row.schedule!.title }}</div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ row.user?.first_name! }} {{ row.user?.last_name! }}</div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ row.enrolledat | date:'dd-MM-yyy' }}</div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ row.completedat| date:'dd-MM-yyy' }}</div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ row.certificate_issued_at| date:'dd-MM-yyy' }}</div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ row.droppedby?.first_name! }} {{ row.droppedby?.last_name! }}</div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ row.droppedat | date:'dd-MM-yyy' }}</div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ row.notes }}</div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ row.status }}</div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap text-right text-base font-medium w-20">
+                            <div class="flex flex-row gap-3">
+                             
+                                <button (click)="show(statusDialog, row.id!)" class="text-purple-600 hover:text-purple-900 text-base" title="Change Status">
+                                    <i class="bi bi-arrow-clockwise"></i>
+                                </button>
+                                
+                            </div>
+                        </td>
+                    </tr>
+                }
                 </tbody>
             </table>
         </div>
     </div>
 </div>
 <loader [isOpen]="loader"></loader>
+<app-dialog [isOpen]="statusDialog" title="Change Status" [buttons]="statusDialogButtons" [backdrop]="false">
+    <form [formGroup]="statusForm">
+        <input type="hidden" formControlName="id">
+        <!-- Status Options -->
+        <div class="space-y-3 mb-6">
+            <label
+                class="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition">
+                <input type="radio" [value]="'INITIATED'" formControlName="status"
+                    class="h-4 w-4 text-blue-600 focus:ring-blue-500"/>
+                <span class="flex items-center space-x-2">
+                    <span class="text-blue-700 font-medium">Initiated</span>
+                </span>
+            </label>
+            <label
+                class="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition">
+                <input type="radio" [value]="'ENROLLED'" formControlName="status"
+                    class="h-4 w-4 text-blue-600 focus:ring-blue-500" />
+                <span class="flex items-center space-x-2">
+                    
+                    <span class="text-amber-700 font-medium">Enrolled</span>
+                </span>
+            </label>
+
+            <label
+                class="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition">
+                <input type="radio" [value]="'COMPLETED'" formControlName="status"
+                    class="h-4 w-4 text-blue-600 focus:ring-blue-500" />
+                <span class="flex items-center space-x-2">
+                    <span class="text-emerald-700 font-medium">Completed</span>
+                </span>
+            </label>
+
+        </div>
+        <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'Status is required',
+                  control: statusForm.controls['status']
+                }">
+        </ng-container>
+    </form>
+</app-dialog>
+<ng-template #formError let-control="control" let-message="message" let-validation="validation">
+    @if(control.hasError(validation) && (control.dirty || control.touched)) {
+    <ng-container>
+        <div class="fv-plugins-message-container">
+            <div class="fv-help-block mt-1">
+                <span class="error">
+                    {{ message }}
+                </span>
+            </div>
+        </div>
+    </ng-container>
+    }
+</ng-template>

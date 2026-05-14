@@ -29,12 +29,13 @@ export class EnrollmentService {
     };
     let header = this.header.api();
     let result = await this.api.post(this.url, header, body);
-    return result?.data?.resources!;
+    return result?.data?.enrollments!;
   }
 
   async get(id: String) {
     let body = {
-      query: 'query get($id: UUID!) { resource (id: $id) { id userid user { first_name last_name } courseid course { title } scheduleid schedule { title } status enrolledat completedat certificate_issued_at droppedat droppedby { first_name last_name } notes } }',
+      query:
+        'query get($id: UUID!) { resource (id: $id) { id userid user { first_name last_name } courseid course { title } scheduleid schedule { title } status enrolledat completedat certificate_issued_at droppedat droppedby { first_name last_name } notes } }',
       variables: {
         id: id,
       },
@@ -68,6 +69,19 @@ export class EnrollmentService {
         input: {
           ...input,
         },
+      },
+    };
+    let header = this.header.api();
+    return await this.api.post(this.url, header, body);
+  }
+
+  async changeStatus(id: string, status: string) {
+    let body = {
+      query:
+        'mutation changeStatus($id: UUID!, $status: EnrollmentStatus!) { changeEnrollmentStatus (id: $id, status: $status) { id } }',
+      variables: {
+        id: id,
+        status: status,
       },
     };
     let header = this.header.api();

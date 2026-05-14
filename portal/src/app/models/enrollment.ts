@@ -5,6 +5,7 @@ import { IUser } from './user';
 export interface IEnrollmentData {
   id?: string;
   userid?: string;
+  user?: IUser;
   courseid: string;
   course: ICourseData;
   scheduleid?: string;

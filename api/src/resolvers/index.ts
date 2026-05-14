@@ -95,6 +95,7 @@ const resolvers = {
     addModule: shield,
     updateModule: shield,
     deleteModule: shield,
+    changeEnrollmentStatus: shield,
     addShort: shield,
     updateShort: shield,
     deleteShort: shield,
