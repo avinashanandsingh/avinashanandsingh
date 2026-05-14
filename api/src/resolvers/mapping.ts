@@ -30,6 +30,7 @@ import message from "./message";
 import { UserRole } from "../models/enum";
 import meditation from "./meditation";
 import order from "./order";
+import appointment from "./appointment";
 
 const mapping = [
   {
@@ -835,6 +836,18 @@ const mapping = [
     execute: order.delete,
     include: true,
     role: UserRole.ADMINISTRATOR,
+  },
+  {
+    name: "appointment",
+    execute: appointment.get,
+    include: true,
+    role: UserRole.ANONYMOUS,
+  },
+  {
+    name: "appointments",
+    execute: appointment.list,
+    include: true,
+    role: UserRole.ANONYMOUS,
   },
 ];
 

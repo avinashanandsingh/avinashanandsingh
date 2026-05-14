@@ -51,17 +51,16 @@
             <table class="w-full text-left text-base text-gray-600">
                 <thead class="bg-gray-50 text-base uppercase text-gray-500 border-b border-gray-100">
                     <tr>
-                        <th class="px-6 py-4 font-semibold">Course</th>
-                        <th class="px-6 py-4 font-semibold">Schedule</th>
-                        <th class="px-6 py-4 font-semibold">Enrollee</th>
-                        <th class="py-4 font-semibold  text-start">Enrolled&nbsp;Date</th>
-                        <th class="py-4 font-semibold  text-start">Completed&nbsp;Date</th>
-                        <th class="py-4 font-semibold  text-start">Certified Date</th>
-                        <th class="py-4 font-semibold  text-start">Dropped By</th>
-                        <th class="py-4 font-semibold  text-start">Dropped Date</th>
-                        <th class="py-4 font-semibold  text-start">Notes</th>
-                        <th class="py-4 font-semibold  text-start">Status</th>
-                        <th class="py-4 font-semibold">Actions</th>
+                        <th class="px-3 py-3 font-semibold">Course</th>
+                        <th class="px-3 py-3 font-semibold">Schedule</th>
+                        <th class="px-3 py-3 font-semibold">Enrollee</th>
+                        <th class="px-3 py-3 font-semibold text-start">Enrolled&nbsp;Date</th>
+                        <th class="px-3 py-3 font-semibold text-start">Completed&nbsp;Date</th>
+                        <th class="px-3 py-3 font-semibold text-start">Certified Date</th>
+                        <th class="px-3 py-3 font-semibold text-start">Dropped By</th>
+                        <th class="px-3 py-3 font-semibold text-start">Dropped Date</th>
+                        <th class="px-3 py-3 font-semibold text-start">Notes</th>
+                        <th class="px-3 py-3 font-semibold text-start">Status</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
@@ -95,15 +94,10 @@
                             <div class="text-base font-medium text-gray-900">{{ row.notes }}</div>
                         </td>
                         <td class="p-3 whitespace-nowrap">
-                            <div class="text-base font-medium text-gray-900">{{ row.status }}</div>
-                        </td>
-                        <td class="p-3 whitespace-nowrap text-right text-base font-medium w-20">
-                            <div class="flex flex-row gap-3">
-                             
+                            <div class="text-base font-medium text-gray-900">
                                 <button (click)="show(statusDialog, row.id!)" class="text-purple-600 hover:text-purple-900 text-base" title="Change Status">
-                                    <i class="bi bi-arrow-clockwise"></i>
+                                    {{ row.status }}
                                 </button>
-                                
                             </div>
                         </td>
                     </tr>

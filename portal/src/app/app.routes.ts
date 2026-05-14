@@ -32,7 +32,7 @@ import { Landing } from './features/landing/landing';
 import { Schedule } from './features/schedule/schedule';
 import { Module } from './features/module/module';
 import { Referral } from './features/referral/referral';
-import { Orders } from './features/orders/orders';
+import Order from './features/order/list';
 import { Inquiry } from './features/inquiry/inquiry';
 import { Template } from './features/template/template';
 import { Page } from './features/page/page';
@@ -134,7 +134,7 @@ export const routes: Routes = [
       },
       {
         path: 'orders',
-        component: Orders,
+        component: Order,
         canActivate: [IdentityService],
         data: { roles: [UserRole.ADMINISTRATOR] },
       },

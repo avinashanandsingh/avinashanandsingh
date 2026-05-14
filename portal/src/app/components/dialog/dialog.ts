@@ -14,14 +14,20 @@ export class Dialog {
   @Input() footer: boolean = true;
   @Output() close = new EventEmitter<void>();
   isAnimating = signal<boolean>(false);
-
+  @Input() size: 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl' |'7xl' | '8xl' | '9xl' = 'lg';
   // --- Inputs ---
   // Use signals for external state management (Angular 17+)
-  @Input() title:string ='';
+  @Input() title: string = '';
   body = signal<string>('');
   bodyHtml = signal<boolean>(false); // Whether content is raw HTML
   @Input() buttons = signal<
-    Array<{ label: string; action: any; type: 'primary' | 'secondary' | 'danger', validate?: boolean, disabled?: boolean }>
+    Array<{
+      label: string;
+      action: any;
+      type: 'primary' | 'secondary' | 'danger';
+      validate?: boolean;
+      disabled?: boolean;
+    }>
   >([]);
   showCloseIcon = signal<boolean>(true);
   // --- Focus Trap State ---
@@ -30,7 +36,9 @@ export class Dialog {
   // --- Inputs ---
   constructor() {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    
+  }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['isOpen']) {

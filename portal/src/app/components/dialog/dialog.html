@@ -2,9 +2,9 @@
 <div class="dialog-overlay fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity duration-300"
     [class.pointer-events-none]="!isOpen()" (click)="handleBackdropClick($event)">
     <!-- Animation Wrapper -->
-    <div class="dialog-box bg-white rounded-lg shadow-xl w-full max-w-lg mx-4 overflow-hidden transform transition-all duration-300 ease-out"
+    <div class="dialog-box bg-white rounded-lg shadow-xl w-full mx-4 overflow-hidden transform transition-all duration-300 ease-out"
         [class.scale-100]="isOpen()" [class.scale-95]="!isOpen()" [class.opacity-100]="isOpen()"
-        [class.opacity-0]="!isOpen()">
+        [class.opacity-0]="!isOpen()" ngClass="{{'max-w-'+size}}">
 
         <!-- Header -->
         <div class="flex justify-between items-center px-6 py-4 border-b border-gray-100">

@@ -531,15 +531,17 @@ type Order {
   orderid: String
   context: String
   contextid: UUID
-  price: String
+  price: Float
   order_status: String
   order_status_reason: String
   payment_status: String
   payment_status_reason: String
   paymentid: String
   signature: String
+  createdby: UUID
   creator: User
   createdat: DateTime
+  updatedby: UUID
   updater: User
   updatedat: DateTime
 }
@@ -578,4 +580,23 @@ type Question {
 type QuestionResult {
   count: Int
   rows: [Question]
+}
+
+
+type Appointment {
+  id: UUID
+  orderid: String
+  slotid: UUID
+  machine: String
+  slot: String
+  start_time: String
+  end_time: String
+  creator: User
+  createdat: DateTime
+  status: String
+}
+
+type AppointmentResult {
+  count: Int
+  rows: [Appointment]
 }

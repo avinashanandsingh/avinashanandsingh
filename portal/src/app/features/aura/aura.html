@@ -6,9 +6,9 @@
             <p class="text-gray-500 text-sm">Manage Aura services here</p>
         </div>
         <div>
-            <button (click)="show(formDialog)" class="btn btn-primary text-base items-center">
+            <button (click)="show(formDialog, 'ADD')" class="btn btn-primary text-base items-center">
                 <i class="bi bi-calendar-plus text-xl mr-2"></i>
-                Add New Aura Service
+                New Aura Service
             </button>
         </div>
     </div>
@@ -17,27 +17,27 @@
         <table class="w-full text-left border-collapse">
             <thead class="bg-gray-100 border-b border-gray-200 text-gray-600 uppercase text-base font-semibold">
                 <tr>
-                    <th class="px-6 py-4">Name</th>
-                    <th class="px-6 py-4">Price</th>
-                    <th class="px-6 py-4">Offer</th>
-                    <th class="px-6 py-4">Status</th>
-                    <th class="px-6 py-4 text-right">Actions</th>
+                    <th class="px-3 py-3">Name</th>
+                    <th class="px-3 py-3">Price</th>
+                    <th class="px-3 py-3">Offer</th>
+                    <th class="px-3 py-3">Status</th>
+                    <th class="px-3 py-3 text-right">Actions</th>
                 </tr>
             </thead>
 
             <tbody>
                 @for (row of list(); track row.id) {
-                <tr
-                    class="group cursor-pointer hover:bg-blue-50/50 transition-colors border-b border-gray-100 last:border-0" [class.bg-purple-100]="expandedRowId() === row.id">
-                    <td class="px-6 py-4 font-medium text-gray-900">{{ row.name }}</td>
-                    <td class="px-6 py-4 text-gray-600">{{ row.price }}</td>
-                    <td class="px-6 py-4 text-gray-600">{{ row.offer }}</td>
-                    <td class="px-6 py-4 text-gray-600">{{ row.status }}</td>
-                    <td class="px-6 py-4 text-right">
+                <tr class="group cursor-pointer hover:bg-blue-50/50 transition-colors border-b border-gray-100 last:border-0"
+                    [class.bg-purple-100]="expandedRowId() === row.id">
+                    <td class="px-3 py-3 font-medium text-gray-900">{{ row.name }}</td>
+                    <td class="px-3 py-3 text-gray-600">{{ row.price | currency: 'INR' }}</td>
+                    <td class="px-3 py-3 text-gray-600">{{ row.offer | currency: 'INR' }}</td>
+                    <td class="px-3 py-3 text-gray-600">{{ row.status }}</td>
+                    <td class="px-3 py-3 text-right">
                         <button (click)="delete(row.id!)" class="text-purple-600 hover:text-purple-900 text-base pr-3">
                             <i class="bi bi-trash"></i>
                         </button>
-                        <span class="inline-block transition-transform duration-300"  (click)="toggleRow(row.id!)"
+                        <span class="inline-block transition-transform duration-300" (click)="toggleRow(row.id!)"
                             [class.rotate-180]="expandedRowId() === row.id">
                             <i class="bi bi-caret-down text-xl"></i>
                         </span>
@@ -48,27 +48,30 @@
                 @if (expandedRowId() === row.id) {
                 <tr>
                     <td colspan="5" class="p-0 bg-gray-50">
-                        <div class="px-6 py-2 border-l-4 border-blue-500 animate-fadeIn">
+                        <div class="px-3 py-3 border-l-4 border-blue-500 animate-fadeIn">
                             <h4 class="text-xs font-bold uppercase text-gray-400 mb-1">Timeslots</h4>
 
                             <table class="w-full text-left border-collapse">
                                 <thead
                                     class="bg-gray-100 border-b border-gray-200 text-gray-600 uppercase text-base font-semibold">
                                     <tr>
-                                        <th class="px-6 py-4">Name</th>
-                                        <th class="px-6 py-4">Start Time</th>
-                                        <th class="px-6 py-4">End Time</th>
-                                        <th class="px-6 py-4">Capacity</th>
-                                        <th class="px-6 py-4 text-right">Actions</th>
+                                        <th class="px-3 py-3">Name</th>
+                                        <th class="px-3 py-3">Start Time</th>
+                                        <th class="px-3 py-3">End Time</th>
+                                        <th class="px-3 py-3">Capacity</th>
+                                        <th class="px-3 py-3 text-right">Actions</th>
                                     </tr>
                                 </thead>
                                 @for (slot of row.timeslots?.sort((a,b)=> a.id!.localeCompare(b.id!)); track slot.id) {
                                 <tr>
-                                    <td class="px-6 py-4 font-medium text-gray-900">{{ slot.name }}</td>
-                                    <td class="px-6 py-4 text-gray-600">{{ slot.start_time }}</td>
-                                    <td class="px-6 py-4 text-gray-600">{{ slot.end_time }}</td>
-                                    <td class="px-6 py-4 text-gray-600">{{ slot.capacity }}</td>
-                                    <td class="px-6 py-4 text-right">
+                                    <td class="px-3 py-3 font-medium text-gray-900">{{ slot.name }}</td>
+                                    <td class="px-3 py-3 text-gray-600">{{ slot.start_time }}</td>
+                                    <td class="px-3 py-3 text-gray-600">{{ slot.end_time }}</td>
+                                    <td class="px-3 py-3 text-gray-600">
+                                        <button class="text-purple-600 hover:text-purple-900 text-base pr-3"
+                                            (click)="show(listDialog, 'BOOKING', slot.id)">{{ slot.capacity }}</button>
+                                    </td>
+                                    <td class="px-3 py-3 text-right">
                                         <button class="text-purple-600 hover:text-purple-900 text-base pr-3">
                                             <i class="bi bi-trash"></i>
                                         </button>
@@ -132,7 +135,8 @@
                 <div *ngFor="let row of timeslots.controls; let i=index" [formGroupName]="i" class="mb-3">
                     <div class="flex flex-row gap-3 mb-3">
                         <input type="text" formControlName="name" placeholder="Name" class="input">
-                        <input type="text" inputmode="numeric" formControlName="capacity" placeholder="Capacity" class="input">
+                        <input type="text" inputmode="numeric" formControlName="capacity" placeholder="Capacity"
+                            class="input">
                     </div>
                     <div class="flex flex-row gap-3">
                         <input type="time" formControlName="start_time" placeholder="Start Time" class="input">
@@ -146,6 +150,98 @@
             <button type="button" (click)="addRow()" class="btn btn-primary justify-end">Add New Timeslot</button>
         </fieldset>
 
+    </form>
+</app-dialog>
+<app-dialog [isOpen]="listDialog" title="Bookings" [backdrop]="false" size="7xl">
+    <div class="w-full mx-auto overflow-hidden bg-white border border-gray-200 rounded-xl shadow-sm">
+        <table class="w-full text-left border-collapse">
+            <thead class="bg-gray-100 border-b border-gray-200 text-gray-600 uppercase text-base font-semibold">
+                <tr>
+                    <th class="px-3 py-3">ID</th>
+                    <th class="px-3 py-3">User</th>
+                    <th class="px-3 py-3">Machine</th>
+                    <th class="px-3 py-3">Slot</th>
+                    <th class="px-3 py-3">Start&nbsp;Time</th>
+                    <th class="px-3 py-3">End&nbsp;Time</th>
+                    <th class="px-3 py-3">Status</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @for (row of slot_list(); track row.id) {
+                <tr class="group cursor-pointer hover:bg-blue-50/50 transition-colors border-b border-gray-100 last:border-0"
+                    [class.bg-purple-100]="expandedRowId() === row.id">
+                    <td class="px-3 py-3 font-medium text-gray-900">{{ row.orderid }}</td>
+                    <td class="px-3 py-3 text-gray-600">
+                        <div>{{ row.creator?.first_name }} {{ row.creator?.last_name }}</div>
+                        <div>{{ row.creator?.email }}</div>
+                    </td>
+                    <td class="px-3 py-3 text-gray-600">{{ row.machine }}</td>
+                    <td class="px-3 py-3 text-gray-600">{{ row.slot }}</td>
+                    <td class="px-3 py-3 text-gray-600">{{ row.start_time }}</td>
+                    <td class="px-3 py-3 text-gray-600">{{ row.end_time }}</td>
+                    <td class="px-3 py-3 text-gray-600">
+                        @if(row.status === 'CONFIRMED'){
+                        <button (click)="show(statusDialog, 'STATUS', row.id!)"
+                            class="text-emerald-700 hover:text-emerald-700 text-base cursor-pointer" title="Change Status">
+                            {{ row.status }}
+                        </button>
+                        }@else if(row.status === 'INITIATED'){
+                        <button (click)="show(statusDialog, 'STATUS', row.id!)"
+                            class="text-blue-700 hover:text-blue-700 text-base cursor-pointer" title="Change Status">
+                            {{ row.status }}
+                        </button>
+                        }@else if(row.status === 'CANCELLED'){
+                        <button (click)="show(statusDialog, 'STATUS', row.id!)"
+                            class="text-amber-700 hover:text-amber-700 text-base cursor-pointer" title="Change Status">
+                            {{ row.status }}
+                        </button>
+                        }
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</app-dialog>
+<app-dialog [isOpen]="statusDialog" title="Change Status" [buttons]="statusDialogButtons" [backdrop]="false">
+    <form [formGroup]="statusForm">
+        <input type="hidden" formControlName="id">
+        <!-- Status Options -->
+        <div class="space-y-3 mb-6">
+            <label
+                class="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition">
+                <input type="radio" [value]="'INITIATED'" formControlName="status"
+                    class="h-4 w-4 text-blue-600 focus:ring-blue-500"/>
+                <span class="flex items-center space-x-2">
+                    <span class="text-blue-700 font-medium">Initiated</span>
+                </span>
+            </label>
+            <label
+                class="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition">
+                <input type="radio" [value]="'CANCELLED'" formControlName="status"
+                    class="h-4 w-4 text-blue-600 focus:ring-blue-500" />
+                <span class="flex items-center space-x-2">
+                    
+                    <span class="text-amber-700 font-medium">Cancelled</span>
+                </span>
+            </label>
+
+            <label
+                class="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition">
+                <input type="radio" [value]="'CONFIRMED'" formControlName="status"
+                    class="h-4 w-4 text-blue-600 focus:ring-blue-500" />
+                <span class="flex items-center space-x-2">
+                    <span class="text-emerald-700 font-medium">Confirmed</span>
+                </span>
+            </label>
+        </div>
+        <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'Status is required',
+                  control: statusForm.controls['status']
+                }">
+        </ng-container>
     </form>
 </app-dialog>
 <ng-template #formError let-control="control" let-message="message" let-validation="validation">

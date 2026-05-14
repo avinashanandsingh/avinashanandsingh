@@ -1,0 +1,244 @@
+<div class="p-6 bg-white space-y-3 rounded min-h-screen">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-800">Orders</h2>
+            <p class="text-sm text-gray-500">Manage orders here</p>
+        </div>       
+    </div>
+
+<!-- Filter Area -->
+    <form [formGroup]="filterForm">
+        <div
+            class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border border-gray-300 rounded p-3">
+            
+            <div class="flex-1 w-full">
+                <input type="hidden" formControlName="createdby"/>
+                <app-lov [items]="user_list()" [config]="{ minLength: 2, placeholder:'Select a User', showImage: false }" (selected)="userHandler($event!)"></app-lov>
+            </div>
+            <div class="flex-1 w-full">
+                <select id="status" class="select" formControlName="context">
+                    <option selected value="">Select a Type</option>
+                    <option value="">All</option>
+                    <option value="COURSE">Course</option>
+                    <option value="SHORT_VIDEO">Short Video</option>
+                    <option value="AURA_SCANNING">Aura Scanning</option>
+                    <option value="SCARED_VIBE_AUDIO">Scared Vibe Audio</option>
+                </select>
+            </div>
+         
+            <div class="flex-1 w-full">
+                <div id="createdat" class="flex flex-row gap-3">
+                    <input type="date" class="input" placeholder="From Date" formControlName="from_date" />
+                    <input type="date" class="input" placeholder="To Date" formControlName="to_date" />
+                </div>
+            </div>
+            
+            <div class="flex-1 w-full">
+                <select id="status" class="select" formControlName="order_status">
+                    <option selected value="">Order Status</option>
+                    <option value="">All</option>
+                    <option value="INITIATED">Initiated</option>
+                    <option value="CONFIRMED">Confirmed</option>
+                    <option value="CANCELLED">Cancelled</option>
+                    <option value="FAILED">Failed</option>
+                </select>
+            </div>
+            <div class="flex-1 w-full">
+                <select id="status" class="select" formControlName="payment_status">
+                    <option selected value="">Payment Status</option>
+                    <option value="">All</option>
+                    <option value="PENDING">Pending</option>
+                    <option value="CANCELLED">Cancelled</option>
+                    <option value="PAID">Paid</option>
+                    <option value="REFUNDED">Refunded</option>
+                    <option value="FAILED">Failed</option>
+                </select>
+            </div>
+            <div class="w-10">
+                <button (click)="filter()" class="btn btn-primary h-10">
+                    <i class="bi bi-funnel"></i>
+                </button>
+            </div>
+        </div>
+    </form>
+
+    <!-- Listing Table -->
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-base text-gray-600">
+                <thead class="bg-gray-50 text-base uppercase text-gray-500 border-b border-gray-100">
+                    <tr>
+                        <th class="px-3 py-3 font-semibold">Order ID</th>
+                        <th class="px-3 py-3 font-semibold">Date</th>
+                        <th class="px-3 py-3 font-semibold">Orderer</th>
+                        <th class="px-3 py-3 font-semibold text-start">Type</th>
+                        <th class="px-3 py-3 font-semibold text-start">Price</th>
+                        <th class="px-3 py-3 font-semibold text-start">Order Status</th>
+                        <th class="px-3 py-3 font-semibold text-start">Payment Status</th>
+                        <!-- <th class="px-3 py-3 font-semibold">Actions</th> -->
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                     @for(row of list(); track row.id){
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ row.orderid }}</div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ row.createdat | date:'dd-MMM-yyyy' }}</div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ row.creator?.first_name! }} {{ row.creator?.last_name! }}</div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ row.context }}</div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ row.price | currency: 'INR' }}</div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">
+                                <button (click)="show(statusDialog, 'ORDER', row.id!)" class="text-purple-600 hover:text-purple-900 text-base" title="Change Order Status">{{ row.order_status }}</button>
+                                
+                            </div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">
+                                 <button (click)="show(statusDialog, 'PAYMENT', row.id!)" class="text-purple-600 hover:text-purple-900 text-base" title="Change Payment Status">{{ row.payment_status }}</button>
+                            </div>
+                        </td>
+                        
+                        <!-- <td class="p-3 whitespace-nowrap text-right text-base font-medium w-20">
+                            <div class="flex flex-row gap-3">
+                                    
+                            </div>
+                        </td> -->
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </div>
+     <!-- Footer -->
+    <div class="flex flex-col md:flex-row gap-5 justify-between items-start md:items-center mt-6">
+        <div class="flex flex-col"></div>
+        <div class="flex flex-row w-full md:w-auto  items-start md:items-center space-x-3">
+            <pager [showInfo]="false" [currentPage]="1" [totalPages]="total()" [maxVisiblePages]="5"
+                (pageChange)="pageChange($event)"></pager>
+        </div>
+    </div>
+</div>
+<loader [isOpen]="loader"></loader>
+<app-dialog [isOpen]="statusDialog" [title]="type() === 'ORDER' ? 'Change Order Status' : 'Change Payment Status'" [buttons]="statusDialogButtons" [backdrop]="false">
+    <form [formGroup]="statusForm">
+        <input type="hidden" formControlName="id">
+        <!-- Status Options -->
+         @if(type() === "ORDER"){
+        <div class="space-y-3 mb-6">
+            <label
+                class="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition">
+                <input type="radio" [value]="'INITIATED'" formControlName="status"
+                    class="h-4 w-4 text-blue-600 focus:ring-blue-500"/>
+                <span class="flex items-center space-x-2">
+                    <span class="text-blue-700 font-medium">Initiated</span>
+                </span>
+            </label>
+            <label
+                class="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition">
+                <input type="radio" [value]="'CANCELLED'" formControlName="status"
+                    class="h-4 w-4 text-blue-600 focus:ring-blue-500" />
+                <span class="flex items-center space-x-2">
+                    
+                    <span class="text-amber-700 font-medium">Cancelled</span>
+                </span>
+            </label>
+
+            <label
+                class="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition">
+                <input type="radio" [value]="'CONFIRMED'" formControlName="status"
+                    class="h-4 w-4 text-blue-600 focus:ring-blue-500" />
+                <span class="flex items-center space-x-2">
+                    <span class="text-emerald-700 font-medium">Confirmed</span>
+                </span>
+            </label>
+
+            <label
+                class="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition">
+                <input type="radio" [value]="'FAILED'" formControlName="status"
+                    class="h-4 w-4 text-blue-600 focus:ring-blue-500" />
+                <span class="flex items-center space-x-2">
+                    <span class="text-red-700 font-medium">Failed</span>
+                </span>
+            </label>
+
+        </div>
+    }@else {
+        <div class="space-y-3 mb-6">
+            <label
+                class="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition">
+                <input type="radio" [value]="'PENDING'" formControlName="status"
+                    class="h-4 w-4 text-blue-600 focus:ring-blue-500" />
+                <span class="flex items-center space-x-2">
+                    
+                    <span class="text-amber-700 font-medium">Pending</span>
+                </span>
+            </label>
+            <label
+                class="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition">
+                <input type="radio" [value]="'CANCELLED'" formControlName="status"
+                    class="h-4 w-4 text-blue-600 focus:ring-blue-500" />
+                <span class="flex items-center space-x-2">
+                    
+                    <span class="text-orange-700 font-medium">Cancelled</span>
+                </span>
+            </label>
+            <label
+                class="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition">
+                <input type="radio" [value]="'PAID'" formControlName="status"
+                    class="h-4 w-4 text-blue-600 focus:ring-blue-500" />
+                <span class="flex items-center space-x-2">
+                    <span class="text-emerald-700 font-medium">Paid</span>
+                </span>
+            </label>
+        <label
+                class="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition">
+                <input type="radio" [value]="'REFUNDED'" formControlName="status"
+                    class="h-4 w-4 text-blue-600 focus:ring-blue-500"/>
+                <span class="flex items-center space-x-2">
+                    <span class="text-blue-700 font-medium">Refunded</span>
+                </span>
+            </label>
+            
+            <label
+                class="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition">
+                <input type="radio" [value]="'FAILED'" formControlName="status"
+                    class="h-4 w-4 text-red-600 focus:ring-red-500" />
+                <span class="flex items-center space-x-2">
+                    <span class="text-red-700 font-medium">Failed</span>
+                </span>
+            </label>
+
+        </div>
+    }
+        <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'Status is required',
+                  control: statusForm.controls['status']
+                }">
+        </ng-container>
+    </form>
+</app-dialog>
+<ng-template #formError let-control="control" let-message="message" let-validation="validation">
+    @if(control.hasError(validation) && (control.dirty || control.touched)) {
+    <ng-container>
+        <div class="fv-plugins-message-container">
+            <div class="fv-help-block mt-1">
+                <span class="error">
+                    {{ message }}
+                </span>
+            </div>
+        </div>
+    </ng-container>
+    }
+</ng-template>

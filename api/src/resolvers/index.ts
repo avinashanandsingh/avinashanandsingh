@@ -42,6 +42,8 @@ const resolvers = {
     referrals: shield,
     service: shield,
     services: shield,
+    appointment: shield,
+    appointments: shield,
     review: shield,
     reviews: shield,
     inquiry: shield,

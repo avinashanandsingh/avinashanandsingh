@@ -15,6 +15,10 @@ import {
 } from '@angular/forms';
 import Swal from 'sweetalert2';
 import { TitleService } from '../../services/title-service';
+import { AppointmentService } from '../../services/appointment-service';
+import { COP } from '../../models/enum';
+import { IAppointmentData } from '../../models/appointment';
+import { OrderService } from '../../services/order-service';
 
 @Component({
   selector: 'app-aura',
@@ -26,7 +30,9 @@ export class Aura implements OnInit {
   list = signal<IAuraData[]>([]);
   loader = signal<boolean>(false);
   formDialog = signal<boolean>(false);
-  mode = signal<'ADD' | 'EDIT' | null>(null);
+  listDialog = signal<boolean>(false);
+  slot_list = signal<IAppointmentData[]>([]);
+  mode = signal<'ADD' | 'EDIT' | 'BOOKING' | 'STATUS' | null>(null);
   file = signal<File | null>(null);
   dialogTitle = signal<string>('New Service');
   parentForm: FormGroup;
@@ -90,9 +96,59 @@ export class Aura implements OnInit {
   ]);
 
   expandedRowId = signal<string | null>(null);
-
+  statusDialog = signal<boolean>(false);
+    statusForm: FormGroup = new FormGroup({
+      id: new FormControl(''),
+      status: new FormControl('', Validators.required),
+    });
+  
+    statusDialogButtons = signal<Array<{ label: string; action: any; type: any }>>([
+        {
+          label: 'Close',
+          action: () => {
+            this.hide(this.statusDialog);
+          },
+          type: 'btn btn-secondary w-full',
+        },
+        {
+          label: 'Save',
+          action: async () => {
+            if (this.statusForm.invalid) return;
+            this.show(this.loader);
+            let formData = this.statusForm.getRawValue();
+            let result = await this.order.changeStatus('ORDER',formData.id, formData.status);
+            if (formData.id) {
+              if (result?.data?.updateOrder) {
+                Swal.fire({
+                  title: 'Success',
+                  html: 'Status changed successfully',
+                  icon: 'success',
+                  timer: 3000,
+                });
+              } else {
+                let error = result?.errors?.shift();
+                let msg = error?.extensions?.originalError?.message;
+                Swal.fire({
+                  title: 'Failed',
+                  html: msg,
+                  icon: 'error',
+                  timer: 3000,
+                });
+              }
+            }
+            
+            this.load({});
+            this.statusForm.reset();
+            this.hide(this.loader);
+            this.hide(this.statusDialog);
+          },
+          type: 'btn btn-primary w-full',
+        },
+      ]);
   constructor(
     private service: AuraService,
+    private appointment: AppointmentService,
+    private order: OrderService,
     private titleService: TitleService,
     private fb: FormBuilder,
   ) {
@@ -142,27 +198,40 @@ export class Aura implements OnInit {
   removeRow(index: number) {
     this.timeslots.removeAt(index);
   }
-  async show(me: WritableSignal<boolean>, id?: string) {
-    me.set(true);
-    if (id) {
-      this.mode.set('EDIT');
-    } else {
-      this.mode.set('ADD');
+  async show(me: WritableSignal<boolean>, mode?:'ADD' |'EDIT' | 'BOOKING' | 'STATUS', id?: string) {
+    
+    if (mode!) {
+      this.mode.set(mode!);
     }
-    switch (this.mode()) {
-      case 'ADD':
-        me.set(true);
+    switch (mode!) {
+      case "ADD":
         break;
-      case 'EDIT':
+      case "EDIT":
         let row = this.list().find((x) => x.id === id);
         this.parentForm.patchValue(row!);
         this.dialogTitle.set('Update Module');
-        me.set(true);
         break;
-      default:
-        me.set(true);
+      case "BOOKING":
+        this.show(this.loader);
+        let result = await this.appointment.list({
+          criteria:[
+            {
+              column: "slotid",
+              cop: COP.eq,
+              value: id
+            }
+          ]
+        });
+        this.hide(this.loader);
+        this.slot_list.set(result?.rows ?? []);
+        break;
+        case "STATUS":
+          let slot = this.slot_list().find(x=>x.id === id);
+          this.statusForm.patchValue({id: id, status: slot?.status});
+        
         break;
     }
+    me.set(true);
   }
   hide(me: WritableSignal<boolean>) {
     me.set(false);

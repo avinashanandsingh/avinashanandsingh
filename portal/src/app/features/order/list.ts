@@ -1,43 +1,48 @@
 import { Component, OnInit, signal, WritableSignal } from '@angular/core';
-import { EnrollmentService } from '../../../services/enrollment-service';
-import Filter from '../../../models/filter';
-import { IEnrollmentData } from '../../../models/enrollment';
-import { TitleService } from '../../../services/title-service';
-import { Loader } from '../../../components/loader/loader';
-import Criteria from '../../../models/criteria';
+import Filter from '../../models/filter';
+import { TitleService } from '../../services/title-service';
+import { Loader } from '../../components/loader/loader';
+import Criteria from '../../models/criteria';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { COP, LOP } from '../../../models/enum';
-import { ISchdeuleData } from '../../../models/schedule';
-import { ICourseData } from '../../../models/course-model';
+import { COP, LOP } from '../../models/enum';
 import { CommonModule } from '@angular/common';
-import { CourseService } from '../../../services/course-service';
-import { IListItem } from '../../../models/lov';
-import { Lov } from '../../../components/lov/lov';
-import { ScheduleService } from '../../../services/schedule-service';
-import { Dialog } from "../../../components/dialog/dialog";
+import { IListItem } from '../../models/lov';
+import { Lov } from '../../components/lov/lov';
+import { Dialog } from "../../components/dialog/dialog";
 import Swal from 'sweetalert2';
+import { IOrderData } from '../../models/order';
+import { OrderService } from '../../services/order-service';
+import { Pager } from "../../components/pager/pager";
+import { UserService } from '../../services/user-service';
 
 @Component({
   selector: 'enrollment-list',
-  imports: [Loader, CommonModule, ReactiveFormsModule, Lov, Dialog],
+  imports: [Loader, CommonModule, ReactiveFormsModule, Lov, Dialog, Pager],
   templateUrl: './list.html',
   styleUrl: './list.css',
 })
 export default class List implements OnInit {
-  list = signal<IEnrollmentData[]>([]);
-  course_list = signal<IListItem[]>([]);
+  rowCount = signal<number>(1);
+  limit: number = Number(import.meta.env.NG_APP_LIMIT);
+  offset: number = 0;
+  total = signal<number>(0);
+  list = signal<IOrderData[]>([]);
+  user_list = signal<IListItem[]>([]);
   schedule_list = signal<IListItem[]>([]);
   criteria = signal<Criteria[]>([]);
   loader = signal<boolean>(false);
- 
+  statusDialog = signal<boolean>(false);
+  type = signal<'ORDER'|'PAYMENT' | null>(null);
+  
   filterForm: FormGroup = new FormGroup({
-    courseid: new FormControl(''),
-    scheduleid: new FormControl(''),
+    createdby: new FormControl(''),
+    context: new FormControl(''),
     from_date: new FormControl(undefined),
     to_date: new FormControl(undefined),
-    status: new FormControl(''),
+    order_status: new FormControl(''),
+    payment_status: new FormControl(''),
   });
-  statusDialog = signal<boolean>(false);
+
   statusForm: FormGroup = new FormGroup({
     id: new FormControl(''),
     status: new FormControl('', Validators.required),
@@ -57,9 +62,9 @@ export default class List implements OnInit {
           if (this.statusForm.invalid) return;
           this.show(this.loader);
           let formData = this.statusForm.getRawValue();
-          let result = await this.service.changeStatus(formData.id, formData.status);
+          let result = await this.service.changeStatus(this.type()!,formData.id, formData.status);
           if (formData.id) {
-            if (result?.data?.changeEnrollmentStatus) {
+            if (result?.data?.updateOrder) {
               Swal.fire({
                 title: 'Success',
                 html: 'Status changed successfully',
@@ -87,16 +92,15 @@ export default class List implements OnInit {
       },
     ]);
   constructor(
-    private course: CourseService,
-    private schedule: ScheduleService,
-    private service: EnrollmentService,
+    private user: UserService,
+    private service: OrderService,
     private titleService: TitleService,
   ) {}
   async ngOnInit(): Promise<void> {
-    this.titleService.title = 'Enrollments';
+    this.titleService.title = 'Orders';
     this.loader.set(true);
     await this.load({});
-    await this.load_course_list();
+    await this.load_user_list();
     this.loader.set(false);
   }
 
@@ -105,33 +109,31 @@ export default class List implements OnInit {
     this.list.set(result?.rows ?? []);
   }
 
-  async load_course_list(): Promise<void> {
-    let result = await this.course.list({});
-    let list: IListItem[] = [];
-    if (result?.rows!) {
-      result.rows.forEach((row) => {
-        list.push({ id: row.id!, value: row.title, label: row.title });
-      });
-    }
-    this.course_list.set(list);
+  async pageChange($event: number): Promise<void> {
+    this.offset = ($event - 1) * this.limit;
+    this.show(this.loader);
+    
+    await this.load({
+      criteria: this.criteria(),
+      offset: this.offset,
+      limit: this.limit,
+    });
+    this.hide(this.loader);
   }
 
-  async load_schedule_list(courseId: string | number): Promise<void> {
-    console.log(courseId);
-    let result = await this.schedule.list({
-      criteria: [{ column: 'courseid', cop: COP.eq, value: courseId }],
-      orderBy: [{ column: 'createdat', asc: false }]
-    });
+  async load_user_list(): Promise<void> {
+    let result = await this.user.list({});
     let list: IListItem[] = [];
-    if (result?.rows!) {
+    if (result.rows) {
       result.rows.forEach((row) => {
-        list.push({ id: row.id!, value: `${row.title} - ${row.status}`, label: `${row.title} - ${row.status}`  });
+        list.push({ id: row.id!, value: `${row.first_name} ${row.last_name}`, label: `${row.first_name} ${row.last_name}` });
       });
     }
-    this.schedule_list.set(list);
+    this.user_list.set(list);
   }
 
   async filter() {
+    this.offset = 0;
     let formData = this.filterForm.getRawValue();
     let keys = Object.keys(formData);
     let criteria: Criteria[] = [];
@@ -150,37 +152,37 @@ export default class List implements OnInit {
 
     criteria = criteria.map((x) => {
       if (x.column === 'from_date') {
-        x.column = 'enrolledat';
+        x.column = 'createdat';
         x.cop = COP.ge;
       } else if (x.column === 'to_date') {
-        x.column = 'enrolledat';
+        x.column = 'createdat';
         x.cop = COP.le;
       }
       return x;
     });
     this.show(this.loader);
     this.criteria.set(criteria);
-    await this.load({ criteria: criteria, orderBy: [{ column: 'enrolledat', asc: false }] });
+    await this.load({ criteria: criteria, orderBy: [{ column: 'createdat', asc: false }] });
     this.hide(this.loader);
   }
 
-  async courseHandler(item: IListItem): Promise<void> {
-    console.log(item);
-    this.filterForm.controls['courseid'].setValue(item?.id);
-    if (item) {
-      this.loader.set(true);
-      await this.load_schedule_list(item?.id);
-      this.loader.set(false);
-    }
-  }
-  scheduleHandler(item: IListItem) {
-    this.filterForm.controls['scheduleid'].setValue(item?.id);
+  async userHandler(item: IListItem): Promise<void> {
+    this.filterForm.controls['createdby'].setValue(item?.id);
   }
 
-  show(me: WritableSignal<boolean>, id?: string) {
+  show(me: WritableSignal<boolean>, type?: 'ORDER' | 'PAYMENT', id?: string) {
     if(id){
       let row = this.list().find(x=>x.id === id);
-      this.statusForm.patchValue({ id: id, status: row?.status});
+      this.type.set(type!);
+      switch(type!){
+        case "ORDER":
+          this.statusForm.patchValue({ id: id, status: row?.order_status});
+          break;
+        case "PAYMENT":
+          this.statusForm.patchValue({ id: id, status: row?.payment_status});
+          break;
+      }
+      
     }
     me.set(true);
   }

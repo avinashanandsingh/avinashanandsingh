@@ -84,6 +84,9 @@ type Query {
   
   option(filter: Filter!): Option!
   options(filter: Filter!): OptionResult!
+
+  appointment(filter: Filter!): Appointment!
+  appointments(filter: Filter!): AppointmentResult!
 }
 
 type Mutation {
