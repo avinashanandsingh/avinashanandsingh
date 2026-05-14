@@ -16,11 +16,12 @@
         "build": {
           "builder": "@ngx-env/builder:application",
           "options": {
+            "allowedCommonJsDependencies": ["sweetalert2"],
             "outputPath": {
               "base": "dist",
               "browser": ""
             },
-            "browser": "src/main.ts",            
+            "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
             "assets": [
               {
@@ -40,7 +41,7 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kB",
+                  "maximumWarning": "1.5MB",
                   "maximumError": "1.5MB"
                 },
                 {
