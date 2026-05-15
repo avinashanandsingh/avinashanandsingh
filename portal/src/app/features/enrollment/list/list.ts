@@ -8,7 +8,7 @@ import Criteria from '../../../models/criteria';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { COP, LOP } from '../../../models/enum';
 import { ISchdeuleData } from '../../../models/schedule';
-import { ICourseData } from '../../../models/course-model';
+import { ICourseData } from '../../../models/course';
 import { CommonModule } from '@angular/common';
 import { CourseService } from '../../../services/course-service';
 import { IListItem } from '../../../models/lov';

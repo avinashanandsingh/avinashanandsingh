@@ -520,6 +520,12 @@ const mapping = [
     role: UserRole.ADMINISTRATOR,
   },
   {
+    name: "changeMeditationStatus",
+    execute: Meditation.changeStatus,
+    include: true,
+    role: UserRole.ADMINISTRATOR,
+  },
+  {
     name: "deleteMeditation",
     execute: Meditation.delete,
     include: true,

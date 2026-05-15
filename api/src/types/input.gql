@@ -234,6 +234,9 @@ input MeditationIn {
   thumbnail: File!
   audio: File
   url: String
+  free: Boolean!
+  price: Float
+  offer: Float
 }
 
 input TemplateIn {

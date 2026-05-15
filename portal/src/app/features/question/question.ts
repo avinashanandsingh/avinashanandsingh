@@ -1,6 +1,5 @@
 import { Component, OnInit, signal, WritableSignal } from '@angular/core';
 import Filter from '../../models/filter';
-import { IAuraData } from '../../models/aura';
 import { CommonModule } from '@angular/common';
 import { Loader } from '../../components/loader/loader';
 import { Dialog } from '../../components/dialog/dialog';
@@ -17,7 +16,7 @@ import { TitleService } from '../../services/title-service';
 import { QuestionService } from '../../services/question-service';
 import { IOptionData, IQuestionData } from '../../models/question';
 import { CourseService } from '../../services/course-service';
-import { ICourseData } from '../../models/course-model';
+import { ICourseData } from '../../models/course';
 
 @Component({
   selector: 'app-aura',

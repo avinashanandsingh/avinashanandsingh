@@ -3,6 +3,8 @@ import 'package:app/services/branding.dart';
 import 'package:app/services/common.dart';
 import 'package:app/services/course.dart';
 import 'package:app/services/identity.dart';
+import 'package:app/services/meditation.dart';
+import 'package:app/services/module.dart';
 import 'package:app/services/order.dart';
 import 'package:app/services/page.dart';
 import 'package:app/services/qna.dart';
@@ -20,6 +22,7 @@ class Service {
   static final identity = Identity();
   static final user = User();
   static final course = Course();
+  static final module = Module();
   static final branding = Branding();
   static final page = Page();
   static final short = Short();
@@ -30,4 +33,5 @@ class Service {
   static final resource = Resource();
   static final qna = Qna();
   static final schedule = Schedule();
+  static final meditation = Meditation();
 }

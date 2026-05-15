@@ -1,4 +1,4 @@
-import { ICourseData } from "./course-model";
+import { ICourseData } from "./course";
 
 export interface IMeditationData {  
   id?: string;
@@ -7,5 +7,8 @@ export interface IMeditationData {
   title: string;
   thumbnail: string;
   url?: string;
+  free: boolean;
+  price: number;
+  offer: number;
   status?: string;
 }

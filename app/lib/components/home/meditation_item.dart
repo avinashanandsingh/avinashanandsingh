@@ -1,19 +1,19 @@
 import 'dart:ui';
 
 import 'package:app/components/audio_player_dialog.dart' as AudioDialog;
+import 'package:app/models/meditation.dart';
+import 'package:app/pages/home.dart';
 import 'package:app/pages/signin.dart';
 import 'package:app/theme/theme.dart';
 import 'package:flutter/material.dart';
 
 class MeditationItem extends StatelessWidget {
-  final String title;
-  final String imageUrl;
+  final MeditationData data;
   final bool isLoggedIn;
 
   const MeditationItem({
     super.key,
-    required this.title,
-    required this.imageUrl,
+    required this.data,
     required this.isLoggedIn,
   });
 
@@ -33,20 +33,25 @@ class MeditationItem extends StatelessWidget {
                 );
                 return; */
                 Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) => const SignIn()),
+                  MaterialPageRoute(
+                    builder: (context) => const SignIn(redirect: Home()),
+                  ),
                 );
                 return;
               }
-              AudioDialog.show(
-                context,
-                url:
-                    "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-                title: title.replaceAll("\n", " "),
-                author: "Meditation",
-                backgroundUrl:
-                    "https://assets.mixkit.co/z8nazrerdw1dcdvnvykfp8c2yqmj",
-                mode: AudioDialog.BackgroundMode.video,
-              );
+              if (data.free!) {
+                AudioDialog.show(
+                  context,
+                  url: data.url!,
+                  title: data.title!.replaceAll("\n", " "),
+                  author: "Meditation",
+                  backgroundUrl:
+                      "https://assets.mixkit.co/z8nazrerdw1dcdvnvykfp8c2yqmj",
+                  mode: AudioDialog.BackgroundMode.video,
+                );
+              } else {
+                // Buy now start payment flow
+              }
             },
             child: Container(
               padding: const EdgeInsets.all(3),
@@ -59,7 +64,7 @@ class MeditationItem extends StatelessWidget {
                 children: [
                   CircleAvatar(
                     radius: 40,
-                    backgroundImage: NetworkImage(imageUrl),
+                    backgroundImage: NetworkImage(data.thumbnail ?? ''),
                   ),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(40),
@@ -88,7 +93,7 @@ class MeditationItem extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            title,
+            data.title ?? '',
             textAlign: TextAlign.center,
             style: TextTheme.of(context).labelSmall,
           ),

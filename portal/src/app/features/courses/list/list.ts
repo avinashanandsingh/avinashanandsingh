@@ -1,5 +1,5 @@
 import { Component, OnInit, signal, WritableSignal } from '@angular/core';
-import { ICourseData } from '../../../models/course-model';
+import { ICourseData } from '../../../models/course';
 import { CommonModule, NgClass } from '@angular/common';
 import { CourseStatus } from '../../../models/enum';
 import { Dialog } from '../../../components/dialog/dialog';

@@ -10,21 +10,24 @@ import { CommonModule } from '@angular/common';
 import { Dialog } from '../../components/dialog/dialog';
 import { Upload } from '../../components/upload/upload';
 import Swal from 'sweetalert2';
-import { ICourseData } from '../../models/course-model';
 import { CourseService } from '../../services/course-service';
+import { IListItem } from '../../models/lov';
+import { Lov } from '../../components/lov/lov';
+import { COP } from '../../models/enum';
 
 @Component({
   selector: 'app-meditation',
-  imports: [CommonModule, ReactiveFormsModule, Loader, Dialog, Upload],
+  imports: [CommonModule, ReactiveFormsModule, Loader, Dialog, Upload, Lov],
   templateUrl: './meditation.html',
   styleUrl: './meditation.css',
 })
 export class Meditation {
   rowCount = signal<number>(0);
   list = signal<IMeditationData[]>([]);
-  course_list = signal<ICourseData[]>([]);
-  loaderDialog = signal<boolean>(false);
+  course_list = signal<IListItem[]>([]);
+  loader = signal<boolean>(false);
   formDialog = signal<boolean>(false);
+  courseId = signal<string>('');
   playerDialog = signal<boolean>(false);
   preview = signal<SafeResourceUrl | null>(null);
   mode = signal<'ADD' | 'EDIT'>('ADD');
@@ -41,6 +44,9 @@ export class Meditation {
     courseid: new FormControl('', [Validators.required]),
     title: new FormControl('', [Validators.required]),
     url: new FormControl(''),
+    free: new FormControl('', Validators.required),
+    price: new FormControl(undefined, [Validators.pattern('^[0-9]*(\.[0-9]{0,2})?$')]),
+    offer: new FormControl(undefined, [Validators.pattern('^[0-9]*(\.[0-9]{0,2})?$')]),
   });
   dialogButtons = signal<Array<{ label: string; action: any; type: any }>>([
     {
@@ -56,15 +62,18 @@ export class Meditation {
       action: async () => {
         if (this.form.invalid) return;
         let formData = this.form.getRawValue();
-        if (formData.url!.length <= 0 && this.audioFile === null) {
+        if ((formData.url ?? '').length <= 0 && this.audioFile === null) {
           this.msg = 'Either upload file or provide url';
         }
         var fd = new FormData();
         let input: any = {
           courseid: formData.courseid,
           title: formData.title,
-          url: formData.url!.length > 0 ? formData.url : null,
+          url: formData.url,
           audio: null,
+          free: formData.free,
+          price: formData.price ? Number(formData.price) : 0,
+          offer: formData.offer ? Number(formData.offer) : 0,
         };
         let body: any = {};
         if (formData.id) {
@@ -90,7 +99,10 @@ export class Meditation {
           };
         }
         fd.append('operations', JSON.stringify(body));
-        fd.append('map', JSON.stringify({ '0': ['variables.input.thumbnail'], '1': ['variables.input.audio'] }));
+        fd.append(
+          'map',
+          JSON.stringify({ '0': ['variables.input.thumbnail'], '1': ['variables.input.audio'] }),
+        );
         if (this.imageFile()) {
           fd.append('0', this.imageFile()!, this.imageFile()!.name);
         } else {
@@ -104,7 +116,7 @@ export class Meditation {
         }
 
         let result: any;
-        this.show(this.loaderDialog);
+        this.show(this.loader);
         if (formData.id) {
           console.log('id: ', formData.id);
           result = await this.service.save(fd);
@@ -146,7 +158,7 @@ export class Meditation {
           }
         }
         this.load({});
-        this.hide(this.loaderDialog);
+        this.hide(this.loader);
         this.hide(this.formDialog);
       },
       type: 'btn btn-primary w-full',
@@ -160,15 +172,14 @@ export class Meditation {
     private sanitizer: DomSanitizer,
   ) {}
   async ngOnInit(): Promise<void> {
-    this.loaderDialog.set(true);
+    this.loader.set(true);
     this.titleService.title = 'Meditations';
     this.preview.set(
       this.sanitizer.bypassSecurityTrustResourceUrl('https://samplelib.com/mp3/sample-6s.mp3'),
     );
-    let result = await this.course.list({});
-    this.course_list.set(result?.rows!);
+    await this.load_course_list();
     await this.load({});
-    this.loaderDialog.set(false);
+    this.loader.set(false);
   }
 
   async load(filter: Filter): Promise<void> {
@@ -178,59 +189,173 @@ export class Meditation {
       this.list.set(result.rows!);
     }
   }
+  async load_course_list(): Promise<void> {
+    let result = await this.course.list({
+      criteria: [
+        {
+          column: 'short',
+          cop: COP.eq,
+          value: false,
+        },
+      ],
+    });
+    let list: IListItem[] = [];
+    if (result?.rows!) {
+      result.rows.forEach((row) => {
+        list.push({
+          id: row.id!,
+          value: `${row.title} - ${row.level}`,
+          label: `${row.title} - ${row.level}`,
+        });
+      });
+    }
+    this.course_list.set(list);
+  }
+
   async showPlayer(id: string) {
     let row = this.list().find((x) => x.id === id);
     const url = this.sanitizer.bypassSecurityTrustResourceUrl(row?.url!);
     this.preview.set(url);
     this.playerDialog.set(true);
   }
-  show(me: WritableSignal<boolean>, id?: string) {
-    me.set(true);
-    if (id) {
-      this.mode.set('EDIT');
+
+  async courseHandler(item: IListItem) {
+    if (item != null) {
+      this.form.controls['courseid'].setValue(item.id!);
+    }
+  }
+
+  freeChange($event: Event) {
+    let value = ($event.target as HTMLInputElement).checked;
+    this.form.controls['free'].setValue(value);
+    if (value) {
+      this.form.controls['price'].disable();
+      this.form.controls['offer'].disable();
     } else {
-      this.mode.set('ADD');
+      this.form.controls['price'].enable();
+      this.form.controls['offer'].enable();
+    }
+  }
+  show(me: WritableSignal<boolean>, mode?: 'ADD' | 'EDIT', id?: string) {
+    if (mode!) {
+      this.mode.set(mode);
     }
     switch (this.mode()) {
       case 'ADD':
+        this.courseId.set('');
+        this.form.reset({ courseid: '' });
+        this.preview.set(null);
+        this.thumbnail.set('');
+        this.audio.set('');
         this.dialogTitle.set('New Meditation Audio');
-        me.set(true);
         break;
       case 'EDIT':
-        let row = this.list().find((x) => x.id === id);        
+        let row = this.list().find((x) => x.id === id);
+        this.courseId.set(row?.courseid!);
+        if (row?.free) {
+          this.form.controls['price'].disable();
+          this.form.controls['offer'].disable();
+        } else {
+          this.form.controls['price'].enable();
+          this.form.controls['offer'].enable();
+        }
         this.thumbnail.set(row!?.thumbnail!);
         this.audio.set(row?.url!);
         this.form.patchValue(row!);
         this.dialogTitle.set('Update Meditation Audio');
-        me.set(true);
-        break;
-      default:
-        me.set(true);
         break;
     }
+    me.set(true);
   }
   hide(me: WritableSignal<boolean>) {
     me.set(false);
     this.form.reset();
   }
 
-  fileChange(type:'I' | 'A', $event: File | null) {
-    switch(type){
-      case 'I':        
-        this.imageFile.set($event);        
+  fileChange(type: 'I' | 'A', $event: File | null) {
+    console.log(type, $event);
+    switch (type) {
+      case 'I':
+        this.imageFile.set($event);
         break;
-      case 'A':        
-        this.audioFile.set($event);        
+      case 'A':
+        this.audioFile.set($event);
         break;
     }
-    
+  }
+  async statusChange(id: string, $event: Event): Promise<void> {
+    let value = ($event.target as HTMLInputElement).checked;
+    let status = value ? 'ACTIVE' : 'INACTIVE';
+
+    let dialog = await Swal.fire({
+      title: 'Are you sure, want change the status?',
+      showDenyButton: true,
+      showCancelButton: false,
+      confirmButtonText: 'Confirm',
+      denyButtonText: 'Cancel',
+      customClass: {
+        actions: 'my-actions',
+        cancelButton: 'order-1 right-gap',
+        confirmButton: 'order-2',
+        denyButton: 'order-3',
+      },
+    });
+
+    if (dialog.isConfirmed) {
+      this.show(this.loader);
+      let result = await this.service.changeStatus(id, status);
+      if (result?.data?.changeMeditationStatus) {
+        Swal.fire({
+          title: 'Success',
+          html: 'Status change complete.',
+          icon: 'success',
+          timer: 3000,
+        });
+      } else {
+        let error = result?.errors?.shift();
+        let msg = error?.extensions?.originalError?.message;
+        Swal.fire({
+          title: 'Failed',
+          html: msg,
+          icon: 'error',
+          timer: 3000,
+        });
+      }
+
+      await this.load({});
+      this.hide(this.loader);
+    }
   }
 
   async delete(id: string): Promise<void> {
-    this.show(this.loaderDialog);
-    let result = await this.service.delete(id);
-    this.hide(this.loaderDialog);
-    this.load({});
+    let dialog = await Swal.fire({
+      title: 'Are you sure, want to delete?',
+      showDenyButton: true,
+      showCancelButton: false,
+      confirmButtonText: 'Confirm',
+      denyButtonText: 'Cancel',
+      customClass: {
+        actions: 'my-actions',
+        cancelButton: 'order-1 right-gap',
+        confirmButton: 'order-2',
+        denyButton: 'order-3',
+      },
+    });
+
+    if (dialog.isConfirmed) {
+      this.show(this.loader);
+      let result = await this.service.delete(id);
+      if (result) {
+        Swal.fire({
+          title: 'Success',
+          html: 'Question has been deleted',
+          icon: 'success',
+          timer: 3000,
+        });
+        await this.load({});
+        this.hide(this.loader);
+      }
+    }
   }
 
   // --- Drag and Drop Logic ---

@@ -174,7 +174,23 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
               title: "MEDITATION",
               subtitle: "Guided practices to centre your mind & energy.",
             ),
-            const MeditationCircles(),
+            FutureBuilder(
+              future: Service.meditation.list(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  );
+                } else if (snapshot.hasData) {
+                  return MeditationCircles(list: snapshot.data!);
+                } else {
+                  return Container();
+                }
+              },
+            ),
 
             const SizedBox(height: 36),
             //const AbundanceCard(),

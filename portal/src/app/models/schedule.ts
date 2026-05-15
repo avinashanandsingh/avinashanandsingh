@@ -1,4 +1,4 @@
-import { ICourseData } from "./course-model";
+import { ICourseData } from "./course";
 
 export interface ISchdeuleData {
   id?: string;

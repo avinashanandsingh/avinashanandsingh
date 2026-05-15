@@ -1,5 +1,4 @@
 import 'dart:ui';
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:just_audio/just_audio.dart';
@@ -306,7 +305,7 @@ class _AudioPlayerDialogState extends State<AudioPlayerDialog>
                             children: [
                               Text(
                                 "Now Playing",
-                                style: TextTheme.of(context).headlineMedium,
+                                style: TextTheme.of(context).headlineSmall,
                               ),
                               Row(
                                 children: [

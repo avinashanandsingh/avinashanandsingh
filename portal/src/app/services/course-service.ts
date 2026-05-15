@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { ApiService } from './api-service';
 import { Header } from './header';
 import Filter from '../models/filter';
-import { ICourseData } from '../models/course-model';
+import { ICourseData } from '../models/course';
 import { StorageService } from './storage-service';
 import Data from '../models/data';
 
@@ -44,11 +44,11 @@ export class CourseService {
     return result?.data?.courses!;
   }
 
-  async get(id: String) {
+  async get(filter: Filter) {
     let body = {
-      query: 'query get($id: UUID!) { course(id: $id) { id categoryid category { id name } title description about thumbnail url short level free currency price offer } }',
+      query: 'query get($filter: Filter!) { course(filter: $filter) { id title description about thumbnail url short level free currency price offer } }',
       variables: {
-        id: id,
+        "filter": filter
       },
     };
     let header = this.header.api();

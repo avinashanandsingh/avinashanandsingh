@@ -366,6 +366,9 @@ type Meditation {
   title: String
   thumbnail: String
   url: String
+  free: Boolean
+  price: String
+  offer: String
   status: String
   sort: Int
   creator: User

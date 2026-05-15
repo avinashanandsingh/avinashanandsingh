@@ -8,7 +8,7 @@ import { CommonModule } from '@angular/common';
 import { Dialog } from '../../components/dialog/dialog';
 import { Loader } from '../../components/loader/loader';
 import { CourseService } from '../../services/course-service';
-import { ICourseData } from '../../models/course-model';
+import { ICourseData } from '../../models/course';
 import Swal from 'sweetalert2';
 import Criteria from '../../models/criteria';
 import { COP, LOP } from '../../models/enum';

@@ -6,7 +6,9 @@
 body {
   background-color: #eef2f6;
 }
-
+.swal2-popup {
+    font-size: 14px !important;
+}
 .btn-primary {
   @apply w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-base font-bold text-white bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed
 }

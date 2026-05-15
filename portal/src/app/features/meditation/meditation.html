@@ -7,7 +7,7 @@
       <p class="text-gray-500 text-sm">Manage meditation audios here</p>
     </div>
     <div>
-      <button (click)="show(formDialog)" class="btn btn-primary text-base">
+      <button (click)="show(formDialog,'ADD')" class="btn btn-primary text-base">
         <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
         </svg>
@@ -33,6 +33,15 @@
               URL
             </th>
             <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+              Free
+            </th>
+            <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+              Price
+            </th>
+            <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
+              Offer
+            </th>
+            <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
               Status
             </th>
             <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider w-20">
@@ -49,8 +58,8 @@
                 <div class="shrink-0 h-10 w-10 rounded bg-gray-100 flex items-center justify-center overflow-hidden"
                   [ngClass]="{ 'bg-purple-50': row.thumbnail }">
                   <img *ngIf="row.thumbnail" [src]="row.thumbnail" class="h-full w-full object-cover" />
-                  <svg *ngIf="!row.thumbnail" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none"
-                    viewBox="0 0 24 24" stroke="currentColor">
+                  <svg *ngIf="!row.thumbnail" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400"
+                    fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
@@ -73,29 +82,44 @@
               <span class="text-gray-400 text-base">-</span>
               }
             </td>
-
             <td class="p-3 whitespace-nowrap text-base text-gray-500">
-              @switch (row.status) {
-              @case ('ACTIVE') {
-              <span class="inline-flex text-base leading-5 font-semibold rounded-full bg-green-100 text-green-700">
-                {{ row.status }}
-              </span>
-              }
-              @case('INACTIVE'){
-              <span class="px-2 py-1 rounded-full text-base font-bold bg-gray-100 text-gray-600">Inactive</span>
-              }
-              @case('DELETED'){
-              <span class="px-2 py-1 rounded-full text-base font-bold bg-red-100 text-red-700">Deleted</span>
-              }
-              }
+              <div class="text-base font-medium text-gray-900">
+                @if(row.free){
+                <span>FREE</span>
+                }@else {
+                <span>PAID</span>
+                }
+              </div>
             </td>
+            <td class="p-3 whitespace-nowrap text-base text-gray-500">
+              <div class="text-base font-medium text-gray-900">
+                {{ row.price | currency:'INR' }}
+              </div>
+            </td>
+            <td class="p-3 whitespace-nowrap text-base text-gray-500">
+              <div class="text-base font-medium text-gray-900">
+                {{ row.offer | currency:'INR' }}
+              </div>
+            </td>
+            <td class="p-3 whitespace-nowrap text-base text-gray-500">
+              @if(row.status !== 'DELETED'){
+              <label class="relative inline-flex items-center cursor-pointer">
+                <input type="checkbox" class="sr-only peer" [checked]="(row.status === 'ACTIVE')"
+                  (change)="statusChange(row.id!, $event)" />
+
+                <div
+                  class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-green-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:inset-s-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600">
+                </div>
+              </label>
+              }
 
             <td class="p-3 whitespace-nowrap text-right text-base font-medium w-20">
               <div class="flex flex-row gap-3">
                 <button (click)="showPlayer(row.id!)" class="text-purple-600 hover:text-purple-900 text-base">
                   <i class="bi bi-soundwave"></i>
                 </button>
-                <button (click)="show(formDialog, row.id!)" class="text-purple-600 hover:text-purple-900 text-base">
+                <button (click)="show(formDialog, 'EDIT', row.id!)"
+                  class="text-purple-600 hover:text-purple-900 text-base">
                   <i class="bi bi-pencil-square"></i>
                 </button>
                 <button (click)="delete(row.id!)" class="text-purple-600 hover:text-purple-900 text-base">
@@ -122,12 +146,10 @@
       <!-- Course -->
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-2">Course <span class="text-red-500">*</span></label>
-        <select id="courseid" formControlName="courseid" class="select">
-          <option selected value="">Select a Course</option>
-          @for(item of course_list(); track item.id){
-          <option [value]="item.id">{{item.title}} - {{item.level}}</option>
-          }
-        </select>
+        <input type="hidden" formControlName="courseid" />
+        <app-lov [items]="course_list()" [config]="{ minLength: 5, placeholder:'Select a Course', showImage: false }"
+          [itemId]="courseId()" (selected)="courseHandler($event!)"></app-lov>
+
         <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
                   validation: 'required',
                   message: 'Course is required',
@@ -148,9 +170,56 @@
                 }">
         </ng-container>
       </div>
+      <!-- Free -->
+      <div>
+        <label class="relative inline-flex items-center cursor-pointer">
+          <!-- (change) event captures the toggle -->
+          <input type="checkbox" class="sr-only peer" formControlName="free" (change)="freeChange($event)">
+
+          <div
+            class="w-11 h-6 bg-gray-200 peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:inset-s-0.5 after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600">
+          </div>
+
+          <span class="ms-3 text-sm font-medium text-gray-900">
+            Free
+          </span>
+        </label>
+        <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'Free is required',
+                  control: form.controls['free']
+                }">
+        </ng-container>
+      </div>
+      <!-- Price -->
+      <div class="flex flex-row gap-3">
+        <div class="flex-1">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Price</label>
+          <input id="price" formControlName="price" type="text" inputmode="numeric" placeholder="Price"
+            class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border" />
+          <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'pattern',
+                  message: 'Valid numerical figure required',
+                  control: form.controls['price']
+                }"></ng-container>
+        </div>
+        <!-- Offer -->
+        <div class="flex-1">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Offer</label>
+          <input id="offer" formControlName="offer" type="text" inputmode="numeric" placeholder="Offer"
+            class="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 p-2 border" />
+          <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'pattern',
+                  message: 'Valid numerical figure required',
+                  control: form.controls['offer']
+                }"></ng-container>
+        </div>
+      </div>
+
       <div class="w-full">
         <label class="block text-sm font-medium text-gray-700 mb-2">Thumbnail</label>
-        <app-upload [fileType]="'image/*'" (fileChange)="fileChange('I', $event)" [previewUrl]="thumbnail()!"></app-upload>
+        <app-upload [fileType]="'image/*'" (fileChange)="fileChange('I', $event)"
+          [previewUrl]="thumbnail()!"></app-upload>
       </div>
 
       <!-- URL -->
@@ -176,8 +245,10 @@
 <app-dialog [isOpen]="playerDialog" title="Play Audio">
   <!-- Video Player -->
   <div class="relative aspect-video w-full bg-black" [style.height]="'300px'">
+    @if(preview()){
     <iframe class="w-full aspect-video" [src]="preview()" title="Audio player" allow="autoplay">
     </iframe>
+    }
   </div>
 </app-dialog>
 
@@ -194,4 +265,4 @@
   </ng-container>
   }
 </ng-template>
-<loader [isOpen]="loaderDialog"></loader>
+<loader [isOpen]="loader"></loader>

@@ -1,4 +1,4 @@
-import { ICourseData } from './course-model';
+import { ICourseData } from './course';
 import { ISchdeuleData } from './schedule';
 import { IUser } from './user';
 

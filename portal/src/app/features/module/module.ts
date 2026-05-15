@@ -3,7 +3,7 @@ import { ModuleService } from '../../services/module-service';
 import Filter from '../../models/filter';
 import { IModuleData } from '../../models/module';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ICourseData } from '../../models/course-model';
+import { ICourseData } from '../../models/course';
 import { ISchdeuleData } from '../../models/schedule';
 import { CommonModule } from '@angular/common';
 import { Loader } from '../../components/loader/loader';

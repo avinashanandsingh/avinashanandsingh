@@ -28,7 +28,35 @@ class _DashboardState extends State<Dashboard>
       showBack: true,
       showBottomNav: true,
       currentIndex: 2,
-      body: const Center(child: Text("Dashboard View")),
+      body: DefaultTabController(
+        length: 2,
+        child: Column(
+          mainAxisSize:
+              MainAxisSize.min, // Tells column to be only as big as needed
+          children: [
+            const TabBar(
+              tabs: [
+                Tab(text: "My Courses"),
+                Tab(text: "Order History"),
+              ],
+              labelColor: Colors.black,
+            ),
+            // Wrapping in a Flexible or Expanded only works if
+            // the parent of this Column has a constrained height!
+            Expanded(
+              child: TabBarView(
+                children: [
+                  _buildCoursesTab(),
+                  Container(
+                    padding: EdgeInsets.all(8),
+                    child: Center(child: Text("Order History")),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

@@ -61,6 +61,8 @@ export class Lov implements OnInit, OnChanges {
       let item = this.items.find((x) => x.id === this.itemId);      
       if(item){
         this.selectItem(item!);
+      }else{
+        this.clearSelection();
       }
     }
   }

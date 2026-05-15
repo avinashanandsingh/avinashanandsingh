@@ -20,7 +20,7 @@ export class MeditationService {
   async list(filter: Filter): Promise<Data<IMeditationData>> {
     let body = {
       query:
-        'query list ($filter: Filter!) { meditations(filter: $filter) { count rows { id title thumbnail url status courseid course{ id level } } } }',
+        'query list ($filter: Filter!) { meditations(filter: $filter) { count rows { id title thumbnail url free price offer status courseid course { id level } } } }',
       variables: {
         filter: {
           ...filter,
@@ -34,7 +34,7 @@ export class MeditationService {
 
   async get(id: String) {
     let body = {
-      query: 'query get($id: UUID!) { meditation (id: $id) { id title thumbnail url status courseid course { id  level } } }',
+      query: 'query get($id: UUID!) { meditation (id: $id) { id title thumbnail url free price offer status courseid course { id  level } } }',
       variables: {
         id: id,
       },
@@ -49,6 +49,19 @@ export class MeditationService {
     return await this.api.postForm(this.url, { authorization: token }, body);
   }
   
+  async changeStatus(id: string, status: string) {
+    let body = {
+      query:
+        'mutation changeStatus($id: UUID!, $status: Status!) { changeMeditationStatus (id: $id, status: $status) { id } }',
+      variables: {
+        id: id,
+        status: status,
+      },
+    };
+    let header = this.header.api();
+    return await this.api.post(this.url, header, body);
+  }
+
   async delete(id: String) {
     let body = {
       query: 'mutation delete($id: UUID!) { deleteMeditation (id: $id) { id } }',

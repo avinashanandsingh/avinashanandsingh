@@ -103,6 +103,7 @@ const resolvers = {
     deleteShort: shield,
     addMeditation: shield,
     updateMeditation: shield,
+    changeMeditationStatus: shield,
     deleteMeditation: shield,
     addResource: shield,
     updateResource: shield,
