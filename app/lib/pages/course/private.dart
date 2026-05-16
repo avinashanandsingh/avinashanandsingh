@@ -1,10 +1,10 @@
 import 'package:app/components/custom_tab_view.dart';
-import 'package:app/components/layout.dart';
 import 'package:app/components/price_tag.dart';
 import 'package:app/components/review_dialog.dart' as review_dialog;
 import 'package:app/components/review_widget.dart';
 import 'package:app/components/video_card.dart';
 import 'package:app/models/course.dart';
+import 'package:app/models/order.dart';
 import 'package:app/models/qna.dart';
 import 'package:app/pages/course_details.dart';
 import 'package:app/pages/enroll.dart';
@@ -14,9 +14,11 @@ import 'package:app/services/service.dart';
 import 'package:app/theme/theme.dart';
 import 'package:app/utils/alert.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:app/helpers/globals.dart';
 import 'package:intl/intl.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
 
 class PrivateCourse extends StatefulWidget {
   final CourseData? data;
@@ -192,15 +194,17 @@ class PrivateCourseState extends State<PrivateCourse>
                           if (widget.data!.free!) {
                             return TextButton(
                               onPressed: () async {
+                                print('clicked free');
                                 bool flag = await Identity.instance
                                     .isLoggedIn();
+                                print(flag);
                                 if (flag) {
-                                  navigatorKey.currentState?.push(
+                                  /* navigatorKey.currentState?.push(
                                     MaterialPageRoute(
                                       builder: (context) =>
                                           Enroll(course: widget.data!),
                                     ),
-                                  );
+                                  ); */
                                 } else {
                                   navigatorKey.currentState?.push(
                                     MaterialPageRoute(
@@ -231,15 +235,21 @@ class PrivateCourseState extends State<PrivateCourse>
                                 Spacer(),
                                 TextButton(
                                   onPressed: () async {
+                                    print('clicked');
                                     bool flag = await Identity.instance
                                         .isLoggedIn();
+                                    print(flag);
                                     if (flag) {
-                                      navigatorKey.currentState?.push(
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              Enroll(course: widget.data!),
-                                        ),
-                                      );
+                                      if (widget.data!.short!) {
+                                        print('is a short course');
+                                      } else {
+                                        navigatorKey.currentState?.push(
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                Enroll(course: widget.data!),
+                                          ),
+                                        );
+                                      }
                                     } else {
                                       navigatorKey.currentState?.push(
                                         MaterialPageRoute(
@@ -286,6 +296,47 @@ class PrivateCourseState extends State<PrivateCourse>
     );
   }
 
+  void handlePaymentSuccess(PaymentSuccessResponse response) async {
+    String? orderId = await Service.store.get("latest_order_id");
+    OrderData orderData = OrderData(
+      orderStatus: "CONFIRMED",
+      orderStatusReason: 'Your payment was successful and order is confirmed',
+      paymentStatus: "PAID",
+      paymentStatusReason: 'Your payment was successful',
+      paymentid: response.paymentId,
+      signature: response.signature,
+      updatedat: DateTime.now(),
+    );
+    OrderData? order = await Service.order.update(orderId!, orderData);
+    if (order?.id == null) {
+      Alert.show(
+        "Payment was successful but failed to update order. Please contact support.",
+        isError: true,
+      );
+    } else {
+      Alert.show(
+        "Payment Successful! Your order is confirmed.",
+        isError: false,
+      );
+    }
+  }
+
+  void handlePaymentError(PaymentFailureResponse response) async {
+    if (response.code == 0) {
+      String? orderId = await Service.store.get("latest_order_id");
+      OrderData orderData = OrderData(
+        paymentStatus: "CANCELLED",
+        paymentStatusReason: response.message,
+        updatedat: DateTime.now(),
+      );
+      OrderData? order = await Service.order.update(orderId!, orderData);
+      if (order != null) {
+        Alert.show("Payment cancelled.", isError: false);
+      }
+    }
+    Alert.show("Payment Failed: ${response.message}", isError: true);
+  }
+
   Widget headerInfo() {
     return Container(
       padding: EdgeInsets.only(left: 15, right: 15, bottom: 15),
@@ -305,12 +356,15 @@ class PrivateCourseState extends State<PrivateCourse>
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    "Avinash Anand Singh",
-                    style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+                  Text(
+                    dotenv.env['AUTHOR'] ?? '',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14,
+                    ),
                   ),
                   Text(
-                    "avinashanandsingh@gmail.com",
+                    dotenv.env['AUTHOR_EMAIL'] ?? '',
                     style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
                   ),
                 ],

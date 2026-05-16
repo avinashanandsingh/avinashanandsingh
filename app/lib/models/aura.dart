@@ -43,15 +43,18 @@ class AuraData {
   String? name;
   double? price;
   double? offer;
+
+  double get sale => (offer! > 0 && offer! <= price!) ? offer! : price!;
+
   List<TimeslotData>? slots;
   AuraData({this.id, this.name, this.price, this.offer, this.slots});
-
   factory AuraData.fromJson(Map<String, dynamic> json) {
     dynamic list = json['timeslots'];
     List<TimeslotData> lst = List.empty(growable: true);
     for (var slot in list) {
       lst.add(TimeslotData.fromJson(slot));
     }
+
     return AuraData(
       id: json['id'] as String?,
       name: json['name'] as String?,

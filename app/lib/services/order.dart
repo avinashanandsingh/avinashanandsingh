@@ -86,4 +86,18 @@ class Order {
     }
     return data;
   }
+
+  Future<bool> bought(String id, String context) async {
+    bool flag = false;
+    dynamic body = {
+      "query":
+          r'query bought ($id: UUID!, $context: Context!) { bought(id: $id, context: $context) }',
+      "variables": {"id": id, "context": context},
+    };
+    dynamic result = await api.post(url, body);
+    if (result != null) {
+      flag = result?['data']['bought'];
+    }
+    return flag;
+  }
 }

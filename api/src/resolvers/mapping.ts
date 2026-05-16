@@ -844,6 +844,12 @@ const mapping = [
     role: UserRole.ADMINISTRATOR,
   },
   {
+    name: "bought",
+    execute: order.bought,
+    include: true,
+    role: UserRole.ANONYMOUS,
+  },
+  {
     name: "appointment",
     execute: appointment.get,
     include: true,

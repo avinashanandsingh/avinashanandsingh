@@ -19,7 +19,7 @@ enum CourseStatus {
 
 enum Context {
   COURSE
-  MODULE
+  MEDITATION
   SHORT_VIDEO
   AURA_SCANNING
   SCARED_VIBE_AUDIO

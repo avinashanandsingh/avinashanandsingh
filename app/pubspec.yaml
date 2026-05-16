@@ -57,6 +57,8 @@ dependencies:
   vimeo_video_player: ^1.0.3
   razorpay_flutter: ^1.4.5
   chewie: ^1.13.1
+  flutter_native_html_to_pdf: ^3.0.2
+  path_provider: ^2.1.5
 
 dev_dependencies:
   flutter_test:

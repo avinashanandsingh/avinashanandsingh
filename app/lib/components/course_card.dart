@@ -1,8 +1,11 @@
 import 'package:app/models/course.dart';
+import 'package:app/pages/course/private.dart';
+import 'package:app/pages/course/public.dart';
+import 'package:app/services/service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/theme.dart';
-import '../pages/course_details.dart';
+import 'package:app/helpers/globals.dart';
 
 class CourseCard extends StatelessWidget {
   final CourseData data;
@@ -95,10 +98,22 @@ class CourseCard extends StatelessWidget {
     return GestureDetector(
       onTap:
           onTap ??
-          () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (_) => CourseDetails(data: data)),
-          ),
+          () async {
+            bool flag = await Service.identity.isLoggedIn();
+            if (flag) {
+              navigatorKey.currentState?.push(
+                MaterialPageRoute(
+                  builder: (context) => PrivateCourse(data: data),
+                ),
+              );
+            } else {
+              navigatorKey.currentState?.push(
+                MaterialPageRoute(
+                  builder: (context) => PublicCourse(data: data),
+                ),
+              );
+            }
+          },
       child: cardContent,
     );
   }

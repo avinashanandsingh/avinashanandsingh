@@ -50,6 +50,7 @@ const resolvers = {
     inquiries: shield,
     order: shield,
     orders: shield,
+    bought: shield,
     template: shield,
     templates: shield,
     page: shield,

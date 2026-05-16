@@ -38,7 +38,7 @@ class Section extends StatelessWidget {
                   Text(title, style: Theme.of(context).textTheme.displayMedium),
                 ],
               ),
-              if (action != null) ...[
+              /* if (action != null) ...[
                 Row(
                   children: [
                     TextButton.icon(
@@ -52,7 +52,7 @@ class Section extends StatelessWidget {
                     ),
                   ],
                 ),
-              ],
+              ], */
             ],
           ),
         ),
@@ -65,6 +65,7 @@ class Section extends StatelessWidget {
               ],
             ),
           ),
+          const SizedBox(height: 8),
         ],
         child,
       ],

@@ -20,6 +20,7 @@ class Aura {
       },
     };
     dynamic result = await api.post(url, body);
+    print(result);
     if (result != null) {
       dynamic rows = result?['data']['services']?['rows'];
       for (var row in rows) {

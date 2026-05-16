@@ -61,7 +61,6 @@ export default async (
       });
     }
     let result = await helper.data.select<any>(input);
-    console.log(result);
     row = result?.rows?.shift();
   }
 

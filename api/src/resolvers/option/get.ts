@@ -24,7 +24,6 @@ export default async (
     criteria: filter.criteria,
   };
   let result = await helper.data.select(input);
-  console.log(result);
   if (result?.count! > 0) {
     row = result?.rows?.shift();
   } else {

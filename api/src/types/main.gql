@@ -78,6 +78,7 @@ type Query {
   
   order(filter: Filter!): Order!
   orders(filter: Filter!): OrderResult!
+  bought(id: UUID!, context: Context!): Boolean
 
   question(filter: Filter!): Question!
   questions(filter: Filter!): QuestionResult!
