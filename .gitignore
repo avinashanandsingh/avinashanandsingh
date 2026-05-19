@@ -3,5 +3,5 @@ redeploy.sh
 .DS_Store
 aws.sh
 /pgb
-pgbouncer.init
-userlist.text
+pgbouncer.ini
+userlist.txt
