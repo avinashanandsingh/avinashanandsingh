@@ -1,5 +1,5 @@
 import 'package:app/models/course.dart';
-import 'package:app/pages/course/qna_form.dart';
+import 'package:app/pages/qna_form.dart';
 import 'package:app/services/service.dart';
 import 'package:flutter/material.dart';
 
@@ -38,10 +38,7 @@ class EnrollState extends State<Enroll> {
                   ),
                 );
               } else if (snapshot.hasData) {
-                return QnaForm(
-                  data: snapshot.data!,
-                  courseId: widget.course.id,
-                );
+                return QnaForm(data: snapshot.data!, course: widget.course);
               } else {
                 return Container();
               }

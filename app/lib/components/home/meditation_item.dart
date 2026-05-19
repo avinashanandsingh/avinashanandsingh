@@ -5,7 +5,7 @@ import 'package:app/models/meditation.dart';
 import 'package:app/models/order.dart';
 import 'package:app/models/user.dart';
 import 'package:app/pages/home.dart';
-import 'package:app/pages/signin.dart';
+import 'package:app/pages/user/signin.dart';
 import 'package:app/services/razorpay.dart';
 import 'package:app/services/service.dart';
 import 'package:app/theme/theme.dart';
@@ -13,6 +13,7 @@ import 'package:app/utils/alert.dart';
 import 'package:flutter/material.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../../helpers/globals.dart';
 
 class MeditationItem extends StatefulWidget {
   final MeditationData data;
@@ -73,23 +74,21 @@ class MeditationsItemState extends State<MeditationItem> {
 
         updatedat: DateTime.now(),
       );
-      OrderData? order = await Service.order.update(orderId!, orderData);
-      print('updated Order: ${order?.toJson()}');
+      await Service.order.update(orderId!, orderData);
     }
-    print(response.error.toString());
     Alert.show("Payment Failed: ${response.message}", isError: true);
   }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10.0),
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
       child: Column(
         children: [
           GestureDetector(
             onTap: () async {
               if (!widget.isLoggedIn) {
-                Navigator.of(context).pushReplacement(
+                navigatorKey.currentState?.push(
                   MaterialPageRoute(
                     builder: (context) => const SignIn(redirect: Home()),
                   ),
@@ -123,16 +122,12 @@ class MeditationsItemState extends State<MeditationItem> {
                   );
                 } else {
                   // Buy now start payment flow
-                  double? amount = widget.data.price!;
-                  if (widget.data.offer! > 0 &&
-                      widget.data.offer! <= widget.data.price!) {
-                    amount = widget.data.offer;
-                  }
+
                   OrderData orderData = OrderData(
                     context: "MEDITATION",
                     contextid: widget.data.id,
                     name: "Meditation Audio - ${widget.data.title}",
-                    price: amount,
+                    price: widget.data.sale,
                     orderStatus: "INITIATED",
                     orderStatusReason:
                         'Your order has been initiated and awaiting payment',
@@ -175,6 +170,7 @@ class MeditationsItemState extends State<MeditationItem> {
                             "email": userData.email,
                           },
                           'theme': {'color': '#5A2A82'},
+                          'modal': {'confirm_close': true, 'handle_back': true},
                         },
                         onSuccess: handlePaymentSuccess,
                         onFailure: handlePaymentError,

@@ -191,6 +191,7 @@ export class Aura implements OnInit {
       name: ['', Validators.required],
       start_time: ['', [Validators.required]],
       end_time: ['', [Validators.required]],
+      capacity: ['', [Validators.required]],
     });
     this.timeslots.push(row);
   }

@@ -1,27 +1,31 @@
 class ShortData {
   String? id;
   String title;
-  String thumbnail;
+  String? description;
   String url;
-  int? likes = 0;
-  int? hits = 0;
+  int likes;
+  int dislikes;
+  int hits;
   ShortData({
     this.id,
     required this.title,
-    required this.thumbnail,
+    this.description,
     required this.url,
-    this.likes,
-    this.hits,
+    this.likes = 0,
+    this.dislikes = 0,
+    this.hits = 0,
   });
 
   factory ShortData.fromJson(Map<String, dynamic> json) {
+    print(json);
     return ShortData(
       id: json['id'] as String?,
       title: json['title'] as String,
-      thumbnail: json['thumbnail'] as String,
+      description: json['description'] as String?,
       url: json['url'] as String,
-      likes: int.parse(json['likes']),
-      hits: int.parse(json['hits']),
+      likes: json['likes'] ?? 0,
+      dislikes: json['dislikes'] ?? 0,
+      hits: json['hits'] ?? 0,
     );
   }
 
@@ -30,9 +34,10 @@ class ShortData {
     return {
       'id': id,
       'title': title,
-      'thumbnail': thumbnail,
+      'description': description,
       'url': url,
       'likes': likes,
+      'dislikes': dislikes,
       'hits': hits,
     };
   }

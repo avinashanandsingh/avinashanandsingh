@@ -2,14 +2,13 @@ import 'package:app/components/custom_form_field.dart';
 import 'package:app/components/label.dart';
 import 'package:app/components/loader.dart';
 import 'package:app/helpers/convert.dart';
-import 'package:app/pages/signin.dart';
+import 'package:app/pages/user/signin.dart';
 import 'package:app/services/service.dart';
 import 'package:app/utils/alert.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/theme.dart';
-import '../components/layout.dart';
 
 class ResetPassword extends StatefulWidget {
   final String email;

@@ -63,15 +63,6 @@ class Course {
     return flag;
   }
 
-  Future<dynamic> enroll(EnrollData data) async {
-    dynamic body = {
-      "query":
-          r'mutation enroll ($input: EnrollIn!) { enroll(input: $input) { id } }',
-      "variables": {"input": data.toJson()},
-    };
-    return await api.post(url, body);
-  }
-
   Future<dynamic> postReview(
     String courseId,
     int rating,

@@ -128,8 +128,8 @@ input EnrollIn {
   droppedby: UUID
   notes: String
   qna: JSON
+  status: EnrollmentStatus
 }
-
 
 input DropIn {
   droppedat: DateTime!
@@ -161,7 +161,7 @@ input ContentIn {
 
 input ShortIn {
   title: String!
-  thumbnail: File!
+  description: String
   video: File
   url: String
 }
@@ -273,7 +273,8 @@ input SettingIn {
 input OrderIn {
   context: Context
   contextid: UUID
-  slotid: String
+  slotid: UUID
+  slot_date: DateTime
   price: Float
   order_status: OrderStatus = "INITIATED"
   order_status_reason: String
@@ -297,4 +298,10 @@ input QuestionIn {
   title: String!
   description: String
   options: [OptionIn]!
+}
+
+input ReactionIn {
+  type: ReactionType!
+  context: Context!
+  contextid: UUID!
 }

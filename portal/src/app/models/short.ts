@@ -1,7 +1,7 @@
 export interface IShortData {
   id?: string;
   title: string;
-  thumbnail: string;
+  description?: string;
   url?: string;
   status?:string;
   sort?:number;

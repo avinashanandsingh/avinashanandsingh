@@ -1,3 +1,10 @@
+import 'package:app/components/loader.dart';
+import 'package:app/models/order.dart';
+import 'package:app/models/user.dart';
+import 'package:app/pages/order_card.dart';
+import 'package:app/services/service.dart';
+import 'package:app/utils/alert.dart';
+import 'package:app/utils/result.dart';
 import 'package:flutter/material.dart';
 import '../theme/theme.dart';
 import '../components/layout.dart';
@@ -5,7 +12,8 @@ import '../components/layout.dart';
 //import '../components/add_enrollment_bottom_sheet.dart';
 
 class Dashboard extends StatefulWidget {
-  const Dashboard({super.key});
+  final UserData user;
+  const Dashboard({super.key, required this.user});
 
   @override
   State<Dashboard> createState() => _DashboardState();
@@ -14,48 +22,90 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard>
     with SingleTickerProviderStateMixin {
   static const Color primaryPurple = AppColors.primary;
+  List<OrderData> orderList = List.empty(growable: true);
   @override
   initState() {
     super.initState();
+    orderList = [];
   }
 
   @override
   Widget build(BuildContext context) {
     return Layout(
       titleText: 'Dashboard',
+      showHeader: true,
       isSerif: false,
+      showBottomNav: true,
       showActions: true,
       showBack: true,
-      showBottomNav: true,
       currentIndex: 2,
       body: DefaultTabController(
         length: 2,
         child: Column(
           mainAxisSize:
               MainAxisSize.min, // Tells column to be only as big as needed
+
           children: [
-            const TabBar(
-              tabs: [
+            TabBar(
+              tabs: const [
                 Tab(text: "My Courses"),
                 Tab(text: "Order History"),
               ],
               labelColor: Colors.black,
+              onTap: (idx) async {
+                switch (idx) {
+                  case 0:
+                    break;
+                  case 1:
+                    Loader.show();
+                    Result<OrderData> result = await Service.order.list({
+                      "criteria": [
+                        {
+                          "column": "createdby",
+                          "cop": "eq",
+                          "value": widget.user.id!,
+                        },
+                      ],
+                    });
+                    Loader.hide();
+                    if (result.succeed) {
+                      setState(() {
+                        orderList = result.data!;
+                      });
+                    } else {
+                      Alert.show(result.message!, isError: true);
+                    }
+                    break;
+                }
+              },
             ),
             // Wrapping in a Flexible or Expanded only works if
             // the parent of this Column has a constrained height!
             Expanded(
-              child: TabBarView(
-                children: [
-                  _buildCoursesTab(),
-                  Container(
-                    padding: EdgeInsets.all(8),
-                    child: Center(child: Text("Order History")),
-                  ),
-                ],
-              ),
+              child: TabBarView(children: [_buildCoursesTab(), orderListTab()]),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget orderListTab() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        children: [
+          if (orderList.isNotEmpty) ...[
+            Expanded(
+              child: ListView.builder(
+                itemCount: orderList.length,
+                itemBuilder: (context, index) {
+                  return OrderCard(order: orderList[index]);
+                },
+              ),
+            ),
+          ],
+        ],
       ),
     );
   }

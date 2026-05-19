@@ -7,29 +7,32 @@ import { Loader } from '../../../components/loader/loader';
 import Criteria from '../../../models/criteria';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { COP, LOP } from '../../../models/enum';
-import { ISchdeuleData } from '../../../models/schedule';
-import { ICourseData } from '../../../models/course';
 import { CommonModule } from '@angular/common';
 import { CourseService } from '../../../services/course-service';
 import { IListItem } from '../../../models/lov';
 import { Lov } from '../../../components/lov/lov';
 import { ScheduleService } from '../../../services/schedule-service';
-import { Dialog } from "../../../components/dialog/dialog";
+import { Dialog } from '../../../components/dialog/dialog';
 import Swal from 'sweetalert2';
+import { Pager } from '../../../components/pager/pager';
 
 @Component({
   selector: 'enrollment-list',
-  imports: [Loader, CommonModule, ReactiveFormsModule, Lov, Dialog],
+  imports: [Loader, CommonModule, ReactiveFormsModule, Lov, Dialog, Pager],
   templateUrl: './list.html',
   styleUrl: './list.css',
 })
 export default class List implements OnInit {
+  limit: number = Number(import.meta.env.NG_APP_LIMIT);
+  offset: number = 0;
+  total = signal<number>(0);
+  criteria = signal<Criteria[]>([]);
   list = signal<IEnrollmentData[]>([]);
   course_list = signal<IListItem[]>([]);
   schedule_list = signal<IListItem[]>([]);
-  criteria = signal<Criteria[]>([]);
+
   loader = signal<boolean>(false);
- 
+
   filterForm: FormGroup = new FormGroup({
     courseid: new FormControl(''),
     scheduleid: new FormControl(''),
@@ -44,48 +47,48 @@ export default class List implements OnInit {
   });
 
   statusDialogButtons = signal<Array<{ label: string; action: any; type: any }>>([
-      {
-        label: 'Close',
-        action: () => {
-          this.hide(this.statusDialog);
-        },
-        type: 'btn btn-secondary w-full',
+    {
+      label: 'Close',
+      action: () => {
+        this.hide(this.statusDialog);
       },
-      {
-        label: 'Save',
-        action: async () => {
-          if (this.statusForm.invalid) return;
-          this.show(this.loader);
-          let formData = this.statusForm.getRawValue();
-          let result = await this.service.changeStatus(formData.id, formData.status);
-          if (formData.id) {
-            if (result?.data?.changeEnrollmentStatus) {
-              Swal.fire({
-                title: 'Success',
-                html: 'Status changed successfully',
-                icon: 'success',
-                timer: 3000,
-              });
-            } else {
-              let error = result?.errors?.shift();
-              let msg = error?.extensions?.originalError?.message;
-              Swal.fire({
-                title: 'Failed',
-                html: msg,
-                icon: 'error',
-                timer: 3000,
-              });
-            }
+      type: 'btn btn-secondary w-full',
+    },
+    {
+      label: 'Save',
+      action: async () => {
+        if (this.statusForm.invalid) return;
+        this.show(this.loader);
+        let formData = this.statusForm.getRawValue();
+        let result = await this.service.changeStatus(formData.id, formData.status);
+        if (formData.id) {
+          if (result?.data?.changeEnrollmentStatus) {
+            Swal.fire({
+              title: 'Success',
+              html: 'Status changed successfully',
+              icon: 'success',
+              timer: 3000,
+            });
+          } else {
+            let error = result?.errors?.shift();
+            let msg = error?.extensions?.originalError?.message;
+            Swal.fire({
+              title: 'Failed',
+              html: msg,
+              icon: 'error',
+              timer: 3000,
+            });
           }
-          
-          this.load({ criteria: this.criteria()});
-          this.statusForm.reset();
-          this.hide(this.loader);
-          this.hide(this.statusDialog);
-        },
-        type: 'btn btn-primary w-full',
+        }
+
+        this.load({ criteria: this.criteria() });
+        this.statusForm.reset();
+        this.hide(this.loader);
+        this.hide(this.statusDialog);
       },
-    ]);
+      type: 'btn btn-primary w-full',
+    },
+  ]);
   constructor(
     private course: CourseService,
     private schedule: ScheduleService,
@@ -95,14 +98,35 @@ export default class List implements OnInit {
   async ngOnInit(): Promise<void> {
     this.titleService.title = 'Enrollments';
     this.loader.set(true);
-    await this.load({});
+    await this.load({
+      criteria: this.criteria(),
+      offset: this.offset,
+      limit: this.limit,
+    });
     await this.load_course_list();
     this.loader.set(false);
   }
 
-  async load(filter: Filter): Promise<void> {
+  async load(filter: Filter) {
     let result = await this.service.list(filter);
-    this.list.set(result?.rows ?? []);
+    let rows = result?.count ?? 0;
+    if (result) {
+      this.total.set(Math.ceil(rows / this.limit));
+      this.list.set(result?.rows!);
+    } else {
+      this.list.set([]);
+    }
+  }
+
+  async pageChange($event: number): Promise<void> {
+    this.offset = ($event - 1) * this.limit;
+    this.show(this.loader);
+    await this.load({
+      criteria: this.criteria(),
+      offset: this.offset,
+      limit: this.limit,
+    });
+    this.hide(this.loader);
   }
 
   async load_course_list(): Promise<void> {
@@ -120,12 +144,16 @@ export default class List implements OnInit {
     console.log(courseId);
     let result = await this.schedule.list({
       criteria: [{ column: 'courseid', cop: COP.eq, value: courseId }],
-      orderBy: [{ column: 'createdat', asc: false }]
+      orderBy: [{ column: 'createdat', asc: false }],
     });
     let list: IListItem[] = [];
     if (result?.rows!) {
       result.rows.forEach((row) => {
-        list.push({ id: row.id!, value: `${row.title} - ${row.status}`, label: `${row.title} - ${row.status}`  });
+        list.push({
+          id: row.id!,
+          value: `${row.title} - ${row.status}`,
+          label: `${row.title} - ${row.status}`,
+        });
       });
     }
     this.schedule_list.set(list);
@@ -178,9 +206,9 @@ export default class List implements OnInit {
   }
 
   show(me: WritableSignal<boolean>, id?: string) {
-    if(id){
-      let row = this.list().find(x=>x.id === id);
-      this.statusForm.patchValue({ id: id, status: row?.status});
+    if (id) {
+      let row = this.list().find((x) => x.id === id);
+      this.statusForm.patchValue({ id: id, status: row?.status });
     }
     me.set(true);
   }

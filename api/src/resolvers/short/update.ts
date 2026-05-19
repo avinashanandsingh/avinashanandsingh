@@ -9,22 +9,8 @@ export default async (
   ctx: any,
 ): Promise<any> => {
   let user: any = ctx.user;
-  console.log(args.input);
-  let thumbnail = args.input.thumbnail;
-  delete args.input.thumbnail;
   let video = args.input.video;
   delete args.input.video;
-
-  if (thumbnail) {
-    const { name, type } = thumbnail!;
-    // Process the file content
-    const arrayBuffer = await thumbnail!.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-    let result = await helper.s3.upload("thumbnails", name, type, buffer);
-    if (result) {
-      args.input["thumbnail"] = `${process.env.AWS_CDN}/thumbnails/${name}`;
-    }
-  }
 
   if (video) {
     const { name, type } = video!;

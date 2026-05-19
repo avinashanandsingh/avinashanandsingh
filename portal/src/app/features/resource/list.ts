@@ -8,17 +8,22 @@ import { ResourceService } from '../../services/resource-service';
 import Filter from '../../models/filter';
 import { Loader } from '../../components/loader/loader';
 import { TitleService } from '../../services/title-service';
+import Swal from 'sweetalert2';
+import { Pager } from '../../components/pager/pager';
 
 @Component({
   selector: 'resource-list',
-  imports: [CommonModule, Dialog, ReactiveFormsModule, Upload, Loader],
+  imports: [CommonModule, Dialog, ReactiveFormsModule, Upload, Loader, Pager],
   templateUrl: './list.html',
   styleUrl: './list.css',
 })
 export default class List implements OnInit {
-  rowCount = signal<number>(0);
+  rowCount = signal<number>(1);
+  limit: number = Number(import.meta.env.NG_APP_LIMIT);
+  offset: number = 0;
+  total = signal<number>(0);
   list = signal<IResourceData[]>([]);
-  loaderDialog = signal<boolean>(false);
+  loader = signal<boolean>(false);
   formDialog = signal<boolean>(false);
   mode = signal<'ADD' | 'EDIT'>('ADD');
   dialogTitle = signal<string>('Add New Resource');
@@ -46,13 +51,13 @@ export default class List implements OnInit {
       action: async () => {
         if (this.form.invalid) return;
         let formData = this.form.getRawValue();
-        if (formData.url!.length <= 0 && this.file === null) {
+        if ((formData.url ?? '').length <= 0 && this.file === null) {
           this.msg = 'Either upload file or provide url';
         }
         var fd = new FormData();
         let input: any = {
           title: formData.title,
-          url: formData.url!.length > 0 ? formData.url : null,
+          url: formData.url ?? null,
           file: null,
         };
         let body: any = {};
@@ -87,23 +92,54 @@ export default class List implements OnInit {
         }
 
         let result: any;
-        this.show(this.loaderDialog);
+        this.show(this.loader);
         switch (this.mode()) {
           case 'ADD':
             result = await this.service.saveFormData(fd);
             if (result?.data?.addResource) {
-              alert('Resource saved successfully');
+              Swal.fire({
+                title: 'Success',
+                html: 'Resource saved successfully',
+                icon: 'success',
+                timer: 3000,
+              });
+            } else {
+              let error = result?.errors?.shift();
+              let msg = error?.extensions?.originalError?.message;
+              Swal.fire({
+                title: 'Failed',
+                html: msg,
+                icon: 'error',
+                timer: 3000,
+              });
             }
+
             break;
           case 'EDIT':
             console.log('id: ', formData.id);
             result = await this.service.saveFormData(fd);
+
             if (result?.data?.updateResource) {
-              alert('Resource updated successfully');
+              Swal.fire({
+                title: 'Success',
+                html: 'Resource updated successfully',
+                icon: 'success',
+                timer: 3000,
+              });
+            } else {
+              let error = result?.errors?.shift();
+              let msg = error?.extensions?.originalError?.message;
+              Swal.fire({
+                title: 'Failed',
+                html: msg,
+                icon: 'error',
+                timer: 3000,
+              });
             }
             break;
         }
-        this.hide(this.loaderDialog);
+        this.load({});
+        this.hide(this.loader);
         this.hide(this.formDialog);
       },
       type: 'btn btn-primary w-full',
@@ -116,9 +152,9 @@ export default class List implements OnInit {
   ) {}
   async ngOnInit(): Promise<void> {
     this.titleService.title = 'Resources';
-    this.show(this.loaderDialog);
+    this.show(this.loader);
     await this.load({});
-    this.hide(this.loaderDialog);
+    this.hide(this.loader);
   }
 
   async load(filter: Filter): Promise<void> {
@@ -128,8 +164,24 @@ export default class List implements OnInit {
       this.list.set(result.rows!);
     }
   }
+  async pageChange($event: number): Promise<void> {
+    this.offset = ($event - 1) * this.limit;
+    this.show(this.loader);
 
-  show(me: WritableSignal<boolean>, mode?: 'ADD' | 'EDIT', id?: string) {    
+    await this.load({
+      offset: this.offset,
+      limit: this.limit,
+    });
+    this.hide(this.loader);
+  }
+  async statusChange(id: string, status: string): Promise<void> {
+    console.log(id, status);
+    this.loader.set(true);
+    await this.service.changeStatus(id, status);
+    await this.load({ offset: this.offset, limit: this.limit });
+    this.loader.set(false);
+  }
+  show(me: WritableSignal<boolean>, mode?: 'ADD' | 'EDIT', id?: string) {
     if (mode!) {
       this.mode.set(mode!);
     }
@@ -137,13 +189,13 @@ export default class List implements OnInit {
     switch (mode!) {
       case 'ADD':
         this.form.reset();
-        this.dialogTitle.set('New Resource');        
+        this.dialogTitle.set('New Resource');
         break;
       case 'EDIT':
         let row = this.list().find((x) => x.id === id);
         this.form.patchValue(row!);
-        this.dialogTitle.set('Update Resource');        
-        break;      
+        this.dialogTitle.set('Update Resource');
+        break;
     }
     me.set(true);
   }
@@ -158,9 +210,9 @@ export default class List implements OnInit {
   }
 
   async delete(id: string): Promise<void> {
-    this.show(this.loaderDialog);
+    this.show(this.loader);
     let result = await this.service.delete(id);
-    this.hide(this.loaderDialog);
+    this.hide(this.loader);
     this.load({});
   }
 

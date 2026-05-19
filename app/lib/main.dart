@@ -1,19 +1,11 @@
 import 'dart:io';
 import 'package:app/components/connection_wrapper.dart';
-import 'package:app/pages/about.dart';
-import 'package:app/pages/verify_otp.dart';
 import 'package:app/helpers/globals.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:app/components/secure_route.dart';
-import 'package:app/pages/dashboard.dart';
-import 'package:app/pages/home.dart';
-import 'package:app/pages/profile.dart';
-import 'package:app/pages/signin.dart';
-import 'package:app/pages/signup.dart';
-import 'package:app/services/identity.dart';
 import 'package:app/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:app/pages/splash.dart';
+import 'package:app/helpers/globals.dart';
 
 final themeProvider = ThemeProvider();
 Future<Widget> _resolveInitialScreen() async {
@@ -35,7 +27,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       navigatorKey: navigatorKey,
-      title: 'GoldPanel',
+      title: 'Coach Avinash',
       theme: AppTheme.lightTheme,
       themeMode: themeProvider.themeMode,
       debugShowCheckedModeBanner: false,
@@ -55,7 +47,7 @@ class MyApp extends StatelessWidget {
           );
         },
       ),
-      routes: {
+      /*routes: {
         '/about': (context) => const About(),
         '/home': (context) => const Home(),
         '/signin': (context) => const SignIn(),
@@ -71,58 +63,7 @@ class MyApp extends StatelessWidget {
           onAuthCheck: (context) {},
           child: const Profile(),
         ),
-      },
+      },*/
     );
-  }
-
-  Future<bool> isConnected() async {
-    bool flag = false;
-    try {
-      final result = await InternetAddress.lookup('example.com');
-      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
-        flag = true;
-      }
-    } on SocketException catch (_) {
-      print('not connected');
-    }
-    return flag;
-  }
-}
-
-class Authorized extends StatefulWidget {
-  const Authorized({super.key});
-
-  @override
-  AuthorizedState createState() => AuthorizedState();
-}
-
-class AuthorizedState extends State<Authorized> {
-  bool _isLoading = true;
-  bool flag = false;
-  @override
-  void initState() {
-    super.initState();
-    _checkLogin();
-  }
-
-  Future<void> _checkLogin() async {
-    var result = Identity.instance.isAuthenticated;
-    print("flag ${result}");
-    setState(() {
-      flag = result;
-      _isLoading = false;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    if (_isLoading) {
-      return Scaffold(body: Center(child: CircularProgressIndicator()));
-    }
-    if (flag) {
-      return Dashboard();
-    } else {
-      return Home();
-    }
   }
 }

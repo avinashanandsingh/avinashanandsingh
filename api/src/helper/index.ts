@@ -17,6 +17,7 @@ import referral from "./referral";
 import smtp from "./smtp";
 import timeslot from "./timeslot";
 import schedule from "./schedule";
+import reaction from "./reaction";
 export default {
   enum: _enum,
   otp: otp,
@@ -39,6 +40,7 @@ export default {
   referral: referral,
   timeslot,
   schedule,
+  reaction,
   toMoney(num: number) {
     return Math.round(num * 100) / 100;
   },

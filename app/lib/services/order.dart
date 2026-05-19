@@ -1,28 +1,39 @@
 import 'package:app/models/order.dart';
 import 'package:app/services/api.dart';
+import 'package:app/utils/result.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class Order {
   final String url = dotenv.env['URL'] ?? '';
   final ApiService api = ApiService();
 
-  Future<List<OrderData>> list(dynamic filter) async {
+  Future<Result<OrderData>> list(dynamic filter) async {
     //print('called ${filter?.toJson()}');
+    Result<OrderData> out = Result<OrderData>(succeed: false);
     List<OrderData> data = [];
     dynamic body = {
       "query":
-          r'query list ($filter: Filter!) { orders(filter: $filter) { count rows { id context contextid name price order_status order_status_reason payment_status payment_status_reason paymentid orderid signature } } }',
+          r'query list ($filter: Filter!) { orders(filter: $filter) { count rows { id context contextid context_data name price order_status order_status_reason payment_status payment_status_reason paymentid orderid signature createdat } } }',
       "variables": {"filter": filter ?? {}},
     };
+
     dynamic result = await api.post(url, body);
-    if (result != null) {
+    if (result['errors'] != null) {
+      dynamic error = result!['errors']![0];
+      String msg =
+          error?['extensions']?['originalError']?['message'] ??
+          error?['message'];
+      out.succeed = false;
+      out.message = msg;
+    } else {
       dynamic rows = result?['data']['orders']?['rows'];
       for (var row in rows) {
-        print('row: ${row}');
         data.add(OrderData.fromJson(row));
       }
+      out.succeed = true;
+      out.data = data;
     }
-    return data;
+    return out;
   }
 
   Future<OrderData?> add(OrderData order) async {

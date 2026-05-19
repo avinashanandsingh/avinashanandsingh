@@ -1,6 +1,7 @@
 import 'package:app/components/action_icon_data.dart';
 import 'package:app/components/error_overlay.dart';
 import 'package:app/components/title_widget.dart';
+import 'package:app/models/user.dart';
 import 'package:app/services/identity.dart';
 import 'package:flutter/material.dart';
 import '../theme/theme.dart';
@@ -24,13 +25,13 @@ class Header extends AppBar {
            mainAxisSize: MainAxisSize.min,
            children: [
              if (isSerif) ...[
-               FutureBuilder<dynamic>(
+               FutureBuilder<UserData?>(
                  future: Identity.instance.me(),
                  builder: (context, snapshot) {
                    if (snapshot.hasData) {
                      if (snapshot.data != null) {
                        return TitleWidget(
-                         title: 'Hi, ${snapshot.data['first_name']}',
+                         title: 'Hi, ${snapshot.data!.firstName}',
                        );
                      } else {
                        return TitleWidget(title: titleText);

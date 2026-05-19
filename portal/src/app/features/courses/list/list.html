@@ -152,6 +152,17 @@
             </table>
         </div>
     </div>
+
+    <!-- Footer -->
+    @if(total()>0){
+    <div class="flex flex-col md:flex-row gap-5 justify-between items-start md:items-center mt-6">
+        <div class="flex flex-col"></div>
+        <div class="flex flex-row w-full md:w-auto  items-start md:items-center space-x-3">
+            <pager [showInfo]="false" [currentPage]="1" [totalPages]="total()" [maxVisiblePages]="5"
+                (pageChange)="pageChange($event)"></pager>
+        </div>
+    </div>
+    }
 </div>
 
 <!-- Course Add/Edit Modal -->

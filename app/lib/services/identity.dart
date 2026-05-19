@@ -2,11 +2,14 @@ import 'package:app/models/inquiry.dart';
 import 'package:app/models/invite.dart';
 import 'package:app/models/register.dart';
 import 'package:app/models/signin.dart';
+import 'package:app/models/user.dart';
+import 'package:app/pages/user/signin.dart';
 import 'package:app/services/api.dart';
 import 'package:app/services/storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
+import '../helpers/globals.dart';
 
 class Identity extends ChangeNotifier {
   final ValueNotifier<bool> _isAuthenticated = ValueNotifier<bool>(false);
@@ -35,12 +38,12 @@ class Identity extends ChangeNotifier {
 
   bool get isAuthenticated => _isAuthenticated.value;
 
-  Future<dynamic> me() async {
+  Future<UserData?> me() async {
     String? token = await store.get('token');
-    dynamic user;
+    UserData? user;
     if (token != null) {
       if (await isLoggedIn()) {
-        user = JwtDecoder.decode(token);
+        user = UserData.fromJson(JwtDecoder.decode(token));
       }
     }
     return user;
@@ -53,12 +56,12 @@ class Identity extends ChangeNotifier {
   }
 
   // Verify user is logged in
-  Future<bool> isLoggedIn() async {
+  Future<bool> isLoggedIn({Widget? target}) async {
     bool flag = false;
     String? token = await this.token() ?? '';
     if (token.isNotEmpty) {
       dynamic body = {
-        "query": 'query verify (\$token: String!) { verify (token: \$token) }',
+        "query": r'query verify ($token: String!) { verify (token: $token) }',
         "variables": {"token": token},
       };
 

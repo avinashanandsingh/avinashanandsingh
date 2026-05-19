@@ -18,7 +18,7 @@ class MeditationCircles extends StatelessWidget {
             return ListView.builder(
               scrollDirection: Axis.horizontal,
               physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 8),
               itemCount: list.length,
               itemBuilder: (context, index) {
                 return MeditationItem(

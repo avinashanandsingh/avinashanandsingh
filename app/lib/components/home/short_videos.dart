@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:app/models/short.dart';
 import 'package:app/services/service.dart';
+import 'package:app/utils/result.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../video_player_dialog.dart' as video_dialog;
@@ -65,7 +66,7 @@ class _ShortVideosState extends State<ShortVideos> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<ShortData>>(
+    return FutureBuilder<Result<ShortData>>(
       future: Service.short.list(),
       builder: (context, snapshot) {
         // ── Loading ──────────────────────────────────────────────────────────
@@ -79,7 +80,7 @@ class _ShortVideosState extends State<ShortVideos> {
         }
 
         // ── Data ─────────────────────────────────────────────────────────────
-        final videos = snapshot.data ?? [];
+        final videos = snapshot.data?.data ?? [];
         if (videos.isEmpty) return const SizedBox.shrink();
 
         return _buildVideoList(videos);
@@ -110,7 +111,7 @@ class _ShortVideosState extends State<ShortVideos> {
       child: Container(
         width: 140,
         margin: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
-        decoration: BoxDecoration(
+        /* decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
@@ -123,7 +124,7 @@ class _ShortVideosState extends State<ShortVideos> {
             image: NetworkImage(video.thumbnail),
             fit: BoxFit.cover,
           ),
-        ),
+        ) */
         child: Stack(
           children: [
             // Gradient overlay

@@ -38,11 +38,11 @@ class RazorpayService {
 
     // 3. Fallback: If init() was forgotten, initialize it now dynamically
     if (_razorpay == null) {
-      debugPrint("RazorpayService: init() wasn't called. Initializing now...");
       init();
     }
 
     try {
+      FocusManager.instance.primaryFocus?.unfocus();
       _razorpay!.open(options); // Securely use the ! operator now
     } catch (e) {
       debugPrint("Error opening Razorpay: $e");

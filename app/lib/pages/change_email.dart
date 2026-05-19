@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'verify_otp.dart';
+import 'user/verify_otp.dart';
 
 class ChangeEmail extends StatefulWidget {
   const ChangeEmail({super.key});

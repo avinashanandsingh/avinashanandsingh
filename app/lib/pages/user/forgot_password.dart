@@ -2,11 +2,11 @@ import 'package:app/components/custom_form_field.dart';
 import 'package:app/components/label.dart';
 import 'package:app/components/loader.dart';
 import 'package:app/pages/reset_password.dart';
-import 'package:app/pages/signin.dart';
+import 'package:app/pages/user/signin.dart';
 import 'package:app/services/service.dart';
 import 'package:app/utils/alert.dart';
 import 'package:flutter/material.dart';
-import '../theme/theme.dart';
+import '../../theme/theme.dart';
 
 class ForgotPassword extends StatefulWidget {
   const ForgotPassword({super.key});

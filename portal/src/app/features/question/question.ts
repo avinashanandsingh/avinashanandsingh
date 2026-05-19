@@ -17,14 +17,20 @@ import { QuestionService } from '../../services/question-service';
 import { IOptionData, IQuestionData } from '../../models/question';
 import { CourseService } from '../../services/course-service';
 import { ICourseData } from '../../models/course';
+import { Pager } from '../../components/pager/pager';
+import Criteria from '../../models/criteria';
 
 @Component({
   selector: 'app-aura',
-  imports: [CommonModule, ReactiveFormsModule, Loader, Dialog],
+  imports: [CommonModule, ReactiveFormsModule, Loader, Dialog, Pager],
   templateUrl: './question.html',
   styleUrl: './question.css',
 })
 export class Question implements OnInit {
+  limit: number = Number(import.meta.env.NG_APP_LIMIT);
+  offset: number = 0;
+  total = signal<number>(0);
+  criteria = signal<Criteria[]>([]);
   list = signal<IQuestionData[]>([]);
   course_list = signal<ICourseData[]>([]);
   typelist = signal<{ name: string; value: string }[]>([]);
@@ -103,7 +109,11 @@ export class Question implements OnInit {
           }
         }
         this.hide(this.formDialog);
-        await this.load({});
+        await this.load({
+          criteria: this.criteria(),
+          offset: this.offset,
+          limit: this.limit,
+        });
         this.hide(this.loader);
       },
       type: 'btn btn-primary w-full',
@@ -134,14 +144,36 @@ export class Question implements OnInit {
     this.course_list.set(result?.rows ?? []);
     result = await this.service.typelist();
     this.typelist.set(result ?? []);
-    await this.load({});
+    await this.load({
+      criteria: this.criteria(),
+      offset: this.offset,
+      limit: this.limit,
+    });
     this.hide(this.loader);
   }
 
-  async load(filter: Filter): Promise<void> {
+  async load(filter: Filter) {
     let result = await this.service.list(filter);
-    this.list.set(result?.rows! ?? []);
+    let rows = result?.count ?? 0;
+    if (result) {
+      this.total.set(Math.ceil(rows / this.limit));
+      this.list.set(result?.rows!);
+    } else {
+      this.list.set([]);
+    }
   }
+
+  async pageChange($event: number): Promise<void> {
+    this.offset = ($event - 1) * this.limit;
+    this.show(this.loader);
+    await this.load({
+      criteria: this.criteria(),
+      offset: this.offset,
+      limit: this.limit,
+    });
+    this.hide(this.loader);
+  }
+  
   get options(): FormArray {
     return this.parentForm.get('options') as FormArray;
   }
@@ -245,15 +277,28 @@ export class Question implements OnInit {
     if (dialog.isConfirmed) {
       this.show(this.loader);
       let result = await this.service.delete(id);
-      if (result) {
+      if (result?.data?.deleteQuestion) {
         Swal.fire({
           title: 'Success',
           html: 'Question has been deleted',
           icon: 'success',
           timer: 3000,
         });
-        await this.load({});
+        await this.load({
+          criteria: this.criteria(),
+          offset: this.offset,
+          limit: this.limit,
+        });
         this.hide(this.loader);
+      } else {
+        let error = result?.errors?.shift();
+        let msg = error?.extensions?.originalError?.message;
+        Swal.fire({
+          title: 'Failed',
+          html: msg,
+          icon: 'error',
+          timer: 3000,
+        });
       }
     }
   }

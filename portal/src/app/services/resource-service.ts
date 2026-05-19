@@ -80,6 +80,18 @@ export class ResourceService {
     let header = this.header.api();
     return await this.api.post(this.url, header, body);
   }
+  async changeStatus(id: string, status: string) {
+    let body = {
+      query:
+        'mutation changeStatus($id: UUID!, $status: Status!) { changeResourceStatus (id: $id, status: $status) { id } }',
+      variables: {
+        id: id,
+        status: status,
+      },
+    };
+    let header = this.header.api();
+    return await this.api.post(this.url, header, body);
+  }
   async delete(id: String) {
     let body = {
       query: 'mutation delete($id: UUID!) { deleteResource (id: $id) { id } }',

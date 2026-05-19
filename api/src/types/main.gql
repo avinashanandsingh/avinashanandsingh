@@ -88,6 +88,10 @@ type Query {
 
   appointment(filter: Filter!): Appointment!
   appointments(filter: Filter!): AppointmentResult!
+
+  reactionCount(filter: Filter!): Int!
+  reaction(filter: Filter!): Reaction!
+  reactions(filter: Filter!): ReactionResult!
 }
 
 type Mutation {
@@ -141,9 +145,12 @@ type Mutation {
   addShort(input: ShortIn!): Short!
   updateShort(id:UUID!, input: ShortIn!): Short!
   deleteShort(id:UUID!): Short!
+  likeShort(id:UUID!): Short!
+  dislikeShort(id:UUID!): Short!
 
   addResource(input: ResourceIn!): Resource!
   updateResource(id:UUID!, input: ResourceIn!): Resource!
+  changeResourceStatus(id:UUID!, status: Status!): Resource!
   deleteResource(id:UUID!): Resource!
 
   addSacredvibe(input: SacredvibeIn!): Sacredvibe!
@@ -183,6 +190,10 @@ type Mutation {
   newSetting(input: SettingIn!): Setting!
   updateSetting(id:UUID!, input: SettingIn!): Setting!
   deleteSetting(id:UUID!): Setting!
+
+  newReaction(input: ReactionIn!): Reaction!
+  updateReaction(id:UUID!, input: ReactionIn!): Reaction!
+  deleteReaction(id:UUID!): Reaction!
 
   addSmtp(input: SmtpIn!): Smtp!
   updateSmtp(id:UUID!, input: SmtpIn!): Smtp!

@@ -2,12 +2,12 @@ import 'package:app/components/custom_form_field.dart';
 import 'package:app/components/loader.dart';
 import 'package:app/helpers/convert.dart';
 import 'package:app/models/register.dart';
-import 'package:app/pages/verify_otp.dart';
+import 'package:app/pages/user/verify_otp.dart';
 import 'package:app/services/identity.dart';
 import 'package:app/utils/alert.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../theme/theme.dart';
+import '../../theme/theme.dart';
 
 import 'signin.dart';
 

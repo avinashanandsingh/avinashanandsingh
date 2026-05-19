@@ -1,9 +1,9 @@
 import 'package:app/models/course.dart';
+import 'package:app/pages/course.dart';
 import 'package:app/services/service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../theme/theme.dart';
-import '../../pages/course_details.dart';
 
 class CourseCard extends StatelessWidget {
   final CourseData data;
@@ -111,7 +111,7 @@ class CourseCard extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => CourseDetails(data: data),
+                        builder: (context) => Course(data: data),
                       ),
                     );
                   },

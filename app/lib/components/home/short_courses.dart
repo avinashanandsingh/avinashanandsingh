@@ -1,6 +1,6 @@
 import 'package:app/models/course.dart';
-import 'package:app/pages/course/private.dart';
-import 'package:app/pages/course/public.dart';
+import 'package:app/pages/course.dart';
+import 'package:app/pages/user/signin.dart';
 import 'package:app/services/service.dart';
 import 'package:flutter/material.dart';
 import '../../theme/theme.dart';
@@ -31,13 +31,14 @@ class ShortCourses extends StatelessWidget {
               if (flag) {
                 navigatorKey.currentState?.push(
                   MaterialPageRoute(
-                    builder: (context) => PrivateCourse(data: list[index]),
+                    builder: (context) => Course(data: list[index]),
                   ),
                 );
               } else {
                 navigatorKey.currentState?.push(
                   MaterialPageRoute(
-                    builder: (context) => PublicCourse(data: list[index]),
+                    builder: (context) =>
+                        SignIn(redirect: Course(data: list[index])),
                   ),
                 );
               }

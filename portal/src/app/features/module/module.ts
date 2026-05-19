@@ -16,15 +16,18 @@ import Swal from 'sweetalert2';
 import { TitleService } from '../../services/title-service';
 import Criteria from '../../models/criteria';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { Pager } from '../../components/pager/pager';
 
 @Component({
   selector: 'app-module',
-  imports: [CommonModule, ReactiveFormsModule, Loader, Dialog, Upload],
+  imports: [CommonModule, ReactiveFormsModule, Loader, Dialog, Upload, Pager],
   templateUrl: './module.html',
   styleUrl: './module.css',
 })
 export class Module implements OnInit {
-  rowCount = signal<number>(0);
+  limit: number = Number(import.meta.env.NG_APP_LIMIT);
+  offset: number = 0;
+  total = signal<number>(0);
   criteria = signal<Criteria[]>([]);
   list = signal<IModuleData[]>([]);
   course_list = signal<ICourseData[]>([]);
@@ -168,16 +171,17 @@ export class Module implements OnInit {
     private titleService: TitleService,
     private sanitizer: DomSanitizer,
   ) {}
-  async ngOnInit(): Promise<void> {    
+  async ngOnInit(): Promise<void> {
     this.titleService.title = 'Modules';
     this.show(this.loader);
     let result = await this.course.list({});
-      this.course_list.set(result?.rows! ?? []);
-      this.filter_course_list.set(result?.rows! ?? []);
+    this.course_list.set(result?.rows! ?? []);
+    this.filter_course_list.set(result?.rows! ?? []);
     this.hide(this.loader);
   }
 
   async filter() {
+    this.offset = 0;
     let formData = this.filterForm.getRawValue();
     let courseid = formData.filterCourseId;
     let scheduleid = formData.filterScheduleId;
@@ -201,18 +205,35 @@ export class Module implements OnInit {
     });
     this.criteria.set(criteria);
     this.show(this.loader);
-    await this.load();
+    await this.load({
+      criteria: this.criteria(),
+      offset: this.offset,
+      limit: this.limit,
+    });
     this.hide(this.loader);
   }
 
-  async load() {
-    let result = await this.service.list({ criteria: this.criteria() });
+  async load(filter: Filter) {
+    let result = await this.service.list(filter);
+    let rows = result?.count ?? 0;
     if (result) {
-      this.rowCount.set(result?.count!);
+      this.total.set(Math.ceil(rows / this.limit));
       this.list.set(result?.rows!);
     } else {
       this.list.set([]);
     }
+  }
+  
+  async pageChange($event: number): Promise<void> {
+    this.offset = ($event - 1) * this.limit;
+    this.show(this.loader);
+
+    await this.load({
+      criteria: this.criteria(),
+      offset: this.offset,
+      limit: this.limit,
+    });
+    this.hide(this.loader);
   }
 
   async load_schedules(type: 'D' | 'F', filter: Filter) {
@@ -227,14 +248,14 @@ export class Module implements OnInit {
     }
   }
 
-  async onValueChange(event: Event) : Promise<void> {    
+  async onValueChange(event: Event): Promise<void> {
     setTimeout(() => {
-    console.log(event);
-    // Perform update logic here
-  });
-    const value = (event.target as HTMLInputElement).value;    
+      console.log(event);
+      // Perform update logic here
+    });
+    const value = (event.target as HTMLInputElement).value;
     //const courseId = this.form.controls['courseid'].getRawValue();
-    this.show(this.loader);      
+    this.show(this.loader);
     await this.load_schedules('D', {
       criteria: [
         {
@@ -248,11 +269,11 @@ export class Module implements OnInit {
     this.form.controls['scheduleid'].setValue('');
   }
 
-  async filterChangeHandler( $event: Event): Promise<void> {
+  async filterChangeHandler($event: Event): Promise<void> {
     const el: any = $event.target as HTMLElement;
     const courseId = el.value;
     console.log(courseId);
-    this.show(this.loader);    
+    this.show(this.loader);
     this.filterForm.controls['filterScheduleId'].setValue('');
     await this.load_schedules('F', {
       criteria: [
@@ -269,7 +290,7 @@ export class Module implements OnInit {
   fileChange($event: File | null) {
     this.file.set($event);
   }
-  
+
   async showPlayer(id: string) {
     let row = this.list().find((x) => x.id === id);
     console.log(row);
@@ -283,7 +304,7 @@ export class Module implements OnInit {
     this.preview.set(url);
     this.playerDialog.set(true);
   }
-  async show(me: WritableSignal<boolean>, mode?: 'ADD' |'EDIT', id?: string) {    
+  async show(me: WritableSignal<boolean>, mode?: 'ADD' | 'EDIT', id?: string) {
     if (mode!) {
       this.mode.set(mode!);
     }
@@ -295,7 +316,7 @@ export class Module implements OnInit {
         });
         this.preview.set('');
         this.plainUrl.set('');
-        this.dialogTitle.set('New Module');        
+        this.dialogTitle.set('New Module');
         break;
       case 'EDIT':
         let row = this.list().find((x) => x.id === id);
@@ -320,18 +341,51 @@ export class Module implements OnInit {
         this.preview.set(url);
 
         this.hide(this.loader);
-        this.dialogTitle.set('Update Module');        
+        this.dialogTitle.set('Update Module');
         break;
     }
     me.set(true);
   }
   hide(me: WritableSignal<boolean>) {
-    me.set(false);    
+    me.set(false);
   }
   async delete(id: string): Promise<void> {
-    this.show(this.loader);
-    let result = await this.service.delete(id);
-    this.load();
-    this.hide(this.loader);
+    let dialog = await Swal.fire({
+      title: 'Are you sure, want to delete?',
+      showDenyButton: true,
+      showCancelButton: false,
+      confirmButtonText: 'Confirm',
+      denyButtonText: 'Cancel',
+      customClass: {
+        actions: 'my-actions',
+        cancelButton: 'order-1 right-gap',
+        confirmButton: 'order-2',
+        denyButton: 'order-3',
+      },
+    });
+
+    if (dialog.isConfirmed) {
+      this.show(this.loader);
+      let result = await this.service.delete(id);
+      if (result?.data?.deleteModule) {
+        Swal.fire({
+          title: 'Success',
+          html: 'Module has been deleted',
+          icon: 'success',
+          timer: 3000,
+        });
+        await this.load({});
+        this.hide(this.loader);
+      } else {
+        let error = result?.errors?.shift();
+        let msg = error?.extensions?.originalError?.message;
+        Swal.fire({
+          title: 'Failed',
+          html: msg,
+          icon: 'error',
+          timer: 3000,
+        });
+      }
+    }
   }
 }

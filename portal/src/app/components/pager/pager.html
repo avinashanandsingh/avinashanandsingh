@@ -8,11 +8,13 @@
   }
   <div class="flex items-center justify-center">
     @for(page of pages; track $index){
+    @if(page>0){
     <span [ngClass]="page === currentPage ? 'bg-blue-600 text-white' : 'bg-white text-gray-700 hover:bg-gray-100'"
       class="w-8 h-8 flex items-center justify-center rounded mx-0.5 text-sm font-medium cursor-pointer"
       [attr.aria-label]="'Go to page ' + page" (click)="goToPage(page)">
       {{ page }}
     </span>
+    }
     }
   </div>
   @if(showNavigation){

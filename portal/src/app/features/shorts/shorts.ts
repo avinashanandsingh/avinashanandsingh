@@ -10,6 +10,8 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import Swal from 'sweetalert2';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { TitleService } from '../../services/title-service';
+import Criteria from '../../models/criteria';
+import { Pager } from "../../components/pager/pager";
 
 // --- Interface ---
 interface Video {
@@ -26,17 +28,21 @@ interface Video {
 
 @Component({
   selector: 'app-shorts',
-  imports: [CommonModule, Upload, Dialog, Loader, ReactiveFormsModule],
+  imports: [CommonModule, Upload, Dialog, Loader, ReactiveFormsModule, Pager],
   templateUrl: './shorts.html',
   styleUrl: './shorts.css',
 })
 export class Shorts {
+  limit: number = Number(import.meta.env.NG_APP_LIMIT);
+  offset: number = 0;
+  total = signal<number>(0);
+  criteria = signal<Criteria[]>([]);
   // --- State ---
   videos: Video[] = [];
   list = signal<IShortData[]>([]);
   isPlayerOpen = signal<boolean>(false);
   isEditorOpen = signal<boolean>(false);
-  loaderDialog = signal<boolean>(false);
+  loader = signal<boolean>(false);
   thumbnail = signal<File | null>(null);
   video = signal<File | null>(null);
   preview = signal<SafeResourceUrl | null>(null);
@@ -57,6 +63,7 @@ export class Shorts {
   form: FormGroup = new FormGroup({
     id: new FormControl(undefined),
     title: new FormControl('', [Validators.required]),
+    description: new FormControl(''),
     url: new FormControl(''),
   });
 
@@ -75,7 +82,7 @@ export class Shorts {
         if (this.form.invalid) return;
         let formData = this.form.getRawValue();
 
-        if (formData.url!.length <= 0 && this.video() === null) {
+        if ((formData.url ?? '')!.length <= 0 && this.video() === null) {
           Swal.fire({
             title: 'Failed',
             html: 'Please upload a video file or enter a URL',
@@ -88,8 +95,8 @@ export class Shorts {
         var fd = new FormData();
         let input: any = {
           title: formData.title,
-          url: formData.url!.length > 0 ? formData.url : null,
-          thumbnail: null,
+          description: formData.description,
+          url: formData.url,
           video: null,
         };
         let body: any = {};
@@ -116,27 +123,19 @@ export class Shorts {
           };
         }
         fd.append('operations', JSON.stringify(body));
-        fd.append(
-          'map',
-          JSON.stringify({ '0': ['variables.input.thumbnail'], '1': ['variables.input.video'] }),
-        );
-        if (this.thumbnail()) {
-          fd.append('0', this.thumbnail()!, this.thumbnail()!.name);
+        fd.append('map', JSON.stringify({ '0': ['variables.input.video'] }));
+
+        if (this.video()) {
+          fd.append('0', this.video()!, this.video()!.name);
         } else {
           fd.append('0', '');
         }
 
-        if (this.video()) {
-          fd.append('1', this.video()!, this.video()!.name);
-        } else {
-          fd.append('1', '');
-        }
-
         let result: any;
-        this.show(this.loaderDialog);
+        this.show(this.loader);
+        result = await this.service.save(fd);
         switch (this.mode()) {
           case 'ADD':
-            result = await this.service.saveFormData(fd);
             if (result?.data?.addShort) {
               Swal.fire({
                 title: 'Success',
@@ -147,8 +146,6 @@ export class Shorts {
             }
             break;
           case 'EDIT':
-            console.log('id: ', formData.id);
-            result = await this.service.saveFormData(fd);
             if (result?.data?.updateShort) {
               Swal.fire({
                 title: 'Success',
@@ -161,7 +158,7 @@ export class Shorts {
         }
         this.load({});
         this.form.reset();
-        this.hide(this.loaderDialog);
+        this.hide(this.loader);
         this.hide(this.isEditorOpen);
       },
       type: 'btn btn-primary w-full',
@@ -175,19 +172,39 @@ export class Shorts {
   // --- Methods ---
   async ngOnInit(): Promise<void> {
     this.titleService.title = 'Shorts';
-    this.show(this.loaderDialog);
-    await this.load({});
-    this.hide(this.loaderDialog);
+    this.show(this.loader);
+    await this.load({
+      criteria: this.criteria(),
+      offset: this.offset,
+      limit: this.limit,
+    });
+    this.hide(this.loader);
   }
 
   ngOnDestroy(): void {
     this.videos.forEach((v) => URL.revokeObjectURL(v.thumbnailUrl));
   }
+
   async load(filter: Filter) {
     let result = await this.service.list(filter);
+    let rows = result?.count ?? 0;
     if (result) {
+      this.total.set(Math.ceil(rows / this.limit));
       this.list.set(result?.rows!);
+    } else {
+      this.list.set([]);
     }
+  }
+
+  async pageChange($event: number): Promise<void> {
+    this.offset = ($event - 1) * this.limit;
+    this.show(this.loader);
+    await this.load({
+      criteria: this.criteria(),
+      offset: this.offset,
+      limit: this.limit,
+    });
+    this.hide(this.loader);
   }
 
   // --- Open Actions ---
@@ -201,30 +218,28 @@ export class Shorts {
           if (row) {
             let final = row?.url!;
             if (row?.url!.includes('you')) {
-              let id = row?.url!.substring(
-                row?.url!.lastIndexOf('/') + 1,
-                row?.url!.length,
-              );
+              let id = row?.url!.substring(row?.url!.lastIndexOf('/') + 1, row?.url!.length);
               final = `https://www.youtube.com/embed/${id}`;
+            } else if (row?.url!.includes('vimeo')) {
+              let id = row?.url!.substring(row?.url!.lastIndexOf('/') + 1, row?.url!.length);
+              final = `https://player.vimeo.com/video/${id}`;
             }
             let url = this.sanitizer.bypassSecurityTrustResourceUrl(final);
             this.preview.set(url);
           }
           break;
         case 'ADD':
+          this.form.reset();
+          this.videoUrl.set(null);
           this.dialogTitle.set('Add New Short');
           break;
         case 'EDIT':
           let erow = this.list().find((x) => x.id === id);
-          this.thumbnailUrl.set(erow!.thumbnail);
-           let final = erow?.url!;
-            if (erow?.url!.includes('you')) {
-              let id = erow?.url!.substring(
-                erow?.url!.lastIndexOf('/') + 1,
-                erow?.url!.length,
-              );
-              final = `https://www.youtube.com/embed/${id}`;
-            }            
+          let final = erow?.url!;
+          if (erow?.url!.includes('you')) {
+            let id = erow?.url!.substring(erow?.url!.lastIndexOf('/') + 1, erow?.url!.length);
+            final = `https://www.youtube.com/embed/${id}`;
+          }
           console.log(final);
           this.videoUrl.set(final);
           this.form.patchValue(erow!);
@@ -250,12 +265,16 @@ export class Shorts {
 
   async delete(id: string): Promise<void> {
     if (confirm('Are you sure you want to delete this short?')) {
-      this.show(this.loaderDialog);
+      this.show(this.loader);
       let result = await this.service.delete(id);
       if (result) {
-        await this.load({});
+        await this.load({
+      criteria: this.criteria(),
+      offset: this.offset,
+      limit: this.limit,
+    });
       }
-      this.hide(this.loaderDialog);
+      this.hide(this.loader);
     }
   }
 

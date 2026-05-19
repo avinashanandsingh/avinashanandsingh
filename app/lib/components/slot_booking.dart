@@ -389,6 +389,7 @@ class SlotBookingState extends State<SlotBooking> {
                               context: "AURA_SCANNING",
                               contextid: item.id,
                               slotid: slot.id,
+                              slotDate: selectedDate,
                               name: "Aura Scan - ${item.name} - ${slot.name}",
                               price: item.sale,
                               orderStatus: "INITIATED",
@@ -433,7 +434,10 @@ class SlotBookingState extends State<SlotBooking> {
                                       "email": userData.email,
                                     },
                                     'theme': {'color': '#5A2A82'},
-                                    //"order_id": order.id,
+                                    'modal': {
+                                      'confirm_close': true,
+                                      'handle_back': true,
+                                    },
                                   },
                                 );
                                 /* checkout(

@@ -1,3 +1,7 @@
+import 'package:app/models/short.dart';
+import 'package:app/services/service.dart';
+import 'package:app/utils/alert.dart';
+import 'package:app/utils/result.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
@@ -5,24 +9,26 @@ import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
 import 'package:vimeo_video_player/vimeo_video_player.dart';
 
-class Reel {
+/* class Reel {
+  final String? id;
   final String url;
   final String title;
-  final String description;
+  final String? description;
   final int likes;
   final int dislikes;
 
   Reel({
+    this.id,
     required this.url,
     required this.title,
-    required this.description,
+    this.description,
     this.likes = 0,
     this.dislikes = 0,
   });
-}
+} */
 
 class ReelsPlayer extends StatefulWidget {
-  final List<Reel> reels;
+  final List<ShortData> reels;
   final int initialIndex;
 
   const ReelsPlayer({super.key, required this.reels, this.initialIndex = 0});
@@ -72,7 +78,7 @@ class _ReelsPlayerState extends State<ReelsPlayer> {
 }
 
 class ReelItem extends StatefulWidget {
-  final Reel reel;
+  final ShortData reel;
 
   const ReelItem({super.key, required this.reel});
 
@@ -212,52 +218,83 @@ class _ReelItemState extends State<ReelItem> {
                 ),
               ),
               const SizedBox(height: 8),
-              Text(
-                widget.reel.description,
-                style: GoogleFonts.lato(
-                  color: Colors.white.withAlpha(220),
-                  fontSize: 14,
+              if (widget.reel.description != null) ...[
+                Text(
+                  widget.reel.description!,
+                  style: GoogleFonts.lato(
+                    color: Colors.white.withAlpha(220),
+                    fontSize: 14,
+                  ),
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-              ),
+              ],
             ],
           ),
         ),
-
-        // Bottom Right Actions (Like, Dislike)
-        Positioned(
-          right: 16,
-          bottom: 24,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildActionButton(
-                icon: _isLiked ? Icons.thumb_up : Icons.thumb_up_outlined,
-                label: "${widget.reel.likes + (_isLiked ? 1 : 0)}",
-                color: _isLiked ? Colors.blue : Colors.white,
-                onTap: () {
-                  setState(() {
-                    _isLiked = !_isLiked;
-                    if (_isLiked) _isDisliked = false;
-                  });
-                },
-              ),
-              const SizedBox(height: 20),
-              _buildActionButton(
-                icon: _isDisliked
-                    ? Icons.thumb_down
-                    : Icons.thumb_down_outlined,
-                label: "Dislike",
-                color: _isDisliked ? Colors.red : Colors.white,
-                onTap: () {
-                  setState(() {
-                    _isDisliked = !_isDisliked;
-                    if (_isDisliked) _isLiked = false;
-                  });
-                },
-              ),
-              const SizedBox(height: 20),
+        FutureBuilder(
+          future: Service.identity.isLoggedIn(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              );
+            } else if (snapshot.hasData) {
+              if (snapshot.data!) {
+                return Positioned(
+                  right: 16,
+                  bottom: 24,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _buildActionButton(
+                        icon: _isLiked
+                            ? Icons.thumb_up
+                            : Icons.thumb_up_outlined,
+                        label: "${widget.reel.likes + (_isLiked ? 1 : 0)}",
+                        color: _isLiked ? Colors.blue : Colors.white,
+                        onTap: () async {
+                          Result result = await Service.reaction.like(
+                            'SHORT_VIDEO',
+                            widget.reel.id!,
+                          );
+                          if (result.succeed) {
+                            setState(() {
+                              _isLiked = !_isLiked;
+                              if (_isLiked) _isDisliked = false;
+                            });
+                          } else {
+                            Alert.show(result.message!, isError: true);
+                          }
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      _buildActionButton(
+                        icon: _isDisliked
+                            ? Icons.thumb_down
+                            : Icons.thumb_down_outlined,
+                        label: "Dislike",
+                        color: _isDisliked ? Colors.red : Colors.white,
+                        onTap: () async {
+                          Result result = await Service.reaction.dislike(
+                            'SHORT_VIDEO',
+                            widget.reel.id!,
+                          );
+                          if (result.succeed) {
+                            setState(() {
+                              _isDisliked = !_isDisliked;
+                              if (_isDisliked) _isLiked = false;
+                            });
+                          } else {
+                            Alert.show(result.message!, isError: true);
+                          }
+                        },
+                      ),
+                      const SizedBox(height: 8),
+                      /* const SizedBox(height: 20),
               _buildActionButton(
                 icon: Icons.share_outlined,
                 label: "Share",
@@ -274,10 +311,20 @@ class _ReelItemState extends State<ReelItem> {
                 onTap: () {
                   // Handle More
                 },
-              ),
-            ],
-          ),
+              ), */
+                    ],
+                  ),
+                );
+              } else {
+                return Container();
+              }
+            } else {
+              return Container();
+            }
+          },
         ),
+
+        // Bottom Right Actions (Like, Dislike)
       ],
     );
   }

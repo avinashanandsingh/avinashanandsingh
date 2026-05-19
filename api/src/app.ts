@@ -11,7 +11,6 @@ import requestIp from "request-ip";
 import cors from "cors";
 import typeDefs from "./types/index";
 import resolvers from "./resolvers/index";
-// import helper from "./helper/index";
 import { rateLimit } from "express-rate-limit";
 
 import cluster from "node:cluster";

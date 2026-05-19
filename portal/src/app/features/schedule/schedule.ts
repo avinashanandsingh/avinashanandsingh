@@ -14,15 +14,18 @@ import Criteria from '../../models/criteria';
 import { COP, LOP } from '../../models/enum';
 import { geDate } from '../../validator/date/date_ge';
 import { leDate } from '../../validator/date/date_le';
+import { Pager } from '../../components/pager/pager';
 
 @Component({
   selector: 'app-schedule',
-  imports: [CommonModule, ReactiveFormsModule, Dialog, Loader],
+  imports: [CommonModule, ReactiveFormsModule, Dialog, Loader, Pager],
   templateUrl: './schedule.html',
   styleUrl: './schedule.css',
 })
 export class Schedule implements OnInit {
-  rowCount = signal<number>(1);
+  limit: number = Number(import.meta.env.NG_APP_LIMIT);
+  offset: number = 0;
+  total = signal<number>(0);
   list = signal<ISchdeuleData[]>([]);
   course_list = signal<ICourseData[]>([]);
   schedule = signal<ISchdeuleData | null>(null);
@@ -185,10 +188,17 @@ export class Schedule implements OnInit {
     if (result) {
       this.course_list.set(result.rows!);
     }
-    await this.load({ orderBy: [{ column: 'start_date', asc: false }] });
+    await this.load({
+      criteria: this.criteria(),
+      orderBy: [{ column: 'start_date', asc: false }],
+      offset: this.offset,
+      limit: this.limit,
+    });
+
     this.hide(this.loader);
   }
   async filter() {
+    this.offset = 0;
     let formData = this.filterForm.getRawValue();
     let keys = Object.keys(formData);
     let criteria: Criteria[] = [];
@@ -217,23 +227,46 @@ export class Schedule implements OnInit {
     });
     this.show(this.loader);
     this.criteria.set(criteria);
-    await this.load({ criteria: criteria, orderBy: [{ column: 'start_date', asc: false }] });
+    await this.load({
+      criteria: criteria,
+      orderBy: [{ column: 'start_date', asc: false }],
+      offset: this.offset,
+      limit: this.limit,
+    });
     this.hide(this.loader);
   }
   async load(filter: Filter): Promise<void> {
     let result = await this.service.list(filter);
     if (result) {
-      this.rowCount.set(result.count!);
+      let rows = result?.count ?? 0;
+      this.total.set(Math.ceil(rows / this.limit));
       this.list.set(result.rows!);
     } else {
       this.list.set([]);
     }
   }
+
+  async pageChange($event: number): Promise<void> {
+    this.offset = ($event - 1) * this.limit;
+    this.show(this.loader);
+
+    await this.load({
+      criteria: this.criteria(),
+      offset: this.offset,
+      limit: this.limit,
+    });
+    this.hide(this.loader);
+  }
+
   async statusChange(id: string, status: string): Promise<void> {
-    console.log(id, status);
     this.loader.set(true);
     await this.service.changeStatus(id, status);
-    await this.load({criteria: this.criteria()});
+    await this.load({
+      criteria: this.criteria(),
+      orderBy: [{ column: 'start_date', asc: false }],
+      offset: this.offset,
+      limit: this.limit,
+    });
     this.loader.set(false);
   }
   showStatusDialog(id: string) {
@@ -278,7 +311,7 @@ export class Schedule implements OnInit {
     }
   }
   dateHandler(type: 'S' | 'E' | 'D', $event: any) {
-    console.log(type, $event.target.value);
+    //console.log(type, $event.target.value);
     let mxd = new Date($event.target.value);
     this.maxDate.set(new Date(mxd.setDate(new Date().getDate()) - 1));
     /* switch (type) {
@@ -289,9 +322,47 @@ export class Schedule implements OnInit {
   }
 
   async delete(id: string): Promise<void> {
-    this.show(this.loader);
-    let result = await this.service.delete(id);
-    this.hide(this.loader);
-    this.load({});
+    let dialog = await Swal.fire({
+      title: 'Are you sure, want to delete?',
+      showDenyButton: true,
+      showCancelButton: false,
+      confirmButtonText: 'Confirm',
+      denyButtonText: 'Cancel',
+      customClass: {
+        actions: 'my-actions',
+        cancelButton: 'order-1 right-gap',
+        confirmButton: 'order-2',
+        denyButton: 'order-3',
+      },
+    });
+
+    if (dialog.isConfirmed) {
+      this.show(this.loader);
+      let result = await this.service.delete(id);
+      if (result?.data?.deleteSchedule) {
+        Swal.fire({
+          title: 'Success',
+          html: 'Schedule has been deleted',
+          icon: 'success',
+          timer: 3000,
+        });
+        await this.load({
+          criteria: this.criteria(),
+          orderBy: [{ column: 'start_date', asc: false }],
+          offset: this.offset,
+          limit: this.limit,
+        });
+        this.hide(this.loader);
+      } else {
+        let error = result?.errors?.shift();
+        let msg = error?.extensions?.originalError?.message;
+        Swal.fire({
+          title: 'Failed',
+          html: msg,
+          icon: 'error',
+          timer: 3000,
+        });
+      }
+    }
   }
 }

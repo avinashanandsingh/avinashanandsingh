@@ -11,7 +11,7 @@ const reader = new Pool({
   password: process.env.DB_PASS,
   database: process.env.DB_NAME,
   keepAlive: true,
-  max: 20,
+  max: 10,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
   ssl: {
@@ -28,7 +28,7 @@ const writer = new Pool({
   password: process.env.DB_PASS,
   database: process.env.DB_NAME,
   keepAlive: true,
-  max: 20,
+  max: 10,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
   ssl: {

@@ -6,6 +6,7 @@ class MeditationData {
   bool? free;
   double? price;
   double? offer;
+  double get sale => (offer! > 0 && offer! <= price!) ? offer! : price!;
 
   MeditationData({
     this.id,

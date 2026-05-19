@@ -1,9 +1,11 @@
 import 'package:app/models/course.dart';
+import 'package:app/pages/course.dart';
+import 'package:app/pages/user/signin.dart';
 import 'package:app/services/service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../theme/theme.dart';
-import '../../pages/course_details.dart';
+import '../../helpers/globals.dart';
 
 class AbundanceCard extends StatelessWidget {
   final CourseData data;
@@ -106,13 +108,22 @@ class AbundanceCard extends StatelessWidget {
                 );
               } else if (snapshot.hasData) {
                 return ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => CourseDetails(data: data),
-                      ),
-                    );
+                  onPressed: () async {
+                    bool flag = await Service.identity.isLoggedIn();
+                    if (flag) {
+                      navigatorKey.currentState?.push(
+                        MaterialPageRoute(
+                          builder: (context) => Course(data: data),
+                        ),
+                      );
+                    } else {
+                      navigatorKey.currentState?.push(
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              SignIn(redirect: Course(data: data)),
+                        ),
+                      );
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primary,
@@ -139,38 +150,6 @@ class AbundanceCard extends StatelessWidget {
             },
           ),
           const SizedBox(height: 24),
-          /* Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 8,
-                height: 8,
-                decoration: const BoxDecoration(
-                  color: AppColors.accentGold,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Container(
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  shape: BoxShape.circle,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Container(
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade300,
-                  shape: BoxShape.circle,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 24), */
         ],
       ),
     );

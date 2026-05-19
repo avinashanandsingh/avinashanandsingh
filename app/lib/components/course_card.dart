@@ -1,6 +1,6 @@
 import 'package:app/models/course.dart';
-import 'package:app/pages/course/private.dart';
-import 'package:app/pages/course/public.dart';
+import 'package:app/pages/course.dart';
+import 'package:app/pages/user/signin.dart';
 import 'package:app/services/service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -102,14 +102,12 @@ class CourseCard extends StatelessWidget {
             bool flag = await Service.identity.isLoggedIn();
             if (flag) {
               navigatorKey.currentState?.push(
-                MaterialPageRoute(
-                  builder: (context) => PrivateCourse(data: data),
-                ),
+                MaterialPageRoute(builder: (context) => Course(data: data)),
               );
             } else {
               navigatorKey.currentState?.push(
                 MaterialPageRoute(
-                  builder: (context) => PublicCourse(data: data),
+                  builder: (context) => SignIn(redirect: Course(data: data)),
                 ),
               );
             }

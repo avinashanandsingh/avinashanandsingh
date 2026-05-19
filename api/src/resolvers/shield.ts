@@ -29,7 +29,7 @@ export default async (parent: any, args: any, ctx: any, info: any) => {
       let user: User;
       let token = authorization.replace("Bearer", "").trim();
       //let verified!: string;
-      //try {
+      try {
 
       jwt.verify(token, process.env.JWT_SECRET!);
       user = jwt.decode(token) as User;      
@@ -50,7 +50,7 @@ export default async (parent: any, args: any, ctx: any, info: any) => {
           }
         }
       }
-      /* } catch (e) {
+       } catch (e) {
         console.log(e);
         throw new GraphQLError("An error occured", {
           extensions: {
@@ -60,7 +60,7 @@ export default async (parent: any, args: any, ctx: any, info: any) => {
             },
           },
         });
-      } */
+      }
       result = await resolver?.execute(parent, args, ctx, info);
     }
   } else {

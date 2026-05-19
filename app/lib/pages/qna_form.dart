@@ -3,15 +3,21 @@ import 'dart:convert';
 import 'package:app/components/custom_form_field.dart';
 import 'package:app/components/label.dart';
 import 'package:app/components/loader.dart';
+import 'package:app/helpers/enroll.dart';
+import 'package:app/models/course.dart';
 import 'package:app/models/enroll.dart';
+import 'package:app/models/order.dart';
 import 'package:app/models/qna.dart';
 import 'package:app/models/schedule.dart';
+import 'package:app/models/user.dart';
 import 'package:app/pages/home.dart';
+import 'package:app/services/razorpay.dart';
 import 'package:app/services/service.dart';
 import 'package:app/utils/alert.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:app/helpers/globals.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
 
 class UserQnA {
   final String? id;
@@ -33,13 +39,13 @@ class UserQnA {
 
 class QnaForm extends StatefulWidget {
   final List<QnaData> data;
-  final String? courseId;
+  final CourseData? course;
   final String? scheduleId;
 
   const QnaForm({
     super.key,
     required this.data,
-    required this.courseId,
+    required this.course,
     this.scheduleId,
   });
 
@@ -49,10 +55,11 @@ class QnaForm extends StatefulWidget {
 
 class QnaFormState extends State<QnaForm> {
   List<UserQnA> model = List.empty(growable: true);
+  bool paid = false;
   @override
   void initState() {
     super.initState();
-
+    paid = false;
     for (var item in widget.data) {
       model.add(
         UserQnA(
@@ -137,55 +144,33 @@ class QnaFormState extends State<QnaForm> {
           ElevatedButton(
             onPressed: () async {
               Loader.show();
-              EnrollData enrol = EnrollData();
-              enrol.courseId = widget.courseId;
-              var course = await Service.course.get({
-                "criteria": [
-                  {"column": "id", "cop": "eq", "value": widget.courseId},
-                ],
-              });
-
-              ScheduleData? schedule = await Service.schedule.get({
-                "criteria": [
-                  {"column": "courseid", "cop": "eq", "value": widget.courseId},
-                  {
-                    "column": "status",
-                    "cop": "eq",
-                    "lop": "AND",
-                    "value": "ACTIVE",
-                  },
-                ],
-              });
-
-              enrol.scheduleId = schedule?.id;
-              var today = DateTime.now();
-              enrol.enrolledat = DateFormat("yyyy-MM-dd").format(today);
-              if ((course?.validity ?? 0) > 0) {
-                var exp = today.add(Duration(days: course?.validity ?? 0));
-                enrol.expiredat = DateFormat("yyyy-MM-dd").format(exp);
-              }
               for (var item in model) {
                 item.options?.removeWhere((z) => z.isChecked == false);
               }
-
               String qnaData = jsonEncode(
                 model.map((u) => u.toJson()).toList(),
               );
-              enrol.qna = qnaData;
-
-              var result = await Service.course.enroll(enrol);
-
+              var result = await EnrollHelper.initiate(
+                widget.course!.id!,
+                qnaData: qnaData,
+              );
               Loader.hide();
-              if (result['errors'] != null) {
-                dynamic error = result!['errors']![0];
-                String msg =
-                    error?['extensions']?['originalError']?['message'] ??
-                    error?['message'];
-                Alert.show(msg, isError: true);
+              if (result.succeed) {
+                checkout();
+                if (paid) {
+                  Loader.show();
+                  EnrollHelper.enrolled(result.id!);
+                  setState(() {
+                    paid = false;
+                  });
+                  Alert.show("Your enrollment is complete.", isError: false);
+                  Loader.hide();
+                  navigatorKey.currentState?.push(
+                    MaterialPageRoute(builder: (context) => Home()),
+                  );
+                }
               } else {
-                navigatorKey.currentState?.push(
-                  MaterialPageRoute(builder: (context) => Home()),
-                );
+                Alert.show(result.message!, isError: true);
               }
             },
             style: ButtonStyle(
@@ -201,5 +186,103 @@ class QnaFormState extends State<QnaForm> {
         ],
       ),
     );
+  }
+
+  void checkout() async {
+    bool bought = await Service.order.bought(widget.course!.id!, "COURSE");
+    if (bought) {
+      Alert.show(
+        "You're enrolled! Jump back into your learning.",
+        isError: false,
+      );
+    } else {
+      var payment = await Service.setting.get('PAYMENT');
+      dynamic user = await Service.identity.me();
+
+      var orderData = OrderData(
+        context: "COURSE",
+        contextid: widget.course!.id!,
+        price: widget.course!.sale,
+        orderStatus: "INITIATED",
+        orderStatusReason: 'Your order has been initiated and awaiting payment',
+        paymentStatus: "PENDING",
+        createdat: DateTime.now(),
+      );
+      var order = await Service.order.add(orderData);
+
+      if (order?.id == null) {
+        Alert.show("Failed to create order. Please try again.", isError: true);
+      } else {
+        if (payment == 'ON') {
+          await Service.store.set("latest_order_id", order!.id!);
+          var userData = UserData.fromJson(user);
+          RazorpayService.instance.startPayment(
+            onSuccess: handlePaymentSuccess,
+            onFailure: handlePaymentError,
+            options: {
+              'key': dotenv.env['RAZORPAY_KEY'] ?? '', // Replace with your key
+              'currency': 'INR',
+              'amount':
+                  1 * 100, // amount in the smallest currency unit amount * 100
+              'name': dotenv.env['COMPANY'] ?? '',
+              'description': "Course - ${widget.course!.title}",
+              'timeout': 300, // in seconds
+              'prefill': {
+                "name":
+                    "${userData.firstName ?? ''} ${userData.lastName ?? ''}",
+                "contact": userData.phone,
+                "email": userData.email,
+              },
+              'theme': {'color': '#5A2A82'},
+              'modal': {'confirm_close': true, 'handle_back': true},
+            },
+          );
+        }
+      }
+    }
+  }
+
+  void handlePaymentSuccess(PaymentSuccessResponse response) async {
+    setState(() {
+      paid = true;
+    });
+    String? orderId = await Service.store.get("latest_order_id");
+    OrderData orderData = OrderData(
+      orderStatus: "CONFIRMED",
+      orderStatusReason: 'Your payment was successful and order is confirmed',
+      paymentStatus: "PAID",
+      paymentStatusReason: 'Your payment was successful',
+      paymentid: response.paymentId,
+      signature: response.signature,
+      updatedat: DateTime.now(),
+    );
+    OrderData? order = await Service.order.update(orderId!, orderData);
+    if (order?.id == null) {
+      Alert.show(
+        "Payment was successful but failed to update order. Please contact support.",
+        isError: true,
+      );
+    } else {
+      Alert.show(
+        "Payment Successful! Your order is confirmed.",
+        isError: false,
+      );
+    }
+  }
+
+  void handlePaymentError(PaymentFailureResponse response) async {
+    if (response.code == 0) {
+      String? orderId = await Service.store.get("latest_order_id");
+      OrderData orderData = OrderData(
+        paymentStatus: "CANCELLED",
+        paymentStatusReason: response.message,
+        updatedat: DateTime.now(),
+      );
+      OrderData? order = await Service.order.update(orderId!, orderData);
+      if (order != null) {
+        Alert.show("Payment cancelled.", isError: false);
+      }
+    }
+    Alert.show("Payment Failed: ${response.message}", isError: true);
   }
 }

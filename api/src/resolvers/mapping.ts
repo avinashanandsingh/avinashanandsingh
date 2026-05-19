@@ -31,6 +31,7 @@ import { UserRole } from "../models/enum";
 import meditation from "./meditation";
 import order from "./order";
 import appointment from "./appointment";
+import reaction from "./reaction";
 
 const mapping = [
   {
@@ -493,7 +494,7 @@ const mapping = [
     name: "changeEnrollmentStatus",
     execute: entrollment.changeStatus,
     include: true,
-    role: UserRole.ADMINISTRATOR,
+    role: UserRole.ANONYMOUS,
   },
   {
     name: "meditations",
@@ -564,13 +565,13 @@ const mapping = [
   {
     name: "resources",
     execute: resource.list,
-    include: true,
+    include: false,
     role: UserRole.ANONYMOUS,
   },
   {
     name: "resource",
     execute: resource.get,
-    include: true,
+    include: false,
     role: UserRole.ANONYMOUS,
   },
   {
@@ -586,7 +587,49 @@ const mapping = [
     role: UserRole.ADMINISTRATOR,
   },
   {
+    name: "changeResourceStatus",
+    execute: resource.changeStatus,
+    include: true,
+    role: UserRole.ADMINISTRATOR,
+  },
+  {
     name: "deleteResource",
+    execute: resource.delete,
+    include: true,
+    role: UserRole.ADMINISTRATOR,
+  },
+  {
+    name: "reactions",
+    execute: reaction.list,
+    include: false,
+    role: UserRole.ANONYMOUS,
+  },
+  {
+    name: "reaction",
+    execute: reaction.get,
+    include: false,
+    role: UserRole.ANONYMOUS,
+  },
+  {
+    name: "reactionCount",
+    execute: reaction.count,
+    include: false,
+    role: UserRole.ANONYMOUS,
+  },
+  {
+    name: "newReaction",
+    execute: reaction.add,
+    include: true,
+    role: UserRole.ANONYMOUS,
+  },
+  {
+    name: "updateReaction",
+    execute: reaction.update,
+    include: true,
+    role: UserRole.ANONYMOUS,
+  },
+  {
+    name: "deleteReaction",
     execute: resource.delete,
     include: true,
     role: UserRole.ADMINISTRATOR,

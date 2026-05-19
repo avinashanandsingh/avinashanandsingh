@@ -12,15 +12,20 @@ import { Upload } from '../../../components/upload/upload';
 import { Loader } from '../../../components/loader/loader';
 import Swal from 'sweetalert2';
 import { TitleService } from '../../../services/title-service';
+import { Pager } from '../../../components/pager/pager';
+import Criteria from '../../../models/criteria';
 
 @Component({
   selector: 'app-course',
-  imports: [CommonModule, NgClass, Dialog, ReactiveFormsModule, Upload, Loader],
+  imports: [CommonModule, NgClass, Dialog, ReactiveFormsModule, Upload, Loader, Pager],
   templateUrl: './list.html',
   styleUrl: './list.css',
 })
 export default class Course implements OnInit {
-  rowCount = signal<number>(0);
+  limit: number = Number(import.meta.env.NG_APP_LIMIT);
+  offset: number = 0;
+  total = signal<number>(0);
+  criteria = signal<Criteria[]>([]);
   list = signal<ICourseData[]>([]);
   category_list = signal<any>([]);
   levels = signal<{ name: string; value: string }[]>([]);
@@ -121,7 +126,7 @@ export default class Course implements OnInit {
             fd.append('1', this.video()!, this.video()?.name!);
           } else {
             fd.append('1', '');
-          }          
+          }
           let result = await this.service.save(fd);
           if (result?.data?.addCourse) {
             Swal.fire({
@@ -160,7 +165,11 @@ export default class Course implements OnInit {
 
           this.form.reset();
           this.hide(this.formDialog);
-          this.load({});
+          await this.load({
+            criteria: this.criteria(),
+            offset: this.offset,
+            limit: this.limit,
+          });
           this.hide(this.loader);
         }
       },
@@ -199,18 +208,38 @@ export default class Course implements OnInit {
     //let result = await this.categoryService.list({});
     //this.category_list.set(result?.rows);
     this.levels.set(await this.service.levels());
-    await this.load({});
+    await this.load({
+      criteria: this.criteria(),
+      offset: this.offset,
+      limit: this.limit,
+    });
     this.loader.set(false);
   }
 
   // --- Methods ---
-  async load(filter: Filter): Promise<void> {
+  async load(filter: Filter) {
     let result = await this.service.list(filter);
+    let rows = result?.count ?? 0;
     if (result) {
-      this.rowCount.set(result.count!);
-      this.list.set(result.rows!);
+      this.total.set(Math.ceil(rows / this.limit));
+      this.list.set(result?.rows!);
+    } else {
+      this.list.set([]);
     }
   }
+
+  async pageChange($event: number): Promise<void> {
+    this.offset = ($event - 1) * this.limit;
+    this.show(this.loader);
+
+    await this.load({
+      criteria: this.criteria(),
+      offset: this.offset,
+      limit: this.limit,
+    });
+    this.hide(this.loader);
+  }
+  
   async archive(id: string): Promise<void> {
     this.show(this.loader);
     let result = await this.service.archive(id);
@@ -231,7 +260,11 @@ export default class Course implements OnInit {
         timer: 3000,
       });
     }
-    this.load({});
+    await this.load({
+      criteria: this.criteria(),
+      offset: this.offset,
+      limit: this.limit,
+    });
     this.hide(this.loader);
   }
 
@@ -255,7 +288,11 @@ export default class Course implements OnInit {
         timer: 3000,
       });
     }
-    this.load({});
+    await this.load({
+      criteria: this.criteria(),
+      offset: this.offset,
+      limit: this.limit,
+    });
     this.hide(this.loader);
   }
 
@@ -270,7 +307,7 @@ export default class Course implements OnInit {
     }
   }
 
-  async show(me: WritableSignal<boolean>, mode?: 'PLAY' | 'ADD' | 'EDIT', id?: string) {    
+  async show(me: WritableSignal<boolean>, mode?: 'PLAY' | 'ADD' | 'EDIT', id?: string) {
     me.set(true);
     if (mode) {
       this.mode.set(mode);
@@ -280,7 +317,7 @@ export default class Course implements OnInit {
     switch (mode!) {
       case 'ADD':
         this.form.reset({
-          level:'',
+          level: '',
           certified: false,
           free: false,
           short: false,
@@ -309,12 +346,12 @@ export default class Course implements OnInit {
       case 'EDIT':
         row = this.list().find((x) => x.id === id);
         this.form.patchValue(row!);
-        console.log(row);        
+        console.log(row);
         this.showLevel.set(row?.short);
-        if(row?.short){
+        if (row?.short) {
           this.form.controls['level'].setValue('');
         }
-        this.showPrice.set(row?.free);        
+        this.showPrice.set(row?.free);
         this.thumbnailUrl.set(row?.thumbnail!);
         this.videoUrl.set(row?.url!);
         this.dialogTitle.set('Update Course');

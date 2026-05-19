@@ -1,10 +1,10 @@
 import 'package:app/components/course_card.dart';
 import 'package:app/components/home/branding_item.dart';
-import 'package:app/components/home/course_container.dart';
 import 'package:app/components/home/section.dart';
 import 'package:app/components/resource_carousel.dart';
 import 'package:app/models/branding.dart';
 import 'package:app/models/course.dart';
+import 'package:app/models/resource.dart';
 import 'package:app/models/sacredvibe.dart';
 import 'package:app/services/service.dart';
 import 'package:flutter/material.dart';
@@ -71,7 +71,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                     );
                   } else if (snapshot.hasData) {
                     List<BrandingData> list = snapshot.data!;
-                    return HeroCard(
+                    return HeroCard<BrandingItem>(
                       pulseAnimation: _pulseAnimation,
                       items: list
                           .map(
@@ -90,18 +90,34 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                 },
               ),
             ),
-            ResourceCarousel(
-              items: [
-                ResourceCarouselItem(
-                  title: "Meditation Guide",
-                  url: "https://example.com/guide.pdf",
-                ),
-                ResourceCarouselItem(
-                  title: "Sleep Soundtrack",
-                  url: "https://example.com/sleep.mp3",
-                ),
-              ],
+            FutureBuilder(
+              future: Service.resource.list(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  );
+                } else if (snapshot.hasData) {
+                  List<ResourceData> list = snapshot.data!;
+                  return ResourceCarousel(
+                    items: list
+                        .map(
+                          (item) => ResourceCarouselItem(
+                            title: item.title,
+                            url: item.url,
+                          ),
+                        )
+                        .toList(),
+                  );
+                } else {
+                  return Container();
+                }
+              },
             ),
+
             const SizedBox(height: 8),
             Section(
               title: "SHORT COURSES",
@@ -174,6 +190,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
               title: "MEDITATION",
               subtitle: "Guided practices to centre your mind & energy.",
             ),
+            const SizedBox(height: 8),
             FutureBuilder(
               future: Service.meditation.list(),
               builder: (context, snapshot) {
@@ -269,7 +286,7 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                     ),
                   );
                 } else if (snapshot.hasData) {
-                  return CourseContainer(
+                  return HeroCard<CourseCard>(
                     pulseAnimation: _pulseAnimation,
                     items: [
                       for (var item in snapshot.data!) ...[
@@ -281,28 +298,6 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                 return Container();
               },
             ),
-
-            /* FutureBuilder(
-              future: Service.course.get({
-                "criteria": [
-                  {"column": "level", "cop": "eq", "value": "L2"},
-                ],
-              }),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    ),
-                  );
-                } else if (snapshot.hasData) {
-                  CourseData item = snapshot.data!;
-                  return CourseCard(data: item);
-                }
-                return Container();
-              },
-            ), */
             const SizedBox(height: 48),
           ],
         ),

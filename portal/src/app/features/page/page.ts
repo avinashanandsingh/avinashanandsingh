@@ -11,21 +11,27 @@ import { SafePipe } from '../../pipe/safe-pipe';
 import { IPageData } from '../../models/page';
 import { PageService } from '../../services/page-service';
 import { TitleService } from '../../services/title-service';
+import { Pager } from '../../components/pager/pager';
+import Criteria from '../../models/criteria';
 
 @Component({
   selector: 'app-page',
-  imports: [CommonModule, ReactiveFormsModule, Dialog, Loader, SafePipe],
+  imports: [CommonModule, ReactiveFormsModule, Dialog, Loader, SafePipe, Pager],
   templateUrl: './page.html',
   styleUrl: './page.css',
 })
 export class Page implements OnInit {
-  rowCount = signal<number>(0)
+  limit: number = Number(import.meta.env.NG_APP_LIMIT);
+  offset: number = 0;
+  total = signal<number>(0);
+  criteria = signal<Criteria[]>([]);
+
   list = signal<IPageData[]>([]);
   item = signal<IPageData | null>(null);
   typelist = signal<{ name: string; value: string }[]>([]);
   categorylist = signal<{ name: string; value: string }[]>([]);
 
-  loaderDialog = signal<boolean>(false);
+  loader = signal<boolean>(false);
   formDialog = signal<boolean>(false);
   dialogTitle = signal<string>('New Template');
   mode = signal<'ADD' | 'EDIT' | 'VIEW'>('ADD');
@@ -33,7 +39,7 @@ export class Page implements OnInit {
   trustedHtml = signal<string>('');
   form: FormGroup = new FormGroup({
     id: new FormControl(undefined),
-    type: new FormControl('', [Validators.required]),    
+    type: new FormControl('', [Validators.required]),
     title: new FormControl('', [Validators.required]),
     body: new FormControl('', [Validators.required]),
   });
@@ -70,28 +76,43 @@ export class Page implements OnInit {
 
   constructor(
     private service: PageService,
-    private titleService:TitleService,
+    private titleService: TitleService,
     private sanitizer: DomSanitizer,
   ) {}
   async ngOnInit(): Promise<void> {
-    this.titleService.title ="Pages"
-    this.show(this.loaderDialog);
+    this.titleService.title = 'Pages';
+    this.show(this.loader);
     await this.load({});
-    this.typelist.set(await this.service.typelist());    
-    this.hide(this.loaderDialog);
+    this.typelist.set(await this.service.typelist());
+    this.hide(this.loader);
   }
+
   async load(filter: Filter) {
     let result = await this.service.list(filter);
+    let rows = result?.count ?? 0;
     if (result) {
-      this.rowCount.set(result?.count!);
+      this.total.set(Math.ceil(rows / this.limit));
       this.list.set(result?.rows!);
+    } else {
+      this.list.set([]);
     }
+  }
+
+  async pageChange($event: number): Promise<void> {
+    this.offset = ($event - 1) * this.limit;
+    this.show(this.loader);
+    await this.load({
+      criteria: this.criteria(),
+      offset: this.offset,
+      limit: this.limit,
+    });
+    this.hide(this.loader);
   }
 
   onTabClick(id: string) {
     this.activeTab.set(id);
     if (id == 'Preview') {
-      const rawHtml = this.form.controls['body'].getRawValue();      
+      const rawHtml = this.form.controls['body'].getRawValue();
       this.trustedHtml.set(rawHtml);
     }
   }
@@ -103,9 +124,9 @@ export class Page implements OnInit {
     };
 
     let result: any;
-    this.show(this.loaderDialog);
+    this.show(this.loader);
     let id = formData.id;
-    if (id) {      
+    if (id) {
       result = await this.service.update(input);
       if (result?.data?.updateTemplate) {
         Swal.fire({
@@ -128,7 +149,7 @@ export class Page implements OnInit {
       }
     }
     await this.load({});
-    this.hide(this.loaderDialog);
+    this.hide(this.loader);
     this.form.reset({
       type: '',
       category: '',
@@ -143,21 +164,21 @@ export class Page implements OnInit {
     }
     this.mode.set(mode!);
     switch (mode!) {
-      case 'ADD':        
+      case 'ADD':
         this.form.reset({
           type: '',
-          body: ''      
+          body: '',
         });
         this.trustedHtml.set('');
         this.dialogTitle.set('New Page');
         break;
       case 'EDIT':
-        this.show(this.loaderDialog);
-        this.typelist.set(await this.service.typelist());        
-        this.hide(this.loaderDialog);
+        this.show(this.loader);
+        this.typelist.set(await this.service.typelist());
+        this.hide(this.loader);
         this.form.patchValue(row!);
         this.dialogTitle.set('Update Page');
-        break;      
+        break;
     }
     me.set(true);
   }
@@ -166,7 +187,7 @@ export class Page implements OnInit {
     me.set(false);
   }
 
-  async delete(id: string) {
+  async delete(id: string): Promise<void> {
     let dialog = await Swal.fire({
       title: 'Are you sure, want to delete?',
       showDenyButton: true,
@@ -180,14 +201,32 @@ export class Page implements OnInit {
         denyButton: 'order-3',
       },
     });
-  
+
     if (dialog.isConfirmed) {
-      this.show(this.loaderDialog);
+      this.show(this.loader);
       let result = await this.service.delete(id);
-      if (result) {
-        Swal.fire('Saved!', '', 'success');
-        this.load({})
-        this.hide(this.loaderDialog);
+      if (result?.data?.deletePage) {
+        Swal.fire({
+          title: 'Success',
+          html: 'Page has been deleted',
+          icon: 'success',
+          timer: 3000,
+        });
+        await this.load({
+          criteria: this.criteria(),
+          offset: this.offset,
+          limit: this.limit,
+        });
+        this.hide(this.loader);
+      } else {
+        let error = result?.errors?.shift();
+        let msg = error?.extensions?.originalError?.message;
+        Swal.fire({
+          title: 'Failed',
+          html: msg,
+          icon: 'error',
+          timer: 3000,
+        });
       }
     }
   }

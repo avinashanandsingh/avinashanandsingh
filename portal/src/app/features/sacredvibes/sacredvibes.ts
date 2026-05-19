@@ -10,17 +10,22 @@ import { Upload } from '../../components/upload/upload';
 import { TitleService } from '../../services/title-service';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import Swal from 'sweetalert2';
+import Criteria from '../../models/criteria';
+import { Pager } from "../../components/pager/pager";
 
 @Component({
   selector: 'app-scarevibes',
-  imports: [CommonModule, ReactiveFormsModule, Loader, Dialog, Upload],
+  imports: [CommonModule, ReactiveFormsModule, Loader, Dialog, Upload, Pager],
   templateUrl: './sacredvibes.html',
   styleUrl: './sacredvibes.css',
 })
 export class Sacredvibes implements OnInit {
-  rowCount = signal<number>(0);
+  limit: number = Number(import.meta.env.NG_APP_LIMIT);
+  offset: number = 0;
+  total = signal<number>(0);
+  criteria = signal<Criteria[]>([]);
   list = signal<IScarevibeData[]>([]);
-  loaderDialog = signal<boolean>(false);
+  loader = signal<boolean>(false);
   formDialog = signal<boolean>(false);
   playerDialog = signal<boolean>(false);
   preview = signal<SafeResourceUrl | null>(null);
@@ -92,7 +97,7 @@ export class Sacredvibes implements OnInit {
         }
 
         let result: any;
-        this.show(this.loaderDialog);
+        this.show(this.loader);
         switch (this.mode()) {
           case 'ADD':
             result = await this.service.save(fd);
@@ -136,8 +141,12 @@ export class Sacredvibes implements OnInit {
             }
             break;
         }
-        this.load({});
-        this.hide(this.loaderDialog);
+        await this.load({
+          criteria: this.criteria(),
+          offset: this.offset,
+          limit: this.limit,
+        });
+        this.hide(this.loader);
         this.hide(this.formDialog);
       },
       type: 'btn btn-primary w-full',
@@ -154,18 +163,37 @@ export class Sacredvibes implements OnInit {
     this.preview.set(
       this.sanitizer.bypassSecurityTrustResourceUrl('https://samplelib.com/mp3/sample-6s.mp3'),
     );
-    this.show(this.loaderDialog);
-    await this.load({});
-    this.hide(this.loaderDialog);
+    this.show(this.loader);
+    await this.load({
+      criteria: this.criteria(),
+      offset: this.offset,
+      limit: this.limit,
+    });
+    this.hide(this.loader);
   }
 
-  async load(filter: Filter): Promise<void> {
+  async load(filter: Filter) {
     let result = await this.service.list(filter);
+    let rows = result?.count ?? 0;
     if (result) {
-      this.rowCount.set(result.count!);
-      this.list.set(result.rows!);
+      this.total.set(Math.ceil(rows / this.limit));
+      this.list.set(result?.rows!);
+    } else {
+      this.list.set([]);
     }
   }
+
+  async pageChange($event: number): Promise<void> {
+    this.offset = ($event - 1) * this.limit;
+    this.show(this.loader);
+    await this.load({
+      criteria: this.criteria(),
+      offset: this.offset,
+      limit: this.limit,
+    });
+    this.hide(this.loader);
+  }
+
   async showPlayer(id: string) {
     let row = this.list().find((x) => x.id === id);
     const url = this.sanitizer.bypassSecurityTrustResourceUrl(row?.url!);
@@ -206,10 +234,47 @@ export class Sacredvibes implements OnInit {
   }
 
   async delete(id: string): Promise<void> {
-    this.show(this.loaderDialog);
-    let result = await this.service.delete(id);
-    this.hide(this.loaderDialog);
-    this.load({});
+    let dialog = await Swal.fire({
+      title: 'Are you sure, want to delete?',
+      showDenyButton: true,
+      showCancelButton: false,
+      confirmButtonText: 'Confirm',
+      denyButtonText: 'Cancel',
+      customClass: {
+        actions: 'my-actions',
+        cancelButton: 'order-1 right-gap',
+        confirmButton: 'order-2',
+        denyButton: 'order-3',
+      },
+    });
+
+    if (dialog.isConfirmed) {
+      this.show(this.loader);
+      let result = await this.service.delete(id);
+      if (result?.data?.deleteSacredvibe) {
+        Swal.fire({
+          title: 'Success',
+          html: 'Sacredvibe has been deleted',
+          icon: 'success',
+          timer: 3000,
+        });
+        await this.load({
+          criteria: this.criteria(),
+          offset: this.offset,
+          limit: this.limit,
+        });
+        this.hide(this.loader);
+      } else {
+        let error = result?.errors?.shift();
+        let msg = error?.extensions?.originalError?.message;
+        Swal.fire({
+          title: 'Failed',
+          html: msg,
+          icon: 'error',
+          timer: 3000,
+        });
+      }
+    }
   }
 
   // --- Drag and Drop Logic ---

@@ -1,11 +1,10 @@
 import 'dart:async';
-import 'package:app/components/home/branding_item.dart';
 import 'package:flutter/material.dart';
 import '../../theme/theme.dart';
 
-class HeroCard extends StatefulWidget {
+class HeroCard<T> extends StatefulWidget {
   final Animation<double> pulseAnimation;
-  final List<BrandingItem> items;
+  final List<T> items;
   const HeroCard({
     super.key,
     required this.items,
@@ -88,12 +87,7 @@ class _HeroCardState extends State<HeroCard> {
                       ),
                     );
                   },
-                  child: BrandingItem(
-                    type: widget.items[index].type,
-                    title: widget.items[index].title,
-                    content: widget.items[index].content,
-                    url: widget.items[index].url,
-                  ),
+                  child: widget.items[index],
                 );
               },
             ),

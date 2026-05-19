@@ -3,7 +3,7 @@ import helper from "../../helper/index";
 import Select from "../../models/select";
 import Filter from "../../models/filter";
 import Result from "../../models/result";
-
+const view = "view_shorts";
 export default async (
   _: any,
   args: { filter: Filter },
@@ -12,11 +12,11 @@ export default async (
   let result: Result<any> | null = null;
   let filter = args.filter;
 
-  let fields = await helper.data.columns([{ name: "shorts" }]);
+  let fields = await helper.data.columns([{ name: view }]);
   let input: Select = {
     tables: [
       {
-        name: "shorts",
+        name: view,
         columns: fields.map((x: any) => {
           return { name: x.name };
         }),

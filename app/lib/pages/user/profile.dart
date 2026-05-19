@@ -5,14 +5,14 @@ import 'package:app/components/loader.dart';
 import 'package:app/models/common.dart';
 import 'package:app/models/geo.dart';
 import 'package:app/models/profile.dart';
-import 'package:app/pages/signin.dart';
+import 'package:app/pages/user/signin.dart';
 import 'package:app/services/service.dart';
 import 'package:app/utils/alert.dart';
 import 'package:flutter/material.dart';
-import '../theme/theme.dart';
+import '../../theme/theme.dart';
 import 'change_password.dart';
-import 'payment_history.dart';
-import 'enrolled_courses.dart';
+import '../payment_history.dart';
+import '../enrolled_courses.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key, this.data});

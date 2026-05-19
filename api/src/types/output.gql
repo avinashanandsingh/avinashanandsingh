@@ -293,11 +293,12 @@ type CityResult {
 type Short {
   id: String
   title: String
-  thumbnail: String
+  description: String
   url: String
   status: String
   sort: Int
   likes: Int
+  dislikes: Int
   hits: Int
   creator: User
   createdat: DateTime
@@ -534,7 +535,10 @@ type Order {
   orderid: String
   context: String
   contextid: UUID
-  price: Float
+  context_data: JSON
+  slotid: UUID
+  name: String
+  price: String
   order_status: String
   order_status_reason: String
   payment_status: String
@@ -602,4 +606,22 @@ type Appointment {
 type AppointmentResult {
   count: Int
   rows: [Appointment]
+}
+
+type Reaction {
+  id: String
+  type: String
+  userid: String
+  user: User
+  context: String
+  contextid: String
+  creator: User
+  createdat: DateTime
+  updater: User
+  updatedat: DateTime
+}
+
+type ReactionResult {
+  count: Int
+  rows: [Reaction]
 }

@@ -1,11 +1,11 @@
 import 'package:app/models/aura.dart';
 import 'package:app/models/profile.dart';
 import 'package:app/pages/aura_scan.dart';
-import 'package:app/pages/privacy.dart';
-import 'package:app/pages/profile.dart';
-import 'package:app/pages/refund_policy.dart';
-import 'package:app/pages/signin.dart';
-import 'package:app/pages/terms.dart';
+import 'package:app/pages/policy/privacy.dart';
+import 'package:app/pages/user/profile.dart';
+import 'package:app/pages/policy/refund.dart';
+import 'package:app/pages/user/signin.dart';
+import 'package:app/pages/policy/terms.dart';
 import 'package:app/services/identity.dart';
 import 'package:app/services/service.dart';
 import 'package:flutter/material.dart';

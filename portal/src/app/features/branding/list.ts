@@ -8,14 +8,20 @@ import { IBrandingData } from '../../models/branding';
 import Swal from 'sweetalert2';
 import { BrandingService } from '../../services/branding-service';
 import Filter from '../../models/filter';
+import Criteria from '../../models/criteria';
+import { Pager } from '../../components/pager/pager';
 
 @Component({
   selector: 'app-list',
-  imports: [CommonModule, ReactiveFormsModule, Loader, Dialog],
+  imports: [CommonModule, ReactiveFormsModule, Loader, Dialog, Pager],
   templateUrl: './list.html',
   styleUrl: './list.css',
 })
 export default class List implements OnInit {
+  limit: number = Number(import.meta.env.NG_APP_LIMIT);
+  offset: number = 0;
+  total = signal<number>(0);
+  criteria = signal<Criteria[]>([]);
   list = signal<IBrandingData[]>([]);
   loader = signal<boolean>(false);
   dialog = signal<boolean>(false);
@@ -121,7 +127,11 @@ export default class List implements OnInit {
           });
         }
 
-        this.load({});
+        await this.load({
+          criteria: this.criteria(),
+          offset: this.offset,
+          limit: this.limit,
+        });
         this.form.reset();
         this.hide(this.loader);
         this.hide(this.dialog);
@@ -137,7 +147,11 @@ export default class List implements OnInit {
   }
   async ngOnInit(): Promise<void> {
     this.show(this.loader);
-    await this.load({});
+    await await this.load({
+      criteria: this.criteria(),
+      offset: this.offset,
+      limit: this.limit,
+    });
     await this.load_type_list();
     this.hide(this.loader);
   }
@@ -148,7 +162,24 @@ export default class List implements OnInit {
   }
   async load(filter: Filter) {
     let result = await this.service.list(filter);
-    this.list.set(result?.rows! ?? []);
+    let rows = result?.count ?? 0;
+    if (result) {
+      this.total.set(Math.ceil(rows / this.limit));
+      this.list.set(result?.rows!);
+    } else {
+      this.list.set([]);
+    }
+  }
+
+  async pageChange($event: number): Promise<void> {
+    this.offset = ($event - 1) * this.limit;
+    this.show(this.loader);
+    await this.load({
+      criteria: this.criteria(),
+      offset: this.offset,
+      limit: this.limit,
+    });
+    this.hide(this.loader);
   }
 
   fileChange($event: any) {
@@ -188,7 +219,7 @@ export default class List implements OnInit {
     me.set(false);
   }
 
-  async delete(id: string) {
+  async delete(id: string): Promise<void> {
     let dialog = await Swal.fire({
       title: 'Are you sure, want to delete?',
       showDenyButton: true,
@@ -206,15 +237,28 @@ export default class List implements OnInit {
     if (dialog.isConfirmed) {
       this.show(this.loader);
       let result = await this.service.delete(id);
-      if (result) {
+      if (result?.data?.deleteBranding) {
         Swal.fire({
           title: 'Success',
           html: 'Branding content has been deleted',
           icon: 'success',
           timer: 3000,
         });
-        this.load({});
+        await this.load({
+          criteria: this.criteria(),
+          offset: this.offset,
+          limit: this.limit,
+        });
         this.hide(this.loader);
+      } else {
+        let error = result?.errors?.shift();
+        let msg = error?.extensions?.originalError?.message;
+        Swal.fire({
+          title: 'Failed',
+          html: msg,
+          icon: 'error',
+          timer: 3000,
+        });
       }
     }
   }

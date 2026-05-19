@@ -18,6 +18,9 @@ class CourseData {
   int? reviews;
   double? rating;
   dynamic modules;
+
+  double get sale => (offer! > 0 && offer! <= price!) ? offer! : price!;
+
   CourseData({
     this.id,
     this.title,

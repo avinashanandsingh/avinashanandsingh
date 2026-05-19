@@ -3,12 +3,14 @@ class EnrollData {
   String? scheduleId;
   String? enrolledat;
   String? expiredat;
+  String? status;
   dynamic qna;
   EnrollData({
     this.courseId,
     this.scheduleId,
     this.enrolledat,
     this.expiredat,
+    this.status,
     this.qna,
   });
 
@@ -19,6 +21,7 @@ class EnrollData {
       enrolledat: json['email'] as String?,
       expiredat: json['phone'] as String?,
       qna: json['qna'],
+      status: json['status'] as String?,
     );
   }
 
@@ -29,6 +32,7 @@ class EnrollData {
       'scheduleid': scheduleId,
       'enrolledat': enrolledat,
       'expiredat': expiredat,
+      'status': status,
       'qna': qna,
     };
   }

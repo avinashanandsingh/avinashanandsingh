@@ -37,7 +37,7 @@ class SectionHeader extends StatelessWidget {
                   ),
                 ],
               ),
-              Row(
+              /* Row(
                 children: [
                   Text(
                     "Explore",
@@ -53,7 +53,7 @@ class SectionHeader extends StatelessWidget {
                     size: 18,
                   ),
                 ],
-              ),
+              ), */
             ],
           ),
           if (subtitle != null) ...[

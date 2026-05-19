@@ -19,6 +19,7 @@ enum CourseStatus {
 
 enum Context {
   COURSE
+  SHORT_COURSE
   MEDITATION
   SHORT_VIDEO
   AURA_SCANNING
@@ -33,6 +34,15 @@ enum ContentType {
   ASSIGNMENT
   URL
   TEXT
+}
+
+enum ReactionType {
+  LIKE
+  DISLIKE
+  HEART
+  CLAP
+  COMMENT
+  SHARE
 }
 
 enum AssessmentType {

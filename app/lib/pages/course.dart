@@ -1,15 +1,18 @@
 import 'package:app/components/custom_tab_view.dart';
+import 'package:app/components/layout.dart';
+import 'package:app/components/loader.dart';
 import 'package:app/components/price_tag.dart';
 import 'package:app/components/review_dialog.dart' as review_dialog;
 import 'package:app/components/review_widget.dart';
 import 'package:app/components/video_card.dart';
+import 'package:app/helpers/enroll.dart';
 import 'package:app/models/course.dart';
 import 'package:app/models/order.dart';
 import 'package:app/models/qna.dart';
-import 'package:app/pages/course_details.dart';
+import 'package:app/models/user.dart';
 import 'package:app/pages/enroll.dart';
-import 'package:app/pages/signin.dart';
-import 'package:app/services/identity.dart';
+import 'package:app/pages/home.dart';
+import 'package:app/services/razorpay.dart';
 import 'package:app/services/service.dart';
 import 'package:app/theme/theme.dart';
 import 'package:app/utils/alert.dart';
@@ -20,23 +23,24 @@ import 'package:app/helpers/globals.dart';
 import 'package:intl/intl.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 
-class PrivateCourse extends StatefulWidget {
+class Course extends StatefulWidget {
   final CourseData? data;
-  const PrivateCourse({super.key, this.data});
+  const Course({super.key, this.data});
 
   @override
-  State<PrivateCourse> createState() => PrivateCourseState();
+  State<Course> createState() => CourseState();
 }
 
-class PrivateCourseState extends State<PrivateCourse>
-    with SingleTickerProviderStateMixin {
+class CourseState extends State<Course> with SingleTickerProviderStateMixin {
   late TabController tabController;
+  bool paid = false;
   late AppTheme theme = AppTheme();
   int tabs = 2;
   late Future<List<QnaData>> qna = Service.qna.list(widget.data?.id ?? '');
   @override
   void initState() {
     super.initState();
+    paid = false;
     qna = Service.qna.list(widget.data?.id ?? '');
     if (widget.data!.modules != null) {
       tabs += 1;
@@ -55,108 +59,106 @@ class PrivateCourseState extends State<PrivateCourse>
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(widget.data!.title!),
-          titleTextStyle: TextTheme.of(context).headlineSmall,
-          centerTitle: false,
-        ),
-        body: Container(
-          padding: EdgeInsets.all(0),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize:
-                  MainAxisSize.min, // Tells column to be only as big as needed
-              children: [
-                headerInfo(),
-                metadataGrid(),
+    return Layout(
+      titleText: 'Course Details',
+      showHeader: true,
+      isSerif: false,
+      showBottomNav: true,
+      showActions: true,
+      showBack: true,
+      body: Container(
+        padding: EdgeInsets.all(0),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize:
+                MainAxisSize.min, // Tells column to be only as big as needed
+            children: [
+              headerInfo(),
+              metadataGrid(),
 
-                Divider(),
-                Container(
-                  padding: EdgeInsets.all(15),
-                  child: FutureBuilder(
-                    future: Service.schedule.get({
-                      "criteria": [
-                        {
-                          "column": "courseid",
-                          "cop": "eq",
-                          "value": widget.data?.id,
-                        },
-                        {
-                          "column": "status",
-                          "cop": "eq",
-                          "lop": "AND",
-                          "value": "ACTIVE",
-                        },
-                      ],
-                    }),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          ),
-                        );
-                      } else if (snapshot.hasData) {
-                        if (snapshot.data != null) {
-                          String formattedStartDate = DateFormat.yMMMMEEEEd()
-                              .format(
-                                DateTime.parse(snapshot.data!.startDate!),
-                              );
-                          String formattedEndDate = DateFormat.yMMMMEEEEd()
-                              .format(DateTime.parse(snapshot.data!.endDate!));
+              Divider(),
+              Container(
+                padding: EdgeInsets.all(15),
+                child: FutureBuilder(
+                  future: Service.schedule.get({
+                    "criteria": [
+                      {
+                        "column": "courseid",
+                        "cop": "eq",
+                        "value": widget.data?.id,
+                      },
+                      {
+                        "column": "status",
+                        "cop": "eq",
+                        "lop": "AND",
+                        "value": "ACTIVE",
+                      },
+                    ],
+                  }),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      );
+                    } else if (snapshot.hasData) {
+                      if (snapshot.data != null) {
+                        String formattedStartDate = DateFormat.yMMMMEEEEd()
+                            .format(DateTime.parse(snapshot.data!.startDate!));
+                        String formattedEndDate = DateFormat.yMMMMEEEEd()
+                            .format(DateTime.parse(snapshot.data!.endDate!));
 
-                          return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                snapshot.data!.title!,
-                                style: TextTheme.of(context).headlineSmall,
-                              ),
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              snapshot.data!.title!,
+                              style: TextTheme.of(context).headlineSmall,
+                            ),
 
-                              Row(
-                                children: [
-                                  Text(
-                                    "Start Date: ",
-                                    style: TextTheme.of(context).labelSmall!
-                                        .copyWith(fontWeight: FontWeight.bold),
-                                  ),
-                                  Text(
-                                    formattedStartDate,
-                                    style: TextTheme.of(context).labelSmall,
-                                  ),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  Text(
-                                    "End Date: ",
-                                    style: TextTheme.of(context).labelSmall!
-                                        .copyWith(fontWeight: FontWeight.bold),
-                                  ),
-                                  Text(
-                                    formattedEndDate,
-                                    style: TextTheme.of(context).labelSmall,
-                                  ),
-                                ],
-                              ),
-                              Row(
-                                children: [
-                                  Text(
-                                    "Time: ",
-                                    style: TextTheme.of(context).labelSmall!
-                                        .copyWith(fontWeight: FontWeight.bold),
-                                  ),
-                                  Text(
-                                    "${snapshot.data!.formattedStartTime!} to ${snapshot.data!.formattedEndTime!}",
-                                    style: TextTheme.of(context).labelSmall,
-                                  ),
-                                ],
-                              ),
-                              /* Row(
+                            Row(
+                              children: [
+                                Text(
+                                  "Start Date: ",
+                                  style: TextTheme.of(context).labelSmall!
+                                      .copyWith(fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  formattedStartDate,
+                                  style: TextTheme.of(context).labelSmall,
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Text(
+                                  "End Date: ",
+                                  style: TextTheme.of(context).labelSmall!
+                                      .copyWith(fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  formattedEndDate,
+                                  style: TextTheme.of(context).labelSmall,
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Text(
+                                  "Time: ",
+                                  style: TextTheme.of(context).labelSmall!
+                                      .copyWith(fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  "${snapshot.data!.formattedStartTime!} to ${snapshot.data!.formattedEndTime!}",
+                                  style: TextTheme.of(context).labelSmall,
+                                ),
+                              ],
+                            ),
+                            /* Row(
                                 children: [
                                   Text(
                                     "End Time: ",
@@ -166,137 +168,204 @@ class PrivateCourseState extends State<PrivateCourse>
                                   Text(snapshot.data!.formattedEndTime!),
                                 ],
                               ), */
-                            ],
+                          ],
+                        );
+                      } else {
+                        return Container();
+                      }
+                    } else {
+                      return Container();
+                    }
+                  },
+                ),
+              ),
+              Padding(
+                padding: EdgeInsetsGeometry.symmetric(horizontal: 15),
+                child: FutureBuilder<bool>(
+                  future: Service.course.isEnrolled(widget.data!.id!),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      );
+                    } else if (snapshot.hasData) {
+                      if (!snapshot.data!) {
+                        if (widget.data!.free!) {
+                          return TextButton(
+                            onPressed: () async {
+                              print('clicked free');
+                              Loader.show();
+                              var result = await EnrollHelper.initiate(
+                                widget.data!.id!,
+                              );
+                              Loader.hide();
+                              if (result.succeed) {
+                                EnrollHelper.enrolled(result.id!);
+                                navigatorKey.currentState?.push(
+                                  MaterialPageRoute(
+                                    builder: (context) => Home(),
+                                  ),
+                                );
+                              } else {
+                                Alert.show(result.message!, isError: true);
+                              }
+                            },
+                            child: Text(
+                              'Enroll Now',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                           );
                         } else {
-                          return Container();
+                          return Row(
+                            children: [
+                              PriceTag(
+                                offer: widget.data!.offer ?? 0.00,
+                                price: widget.data!.price ?? 0.00,
+                              ),
+                              Spacer(),
+                              TextButton(
+                                onPressed: () async {
+                                  if (widget.data!.short!) {
+                                    Loader.show();
+                                    var result = await EnrollHelper.initiate(
+                                      widget.data!.id!,
+                                    );
+                                    Loader.hide();
+
+                                    if (result.succeed) {
+                                      checkout();
+                                      if (paid) {
+                                        result = await EnrollHelper.enrolled(
+                                          result.id!,
+                                        );
+                                        if (result.succeed) {
+                                          navigatorKey.currentState?.push(
+                                            MaterialPageRoute(
+                                              builder: (context) => Home(),
+                                            ),
+                                          );
+                                        } else {
+                                          Alert.show(
+                                            result.message!,
+                                            isError: true,
+                                          );
+                                        }
+                                      }
+                                    } else {
+                                      setState(() {
+                                        paid = false;
+                                      });
+                                      Alert.show(
+                                        result.message!,
+                                        isError: true,
+                                      );
+                                    }
+                                  } else {
+                                    navigatorKey.currentState?.push(
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            Enroll(course: widget.data!),
+                                      ),
+                                    );
+                                  }
+                                },
+                                child: Text(
+                                  'Enroll Now',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          );
                         }
                       } else {
                         return Container();
                       }
-                    },
-                  ),
+                    }
+                    return Container();
+                  },
                 ),
-                Padding(
-                  padding: EdgeInsetsGeometry.symmetric(horizontal: 15),
-                  child: FutureBuilder<bool>(
-                    future: Service.course.isEnrolled(widget.data!.id!),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          ),
-                        );
-                      } else if (snapshot.hasData) {
-                        if (!snapshot.data!) {
-                          if (widget.data!.free!) {
-                            return TextButton(
-                              onPressed: () async {
-                                print('clicked free');
-                                bool flag = await Identity.instance
-                                    .isLoggedIn();
-                                print(flag);
-                                if (flag) {
-                                  /* navigatorKey.currentState?.push(
-                                    MaterialPageRoute(
-                                      builder: (context) =>
-                                          Enroll(course: widget.data!),
-                                    ),
-                                  ); */
-                                } else {
-                                  navigatorKey.currentState?.push(
-                                    MaterialPageRoute(
-                                      builder: (context) => SignIn(
-                                        redirect: CourseDetails(
-                                          data: widget.data,
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                }
-                              },
-                              child: Text(
-                                'Enroll Now',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            );
-                          } else {
-                            return Row(
-                              children: [
-                                PriceTag(
-                                  offer: widget.data!.offer ?? 0.00,
-                                  price: widget.data!.price ?? 0.00,
-                                ),
-                                Spacer(),
-                                TextButton(
-                                  onPressed: () async {
-                                    print('clicked');
-                                    bool flag = await Identity.instance
-                                        .isLoggedIn();
-                                    print(flag);
-                                    if (flag) {
-                                      if (widget.data!.short!) {
-                                        print('is a short course');
-                                      } else {
-                                        navigatorKey.currentState?.push(
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                Enroll(course: widget.data!),
-                                          ),
-                                        );
-                                      }
-                                    } else {
-                                      navigatorKey.currentState?.push(
-                                        MaterialPageRoute(
-                                          builder: (context) => SignIn(
-                                            redirect: CourseDetails(
-                                              data: widget.data,
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    }
-                                  },
-                                  child: Text(
-                                    'Enroll Now',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            );
-                          }
-                        } else {
-                          return Container();
-                        }
-                      }
-                      return Container();
-                    },
-                  ),
-                ),
+              ),
 
-                Divider(),
-                Padding(
-                  padding: EdgeInsetsGeometry.symmetric(horizontal: 8),
-                  child: VideoCard(url: widget.data!.url!),
-                ),
-                tabContent(),
-              ],
-            ),
+              Divider(),
+              Padding(
+                padding: EdgeInsetsGeometry.symmetric(horizontal: 8),
+                child: VideoCard(url: widget.data!.url!),
+              ),
+              tabContent(),
+            ],
           ),
         ),
       ),
     );
   }
 
+  void checkout() async {
+    bool bought = await Service.order.bought(widget.data!.id!, "SHORT_COURSE");
+    if (bought) {
+      Alert.show(
+        "You're enrolled! Jump back into your learning.",
+        isError: false,
+      );
+    } else {
+      var payment = await Service.setting.get('PAYMENT');
+      dynamic user = await Service.identity.me();
+
+      var orderData = OrderData(
+        context: "SHORT_COURSE",
+        contextid: widget.data!.id!,
+        price: widget.data!.sale,
+        orderStatus: "INITIATED",
+        orderStatusReason: 'Your order has been initiated and awaiting payment',
+        paymentStatus: "PENDING",
+        createdat: DateTime.now(),
+      );
+      var order = await Service.order.add(orderData);
+
+      if (order?.id == null) {
+        Alert.show("Failed to create order. Please try again.", isError: true);
+      } else {
+        if (payment == 'ON') {
+          await Service.store.set("latest_order_id", order!.id!);
+          var userData = UserData.fromJson(user);
+          RazorpayService.instance.startPayment(
+            onSuccess: handlePaymentSuccess,
+            onFailure: handlePaymentError,
+            options: {
+              'key': dotenv.env['RAZORPAY_KEY'] ?? '', // Replace with your key
+              'currency': 'INR',
+              'amount':
+                  1 * 100, // amount in the smallest currency unit amount * 100
+              'name': dotenv.env['COMPANY'] ?? '',
+              'description': "Short Course - ${widget.data!.title}",
+              'timeout': 300, // in seconds
+              'prefill': {
+                "name":
+                    "${userData.firstName ?? ''} ${userData.lastName ?? ''}",
+                "contact": userData.phone,
+                "email": userData.email,
+              },
+              'theme': {'color': '#5A2A82'},
+              'modal': {'confirm_close': true, 'handle_back': true},
+            },
+          );
+        }
+      }
+    }
+  }
+
   void handlePaymentSuccess(PaymentSuccessResponse response) async {
+    setState(() {
+      paid = true;
+    });
     String? orderId = await Service.store.get("latest_order_id");
     OrderData orderData = OrderData(
       orderStatus: "CONFIRMED",
@@ -322,6 +391,10 @@ class PrivateCourseState extends State<PrivateCourse>
   }
 
   void handlePaymentError(PaymentFailureResponse response) async {
+    print('callled');
+    setState(() {
+      paid = false;
+    });
     if (response.code == 0) {
       String? orderId = await Service.store.get("latest_order_id");
       OrderData orderData = OrderData(

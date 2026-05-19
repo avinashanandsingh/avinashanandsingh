@@ -1,11 +1,14 @@
 import 'package:app/models/user.dart';
+import 'package:intl/intl.dart';
 
 class OrderData {
   String? id;
   String? orderid;
   String? context;
   String? contextid;
+  dynamic contextData;
   String? slotid;
+  DateTime? slotDate;
   String? name;
   double? price;
   String? orderStatus;
@@ -18,11 +21,14 @@ class OrderData {
   DateTime? createdat;
   UserData? updater;
   DateTime? updatedat;
+
   OrderData({
     this.id,
     this.context,
     this.contextid,
+    this.contextData,
     this.slotid,
+    this.slotDate,
     this.name,
     this.price,
     this.orderStatus,
@@ -43,13 +49,17 @@ class OrderData {
       id: json['id'] as String?,
       context: json['context'] as String?,
       contextid: json['contextid'] as String?,
+      contextData: json['context_data'],
       slotid: json['slotid'] as String?,
+      slotDate: json['slot_date'] != null
+          ? DateTime.parse(json['slot_date'])
+          : null,
       name: json['name'] as String?,
-      price: json['price'] as double?,
-      orderStatus: json['orderStatus'] as String?,
-      orderStatusReason: json['orderStatusReason'] as String?,
-      paymentStatus: json['paymentStatus'] as String?,
-      paymentStatusReason: json['paymentStatusReason'] as String?,
+      price: double.parse(json['price']),
+      orderStatus: json['order_status'] as String?,
+      orderStatusReason: json['order_status_reason'] as String?,
+      paymentStatus: json['payment_status'] as String?,
+      paymentStatusReason: json['payment_status_reason'] as String?,
       paymentid: json['paymentid'] as String?,
       orderid: json['orderid'] as String?,
       signature: json['signature'] as String?,
@@ -68,12 +78,44 @@ class OrderData {
     );
   }
 
+  String? get formattedPrice {
+    String? formatted;
+    final currency = NumberFormat.currency(
+      locale: 'en_IN',
+      symbol: '₹',
+      decimalDigits: 2,
+    );
+    if (price != null) {
+      formatted = currency.format(price);
+    }
+    return formatted;
+  }
+
+  String? get slotAt {
+    String? formatted;
+    final date = DateFormat('dd-MMM-yyy');
+    if (createdat != null) {
+      formatted = date.format(slotDate!);
+    }
+    return formatted;
+  }
+
+  String? get orderDate {
+    String? formatted;
+    final date = DateFormat('dd-MMM-yyy');
+    if (createdat != null) {
+      formatted = date.format(createdat!);
+    }
+    return formatted;
+  }
+
   Map<String, dynamic> toJson() {
     return {
-      if (slotid != null) 'id': id,
-      if (slotid != null) 'context': context,
-      if (slotid != null) 'contextid': contextid,
+      if (id != null) 'id': id,
+      if (context != null) 'context': context,
+      if (contextid != null) 'contextid': contextid,
       if (slotid != null) 'slotid': slotid,
+      if (slotDate != null) 'slot_date': slotDate,
       if (price != null) 'price': price,
       if (orderStatus != null) 'order_status': orderStatus,
       if (orderStatusReason != null) 'order_status_reason': orderStatusReason,

@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../theme/theme.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'home.dart';
+import '../helpers/globals.dart';
 
 class Splash extends StatefulWidget {
   const Splash({super.key});
@@ -18,9 +19,9 @@ class _SplashState extends State<Splash> {
     // Navigate to Login Screen after 3 seconds
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
-        Navigator.of(
-          context,
-        ).pushReplacement(MaterialPageRoute(builder: (context) => Home()));
+        navigatorKey.currentState?.push(
+          MaterialPageRoute(builder: (context) => Home()),
+        );
       }
     });
   }

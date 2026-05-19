@@ -14,15 +14,20 @@ import { CourseService } from '../../services/course-service';
 import { IListItem } from '../../models/lov';
 import { Lov } from '../../components/lov/lov';
 import { COP } from '../../models/enum';
+import { Pager } from '../../components/pager/pager';
+import Criteria from '../../models/criteria';
 
 @Component({
   selector: 'app-meditation',
-  imports: [CommonModule, ReactiveFormsModule, Loader, Dialog, Upload, Lov],
+  imports: [CommonModule, ReactiveFormsModule, Loader, Dialog, Upload, Lov, Pager],
   templateUrl: './meditation.html',
   styleUrl: './meditation.css',
 })
 export class Meditation {
-  rowCount = signal<number>(0);
+  limit: number = Number(import.meta.env.NG_APP_LIMIT);
+  offset: number = 0;
+  total = signal<number>(0);
+  criteria = signal<Criteria[]>([]);
   list = signal<IMeditationData[]>([]);
   course_list = signal<IListItem[]>([]);
   loader = signal<boolean>(false);
@@ -178,17 +183,36 @@ export class Meditation {
       this.sanitizer.bypassSecurityTrustResourceUrl('https://samplelib.com/mp3/sample-6s.mp3'),
     );
     await this.load_course_list();
-    await this.load({});
+    await this.load({
+      criteria: this.criteria(),
+      offset: this.offset,
+      limit: this.limit,
+    });
     this.loader.set(false);
   }
 
-  async load(filter: Filter): Promise<void> {
+  async load(filter: Filter) {
     let result = await this.service.list(filter);
+    let rows = result?.count ?? 0;
     if (result) {
-      this.rowCount.set(result.count!);
-      this.list.set(result.rows!);
+      this.total.set(Math.ceil(rows / this.limit));
+      this.list.set(result?.rows!);
+    } else {
+      this.list.set([]);
     }
   }
+
+  async pageChange($event: number): Promise<void> {
+    this.offset = ($event - 1) * this.limit;
+    this.show(this.loader);
+    await this.load({
+      criteria: this.criteria(),
+      offset: this.offset,
+      limit: this.limit,
+    });
+    this.hide(this.loader);
+  }
+
   async load_course_list(): Promise<void> {
     let result = await this.course.list({
       criteria: [
@@ -322,7 +346,11 @@ export class Meditation {
         });
       }
 
-      await this.load({});
+      await this.load({
+      criteria: this.criteria(),
+      offset: this.offset,
+      limit: this.limit,
+    });
       this.hide(this.loader);
     }
   }
@@ -352,7 +380,11 @@ export class Meditation {
           icon: 'success',
           timer: 3000,
         });
-        await this.load({});
+        await this.load({
+      criteria: this.criteria(),
+      offset: this.offset,
+      limit: this.limit,
+    });
         this.hide(this.loader);
       }
     }
