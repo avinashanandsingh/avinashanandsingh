@@ -1,6 +1,7 @@
 import 'package:app/models/aura.dart';
 import 'package:app/models/profile.dart';
 import 'package:app/pages/aura_scan.dart';
+import 'package:app/pages/home.dart';
 import 'package:app/pages/policy/privacy.dart';
 import 'package:app/pages/user/profile.dart';
 import 'package:app/pages/policy/refund.dart';
@@ -8,8 +9,11 @@ import 'package:app/pages/user/signin.dart';
 import 'package:app/pages/policy/terms.dart';
 import 'package:app/services/identity.dart';
 import 'package:app/services/service.dart';
+import 'package:app/utils/alert.dart';
+import 'package:app/utils/result.dart';
 import 'package:flutter/material.dart';
 import '../theme/theme.dart';
+import '../helpers/globals.dart';
 
 class ActionIconData {
   ActionIconData();
@@ -59,29 +63,30 @@ class ActionIconData {
                     );
                     break;
                   case 'aura':
-                    List<AuraData> list = await Service.aura.list();
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => AuraScan(data: list),
-                      ),
-                    );
+                    Result<AuraData> result = await Service.aura.list();
+                    if (result.succeed) {
+                      navigatorKey.currentState?.push(
+                        MaterialPageRoute(
+                          builder: (context) => AuraScan(data: result.list!),
+                        ),
+                      );
+                    } else {
+                      Alert.show(result.message!, isError: true);
+                    }
                     break;
                   case 'terms':
-                    Navigator.push(
-                      context,
+                    navigatorKey.currentState?.push(
                       MaterialPageRoute(builder: (context) => const Terms()),
                     );
+
                     break;
                   case 'privacy':
-                    Navigator.push(
-                      context,
+                    navigatorKey.currentState?.push(
                       MaterialPageRoute(builder: (context) => const Privacy()),
                     );
                     break;
                   case 'refund':
-                    Navigator.push(
-                      context,
+                    navigatorKey.currentState?.push(
                       MaterialPageRoute(
                         builder: (context) => const RefundPolicy(),
                       ),
@@ -89,10 +94,9 @@ class ActionIconData {
                     break;
                   case 'logout':
                     Identity.instance.logout();
-                    Navigator.of(
-                      context,
-                      rootNavigator: true,
-                    ).pushReplacementNamed("/home");
+                    navigatorKey.currentState?.push(
+                      MaterialPageRoute(builder: (context) => const Home()),
+                    );
                     break;
                 }
               },

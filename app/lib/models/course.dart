@@ -1,3 +1,5 @@
+import 'package:app/models/module.dart';
+
 class CourseData {
   String? id;
   String? title;
@@ -17,7 +19,7 @@ class CourseData {
   String? status;
   int? reviews;
   double? rating;
-  dynamic modules;
+  List<ModuleData>? modules;
 
   double get sale => (offer! > 0 && offer! <= price!) ? offer! : price!;
 
@@ -43,26 +45,43 @@ class CourseData {
   });
 
   factory CourseData.fromJson(Map<String, dynamic> json) {
-    return CourseData(
-      id: json['id'] as String?,
-      title: json['title'] as String?,
-      description: json['description'] as String?,
-      about: json['about'] as String?,
-      duration: json['duration'] as String?,
-      validity: json['validity'] as int?,
-      thumbnail: json['thumbnail'] as String?,
-      url: json['url'] as String?,
-      level: json['level'] as String?,
-      short: json['short'] as bool?,
-      certified: json['certified'] as bool?,
-      free: json['free'] as bool?,
-      currency: json['currency'] as String?,
-      price: double.parse(json['price']),
-      offer: double.parse(json['offer']),
-      reviews: json['review']['reviews'],
-      rating: double.parse(json['review']['rating']),
-      modules: json['modules'],
-    );
+    List<ModuleData> lst = List.empty(growable: true);
+    if (json['modules'] != null) {
+      int i = 1;
+      dynamic list = json['modules'];
+      for (var item in list) {
+        ModuleData module = ModuleData.fromJson(item);
+        module.serial = i;
+        lst.add(module);
+        i++;
+      }
+    }
+
+    try {
+      return CourseData(
+        id: json['id'] as String?,
+        title: json['title'] as String?,
+        description: json['description'] as String?,
+        about: json['about'] as String?,
+        duration: json['duration'] as String?,
+        validity: json['validity'] as int?,
+        thumbnail: json['thumbnail'] as String?,
+        url: json['url'] as String?,
+        level: json['level'] as String?,
+        short: json['short'] as bool?,
+        certified: json['certified'] as bool?,
+        free: json['free'] as bool?,
+        currency: json['currency'] as String?,
+        price: double.parse(json['price'] ?? '0.00'),
+        offer: double.parse(json['offer'] ?? '0.00'),
+        reviews: json['review']?['reviews'] ?? '0' as int?,
+        rating: double.parse(json['review']?['rating'] ?? '0.00'),
+        modules: lst,
+      );
+    } catch (e) {
+      print('course constructor error: ${e.toString()}');
+      return CourseData();
+    }
   }
 
   // Object to JSON conversion
@@ -83,6 +102,34 @@ class CourseData {
       if (currency != null) 'currency': currency,
       if (price != null) 'price': price,
       if (offer != null) 'offer': offer,
+    };
+  }
+}
+
+class CourseBasicData {
+  String? id;
+  String? title;
+  String? description;
+  String? thumbnail;
+
+  CourseBasicData({this.id, this.title, this.description, this.thumbnail});
+
+  factory CourseBasicData.fromJson(Map<String, dynamic> json) {
+    return CourseBasicData(
+      id: json['id'] as String?,
+      title: json['title'] as String?,
+      description: json['description'] as String?,
+      thumbnail: json['thumbnail'] as String?,
+    );
+  }
+
+  // Object to JSON conversion
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'title': title,
+      'description': description,
+      'thumbnail': thumbnail,
     };
   }
 }

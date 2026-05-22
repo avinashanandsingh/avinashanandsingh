@@ -131,6 +131,20 @@ input EnrollIn {
   status: EnrollmentStatus
 }
 
+input ImportIn {
+  courseid: UUID!
+  scheduleid: UUID
+  enrolledat: DateTime!
+  first_name: String! @constraint(pattern: "^[a-zA-Z\\s]*$", maxLength: 50)
+  last_name: String!
+  email: String! @constraint(format: "email", maxLength: 255)
+  phone: String!
+    @constraint(
+      pattern: "^(?:\\+?[1-9]\\d{0,3}[-\\s]?)?(?:\\(\\d{1,5}\\)|\\d{1,5})?[-\\s]?(?:\\d[-\\s]?){6,19}\\d$"
+      maxLength: 20
+    )
+}
+
 input DropIn {
   droppedat: DateTime!
   notes: String!

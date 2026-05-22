@@ -4,6 +4,7 @@ import get from "./get";
 import list from "./list";
 import enrolled from "./enrolled";
 import changeStatus from "./changeStatus";
+import _import from "./import";
 export default {
   add,
   update,
@@ -11,4 +12,5 @@ export default {
   list,
   enrolled,
   changeStatus,
+  import: _import,
 };

@@ -537,6 +537,7 @@ type Order {
   contextid: UUID
   context_data: JSON
   slotid: UUID
+  slot_date: DateTime
   name: String
   price: String
   order_status: String

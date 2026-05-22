@@ -29,7 +29,6 @@ export class Pager implements OnInit {
   }
 
   get pages(): number[] {
-    console.log(this.totalPages);
     if (this.totalPages <= 1) return [1];
     if (this.totalPages <= this.currentMaxVisiblePages)
       return Array.from({ length: this.totalPages }, (_, i) => i + 1);

@@ -1,12 +1,14 @@
 import 'package:app/models/aura.dart';
 import 'package:app/services/api.dart';
+import 'package:app/utils/result.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class Aura {
   final String url = dotenv.env['URL'] ?? '';
   final ApiService api = ApiService();
 
-  Future<List<AuraData>> list() async {
+  Future<Result<AuraData>> list() async {
+    Result<AuraData> out = Result<AuraData>(succeed: false);
     List<AuraData> data = [];
     dynamic body = {
       "query":
@@ -20,13 +22,21 @@ class Aura {
       },
     };
     dynamic result = await api.post(url, body);
-    print(result);
-    if (result != null) {
+    if (result['errors'] != null) {
+      dynamic error = result!['errors']![0];
+      String msg =
+          error?['extensions']?['originalError']?['message'] ??
+          error?['message'];
+      out.succeed = false;
+      out.message = msg;
+    } else {
       dynamic rows = result?['data']['services']?['rows'];
       for (var row in rows) {
         data.add(AuraData.fromJson(row));
       }
+      out.succeed = true;
+      out.list = data;
     }
-    return data;
+    return out;
   }
 }

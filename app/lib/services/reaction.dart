@@ -37,7 +37,7 @@ class Reaction {
         data.add(ReactionData.fromJson(row));
       }
       out.succeed = true;
-      out.data = data;
+      out.list = data;
     }
 
     return out;

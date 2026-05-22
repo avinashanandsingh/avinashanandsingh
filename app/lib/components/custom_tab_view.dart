@@ -28,6 +28,7 @@ class CustomTabView extends StatelessWidget {
             unselectedLabelColor: Colors.grey,
             indicatorColor: AppColors.primary,
             indicatorWeight: 3,
+            tabAlignment: TabAlignment.start,
             tabs: tabs,
           ),
           SizedBox(

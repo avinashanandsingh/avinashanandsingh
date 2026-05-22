@@ -8,6 +8,9 @@ class UserData {
   String? currency;
   double? income;
   String? status;
+
+  String? get fullName => "$firstName $lastName";
+
   UserData({
     this.id,
     // ignore: non_constant_identifier_names

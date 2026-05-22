@@ -68,7 +68,7 @@ class _LayoutState extends State<Layout> {
         if (result.succeed) {
           navigatorKey.currentState?.push(
             MaterialPageRoute(
-              builder: (context) => ReelsPlayer(reels: result.data!),
+              builder: (context) => ReelsPlayer(reels: result.list!),
             ),
           );
         } else {

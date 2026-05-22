@@ -31,13 +31,38 @@ class Order {
         data.add(OrderData.fromJson(row));
       }
       out.succeed = true;
-      out.data = data;
+      out.list = data;
     }
     return out;
   }
 
-  Future<OrderData?> add(OrderData order) async {
-    OrderData? data;
+  Future<Result<OrderData>> get(dynamic filter) async {
+    //print('called ${filter?.toJson()}');
+    Result<OrderData> out = Result<OrderData>(succeed: false);
+    dynamic body = {
+      "query":
+          r'query get ($filter: Filter!) { order(filter: $filter) { id context contextid context_data name slot_date price order_status order_status_reason payment_status payment_status_reason paymentid orderid signature createdat creator { id first_name last_name email phone }  } }',
+      "variables": {"filter": filter ?? {}},
+    };
+
+    dynamic result = await api.post(url, body);
+    if (result['errors'] != null) {
+      dynamic error = result!['errors']![0];
+      String msg =
+          error?['extensions']?['originalError']?['message'] ??
+          error?['message'];
+      out.succeed = false;
+      out.message = msg;
+    } else {
+      dynamic row = result?['data']['order'];
+      out.succeed = true;
+      out.row = OrderData.fromJson(row);
+    }
+    return out;
+  }
+
+  Future<Result<OrderData>?> add(OrderData order) async {
+    Result<OrderData> out = Result(succeed: false);
     dynamic body = {
       "query":
           r'mutation add ($input: OrderIn!) { newOrder(input: $input) { id orderid } }',
@@ -46,6 +71,8 @@ class Order {
           if (order.context != null) 'context': order.context,
           if (order.contextid != null) 'contextid': order.contextid,
           if (order.slotid != null) 'slotid': order.slotid,
+          if (order.slotDate != null)
+            'slot_date': order.slotDate!.toIso8601String(),
           if (order.price != null) 'price': order.price,
           if (order.orderStatus != null) 'order_status': order.orderStatus,
           if (order.orderStatusReason != null)
@@ -61,11 +88,19 @@ class Order {
       },
     };
     dynamic result = await api.post(url, body);
-    if (result != null) {
+    if (result['errors'] != null) {
+      dynamic error = result!['errors']![0];
+      String msg =
+          error?['extensions']?['originalError']?['message'] ??
+          error?['message'];
+      out.succeed = false;
+      out.message = msg;
+    } else {
       dynamic row = result?['data']['newOrder'];
-      data = OrderData.fromJson(row);
+      out.succeed = true;
+      out.row = OrderData.fromJson(row);
     }
-    return data;
+    return out;
   }
 
   Future<OrderData?> update(String id, OrderData order) async {

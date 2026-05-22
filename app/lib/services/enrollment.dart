@@ -1,67 +1,52 @@
-import 'package:app/models/course.dart';
 import 'package:app/models/enroll.dart';
 import 'package:app/services/api.dart';
-import 'package:app/services/service.dart';
 import 'package:app/utils/result.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class Enrollment {
   final String url = dotenv.env['URL'] ?? '';
   final ApiService api = ApiService();
-  Future<List<EnrollData>> list(dynamic filter) async {
-    //print('called ${filter?.toJson()}');
+  Future<Result<EnrollData>> list(dynamic filter) async {
     List<EnrollData> data = [];
+    Result<EnrollData> out = Result<EnrollData>(succeed: false);
     dynamic body = {
       "query":
-          'query list (\$filter: Filter!) { courses(filter: \$filter) { count rows { id title description about duration validity thumbnail url certified short level free currency price offer status review modules { id } } } }',
+          r'query list ($filter: Filter!) { enrollments(filter: $filter) { count rows { id userid user { id first_name last_name } courseid course { id title description thumbnail } scheduleid schedule { id title }  status enrolledat completedat certificate_issued_at droppedat  notes } } }',
       "variables": {"filter": filter},
     };
+
     dynamic result = await api.post(url, body);
-    if (result != null) {
-      dynamic rows = result?['data']['courses']?['rows'];
+    if (result['errors'] != null) {
+      dynamic error = result!['errors']![0];
+      String msg =
+          error?['extensions']?['originalError']?['message'] ??
+          error?['message'];
+      out.succeed = false;
+      out.message = msg;
+    } else {
+      dynamic rows = result?['data']['enrollments']?['rows'];
       for (var row in rows) {
         data.add(EnrollData.fromJson(row));
       }
+      out.succeed = true;
+      out.list = data;
     }
-    return data;
+    return out;
   }
 
   Future<EnrollData?> get(Map<String, dynamic> filter) async {
     EnrollData? data;
     dynamic body = {
       "query":
-          r'query get ($filter: Filter!) { course(filter: $filter) { id title description about duration validity thumbnail url certified short level free currency price offer status review modules { id } } }',
+          r'query get ($filter: Filter!) { enrollment(filter: $filter) { id userid user { id first_name last_name } courseid course { id title description thumbnail } scheduleid schedule { id title }  status enrolledat completedat certificate_issued_at droppedat  notes } }',
       "variables": {"filter": filter},
     };
     dynamic result = await api.post(url, body);
     if (result != null) {
-      dynamic row = result?['data']['course'];
+      dynamic row = result?['data']['enrollment'];
       data = EnrollData.fromJson(row);
     }
     return data;
-  }
-
-  Future<bool> isEnrolled(String courseId) async {
-    bool flag = false;
-    dynamic me = await Service.identity.me();
-    dynamic body = {
-      "query":
-          r'query isEnrolled ($courseId: UUID!) { isEnrolled(courseId: $courseId) { courseid scheduleid userid } }',
-      "variables": {"courseId": courseId},
-    };
-
-    if (me != null) {
-      body = {
-        "query":
-            r'query isEnrolled ($courseId: UUID!, $userId: UUID) { isEnrolled(courseId: $courseId, userId: $userId) { courseid scheduleid userid } }',
-        "variables": {"courseId": courseId, "userId": me["id"]},
-      };
-    }
-    dynamic result = await api.post(url, body);
-    if (result != null) {
-      flag = (result['errors'] == null);
-    }
-    return flag;
   }
 
   Future<Result> initiate(EnrollData dataIn) async {

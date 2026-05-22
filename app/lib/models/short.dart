@@ -17,7 +17,6 @@ class ShortData {
   });
 
   factory ShortData.fromJson(Map<String, dynamic> json) {
-    print(json);
     return ShortData(
       id: json['id'] as String?,
       title: json['title'] as String,

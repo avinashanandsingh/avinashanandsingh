@@ -29,7 +29,7 @@ type Query {
   content(id: UUID!): Content!
   contents(filter: Filter!): ContentResult!
 
-  isEnrolled(courseId: UUID!, userId: UUID): Enrollment!
+  isEnrolled(courseId: UUID!, userId: UUID): Enrollment
   enrollment(id: UUID!): Enrollment!
   enrollments(filter: Filter!): EnrollmentResult!
 
@@ -125,6 +125,7 @@ type Mutation {
   deleteModule(id:UUID!): Module!
 
   enroll(input: EnrollIn!): Enrollment!
+  import(input: ImportIn!): Enrollment!
   drop(id:UUID!, input: DropIn!): Enrollment!
   updateEnrollment(id:UUID!, input: EnrollIn!):Enrollment!
   changeEnrollmentStatus(id: UUID!, status: EnrollmentStatus!): Enrollment!

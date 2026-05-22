@@ -14,13 +14,12 @@ export class EnrollmentService {
   constructor(
     private api: ApiService,
     private header: Header,
-    private store: StorageService,
   ) {}
 
   async list(filter: Filter): Promise<Data<IEnrollmentData>> {
     let body = {
       query:
-        'query list ($filter: Filter!) { enrollments(filter: $filter) { count rows { id userid user { first_name last_name } courseid course { title } scheduleid schedule { title } status enrolledat completedat certificate_issued_at droppedat droppedby { first_name last_name } notes } } }',
+        'query list ($filter: Filter!) { enrollments(filter: $filter) { count rows { id userid user { first_name last_name email phone } courseid course { title } scheduleid schedule { title } status enrolledat completedat certificate_issued_at droppedat droppedby { first_name last_name } notes } } }',
       variables: {
         filter: {
           ...filter,
@@ -48,6 +47,20 @@ export class EnrollmentService {
     delete input.id;
     let body = {
       query: 'mutation add ($input: ResourceIn!) { addResource(input: $input) { id } }',
+      variables: {
+        input: {
+          ...input,
+        },
+      },
+    };
+    let header = this.header.api();
+    return await this.api.post(this.url, header, body);
+  }
+
+  async import(input: any): Promise<any> {
+    delete input.id;
+    let body = {
+      query: 'mutation import ($input: ImportIn!) { import(input: $input) { id } }',
       variables: {
         input: {
           ...input,

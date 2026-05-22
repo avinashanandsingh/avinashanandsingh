@@ -8,7 +8,7 @@ class EnrollHelper {
   static Future<Result> initiate(String courseId, {String? qnaData}) async {
     EnrollData entity = EnrollData(courseId: courseId);
     entity.status = "INITIATED";
-    var course = await Service.course.get({
+    var result = await Service.course.get({
       "criteria": [
         {"column": "id", "cop": "eq", "value": entity.courseId},
       ],
@@ -24,8 +24,8 @@ class EnrollHelper {
     entity.scheduleId = schedule?.id;
     var today = DateTime.now();
     entity.enrolledat = DateFormat("yyyy-MM-dd").format(today);
-    if ((course?.validity ?? 0) > 0) {
-      var exp = today.add(Duration(days: course?.validity ?? 0));
+    if ((result?.row?.validity ?? 0) > 0) {
+      var exp = today.add(Duration(days: result?.row?.validity ?? 0));
       entity.expiredat = DateFormat("yyyy-MM-dd").format(exp);
     }
     if (qnaData != null) {

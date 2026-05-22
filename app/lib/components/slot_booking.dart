@@ -1,6 +1,7 @@
 import 'package:app/models/aura.dart';
 import 'package:app/models/order.dart';
 import 'package:app/models/user.dart';
+import 'package:app/pages/receipt.dart';
 import 'package:app/services/razorpay.dart';
 import 'package:app/services/service.dart';
 import 'package:app/utils/alert.dart';
@@ -8,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../helpers/globals.dart';
 
 class SlotBooking extends StatefulWidget {
   final AuraData item;
@@ -19,10 +21,11 @@ class SlotBooking extends StatefulWidget {
 class SlotBookingState extends State<SlotBooking> {
   int? selectedSlotIndex;
   DateTime? selectedDate;
-
+  bool paid = false;
   @override
   void initState() {
     super.initState();
+    paid = false;
   }
 
   @override
@@ -31,9 +34,9 @@ class SlotBookingState extends State<SlotBooking> {
   }
 
   void handlePaymentSuccess(PaymentSuccessResponse response) async {
-    print(
-      'PaymentSuccessResponse: ${response.paymentId}, ${response.signature}',
-    );
+    setState(() {
+      paid = true;
+    });
     String? orderId = await Service.store.get("latest_order_id");
     OrderData orderData = OrderData(
       orderStatus: "CONFIRMED",
@@ -45,7 +48,6 @@ class SlotBookingState extends State<SlotBooking> {
       updatedat: DateTime.now(),
     );
     OrderData? order = await Service.order.update(orderId!, orderData);
-    print('updated Order: ${order?.toJson()}');
     if (order?.id == null) {
       Alert.show(
         "Payment was successful but failed to update order. Please contact support.",
@@ -56,10 +58,23 @@ class SlotBookingState extends State<SlotBooking> {
         "Payment Successful! Your order is confirmed.",
         isError: false,
       );
+
+      var out = await Service.order.get({
+        "criteria": [
+          {"column": "id", "cop": "eq", "value": orderId},
+        ],
+      });
+
+      navigatorKey.currentState?.push(
+        MaterialPageRoute(builder: (context) => Receipt(order: out.row)),
+      );
     }
   }
 
   void handlePaymentError(PaymentFailureResponse response) async {
+    setState(() {
+      paid = false;
+    });
     if (response.code == 0) {
       String? orderId = await Service.store.get("latest_order_id");
       OrderData orderData = OrderData(
@@ -69,9 +84,15 @@ class SlotBookingState extends State<SlotBooking> {
         updatedat: DateTime.now(),
       );
       OrderData? order = await Service.order.update(orderId!, orderData);
-      print('updated Order: ${order?.toJson()}');
+      if (order?.id == null) {
+        Alert.show(
+          "Payment was successful but failed to update order. Please contact support.",
+          isError: true,
+        );
+      } else {
+        Alert.show("Payment cancelled successfully.", isError: false);
+      }
     }
-    print(response.error.toString());
     Alert.show("Payment Failed: ${response.message}", isError: true);
   }
 
@@ -368,10 +389,8 @@ class SlotBookingState extends State<SlotBooking> {
                 ElevatedButton(
                   onPressed: (selectedSlotIndex != null && selectedDate != null)
                       ? () async {
-                          //Navigator.pop(context);
-
                           // NOTE: Uncomment and fix these logic lines based on your actual imports
-                          bool bought = await Service.order.bought(
+                          /* bool bought = await Service.order.bought(
                             item.id!,
                             "AURA_SCANNING",
                           );
@@ -380,71 +399,63 @@ class SlotBookingState extends State<SlotBooking> {
                               "Your time slot is already booked.",
                               isError: false,
                             );
-                          } else {
-                            var payment = await Service.setting.get('PAYMENT');
-                            dynamic user = await Service.identity.me();
-                            var slot = item.slots![selectedSlotIndex!];
+                          } else { */
+                          var payment = await Service.setting.get('PAYMENT');
+                          UserData? user = await Service.identity.me();
+                          var slot = item.slots![selectedSlotIndex!];
 
-                            var orderData = OrderData(
-                              context: "AURA_SCANNING",
-                              contextid: item.id,
-                              slotid: slot.id,
-                              slotDate: selectedDate,
-                              name: "Aura Scan - ${item.name} - ${slot.name}",
-                              price: item.sale,
-                              orderStatus: "INITIATED",
-                              orderStatusReason:
-                                  'Your order has been initiated and awaiting payment',
-                              paymentStatus: "PENDING",
-                              createdat: DateTime.now(),
-                            );
-                            var order = await Service.order.add(orderData);
+                          var orderData = OrderData(
+                            context: "AURA_SCANNING",
+                            contextid: item.id,
+                            slotid: slot.id,
+                            slotDate: selectedDate,
+                            name: "Aura Scan - ${item.name} - ${slot.name}",
+                            price: item.sale,
+                            orderStatus: "INITIATED",
+                            orderStatusReason:
+                                'Your order has been initiated and awaiting payment',
+                            paymentStatus: "PENDING",
+                            createdat: DateTime.now(),
+                          );
+                          var result = await Service.order.add(orderData);
 
-                            if (order?.id == null) {
-                              Alert.show(
-                                "Failed to create order. Please try again.",
-                                isError: true,
+                          if (result!.succeed) {
+                            if (payment == 'ON') {
+                              await Service.store.set(
+                                "latest_order_id",
+                                result.row!.id!,
+                              );
+
+                              RazorpayService.instance.startPayment(
+                                onSuccess: handlePaymentSuccess,
+                                onFailure: handlePaymentError,
+                                options: {
+                                  'key':
+                                      dotenv.env['RAZORPAY_KEY'] ??
+                                      '', // Replace with your key
+                                  'currency': 'INR',
+                                  'amount':
+                                      1 *
+                                      100, // amount in the smallest currency unit amount * 100
+                                  'name': dotenv.env['COMPANY'] ?? '',
+                                  'description':
+                                      'Aura Scan - ${item.name!} - ${slot.name!}',
+                                  'timeout': 300, // in seconds
+                                  'prefill': {
+                                    "name":
+                                        "${user?.firstName ?? ''} ${user?.lastName ?? ''}",
+                                    "contact": user?.phone,
+                                    "email": user?.email,
+                                  },
+                                  'theme': {'color': '#5A2A82'},
+                                  'modal': {
+                                    'confirm_close': true,
+                                    'handle_back': true,
+                                  },
+                                },
                               );
                             } else {
-                              if (payment == 'ON') {
-                                await Service.store.set(
-                                  "latest_order_id",
-                                  order!.id!,
-                                );
-                                var userData = UserData.fromJson(user);
-                                RazorpayService.instance.startPayment(
-                                  onSuccess: handlePaymentSuccess,
-                                  onFailure: handlePaymentError,
-                                  options: {
-                                    'key':
-                                        dotenv.env['RAZORPAY_KEY'] ??
-                                        '', // Replace with your key
-                                    'currency': 'INR',
-                                    'amount':
-                                        1 *
-                                        100, // amount in the smallest currency unit amount * 100
-                                    'name': dotenv.env['COMPANY'] ?? '',
-                                    'description':
-                                        'Aura Scan - ${item.name!} - ${slot.name!}',
-                                    'timeout': 300, // in seconds
-                                    'prefill': {
-                                      "name":
-                                          "${userData.firstName ?? ''} ${userData.lastName ?? ''}",
-                                      "contact": userData.phone,
-                                      "email": userData.email,
-                                    },
-                                    'theme': {'color': '#5A2A82'},
-                                    'modal': {
-                                      'confirm_close': true,
-                                      'handle_back': true,
-                                    },
-                                  },
-                                );
-                                /* checkout(
-                                  'Aura Scan - ${item.name!} - ${slot.name!}',
-                                  userData,
-                                ); */
-                              }
+                              Alert.show(result.message!, isError: true);
                             }
                           }
                         }

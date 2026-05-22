@@ -183,7 +183,7 @@ class _SignUpState extends State<SignUp> {
                                     dynamic result = await Identity.instance
                                         .signup(model);
                                     Loader.hide();
-                                    print(result);
+
                                     if (result!['errors'] == null) {
                                       Loader.hide();
                                       Navigator.of(context).push(

@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, WritableSignal } from '@angular/core';
+import { Component, effect, ElementRef, OnInit, signal, TemplateRef, ViewChild, WritableSignal } from '@angular/core';
 import { EnrollmentService } from '../../../services/enrollment-service';
 import Filter from '../../../models/filter';
 import { IEnrollmentData } from '../../../models/enrollment';
@@ -15,6 +15,8 @@ import { ScheduleService } from '../../../services/schedule-service';
 import { Dialog } from '../../../components/dialog/dialog';
 import Swal from 'sweetalert2';
 import { Pager } from '../../../components/pager/pager';
+import { ExcelService } from '../../../services/excel-service';
+import { IUser } from '../../../models/user';
 
 @Component({
   selector: 'enrollment-list',
@@ -30,8 +32,15 @@ export default class List implements OnInit {
   list = signal<IEnrollmentData[]>([]);
   course_list = signal<IListItem[]>([]);
   schedule_list = signal<IListItem[]>([]);
-
+  bulkDialog = signal<boolean>(false);
   loader = signal<boolean>(false);
+  user =signal<IUser | null>(null);
+  xlrows:any[] =[];
+  enrol_list = signal<any[]>([]);
+  courseId = signal<string>('');
+  scheduleId = signal<string>('');
+  popover = signal<boolean>(false);
+  
 
   filterForm: FormGroup = new FormGroup({
     courseid: new FormControl(''),
@@ -89,12 +98,80 @@ export default class List implements OnInit {
       type: 'btn btn-primary w-full',
     },
   ]);
+  dialogButtons = signal<Array<{ label: string; action: any; type: any }>>([
+    {
+      label: 'Close',
+      action: () => {
+        this.hide(this.bulkDialog);
+      },
+      type: 'btn btn-secondary w-full',
+    },
+    {
+      label: 'Save',
+      action: async () => {
+        let courseId = this.courseId();
+        let scheduleId = this.scheduleId();
+        if(courseId == undefined) return;
+
+        this.show(this.loader);
+        let idx = 0;
+        let rows = this.xlrows;
+        for await (let row of rows) {
+          let result = await this.service.import({
+            courseid: courseId,
+            scheduleid: scheduleId,
+            first_name: row.first_name,
+            last_name: row.last_name,
+            email: row.email,
+            phone: row.phone,
+            enrolledat: new Date(),
+          });
+        
+          if (result?.data?.import) {
+            row.import_status = 'Completed';
+            /* Swal.fire({
+              title: 'Success',
+              html: 'Status changed successfully',
+              icon: 'success',
+              timer: 3000,
+            }); */
+          } else {
+            row.import_status = 'Failed';
+            /* let error = result?.errors?.shift();
+            let msg = error?.extensions?.originalError?.message;
+            Swal.fire({
+              title: 'Failed',
+              html: msg,
+              icon: 'error',
+              timer: 3000,
+            }); */
+          }
+
+          rows[idx] = row;
+          this.enrol_list.set(rows);
+          idx++;
+        }
+        this.load({ criteria: this.criteria() });
+        //this.statusForm.reset();
+        this.hide(this.loader);
+        this.hide(this.bulkDialog);
+      },
+      type: 'btn btn-primary w-full',
+    },
+  ]);
+ @ViewChild('file', { static: true }) upload!: ElementRef<any>;
   constructor(
     private course: CourseService,
     private schedule: ScheduleService,
     private service: EnrollmentService,
     private titleService: TitleService,
-  ) {}
+    private xl: ExcelService,
+  ) {
+    effect(()=>{
+      this.xlrows = this.enrol_list();
+      console.log(this.xlrows);
+    })
+  }
   async ngOnInit(): Promise<void> {
     this.titleService.title = 'Enrollments';
     this.loader.set(true);
@@ -193,7 +270,6 @@ export default class List implements OnInit {
   }
 
   async courseHandler(item: IListItem): Promise<void> {
-    console.log(item);
     this.filterForm.controls['courseid'].setValue(item?.id);
     if (item) {
       this.loader.set(true);
@@ -201,19 +277,76 @@ export default class List implements OnInit {
       this.loader.set(false);
     }
   }
+
   scheduleHandler(item: IListItem) {
     this.filterForm.controls['scheduleid'].setValue(item?.id);
+  }
+
+  async importCourseHandler(item: IListItem): Promise<void> {
+    if (item) {
+      this.loader.set(true);
+      this.courseId.set(item.id as string);
+      await this.load_schedule_list(item?.id);
+      this.loader.set(false);
+    }
+  }
+  
+  importScheduleHandler(item: IListItem) {
+    this.scheduleId.set(item.id as string);
   }
 
   show(me: WritableSignal<boolean>, id?: string) {
     if (id) {
       let row = this.list().find((x) => x.id === id);
+      this.user.set(row?.user!);
       this.statusForm.patchValue({ id: id, status: row?.status });
+    }else{
+      this.upload.nativeElement.value="";
+      this.enrol_list.set([]);
     }
     me.set(true);
   }
 
   hide(me: WritableSignal<boolean>) {
     me.set(false);
+  }
+
+
+  async selectImportFile(e: any) {
+    let file = e?.target?.files[0];
+    //var reader = new FileReader();
+    //this.fileToUpload = file;
+    const arrayBuffer = await file.arrayBuffer();
+    let data = await this.xl.read(arrayBuffer);
+    console.log("data: ", data);
+    //reader.readAsArrayBuffer(file);
+    let rows:any[] = [];
+    let rownum = 1;
+      data.forEach((x: any) => {
+        rows.push({
+          rowId: rownum,
+          first_name: x[1],
+          last_name: x[2],
+          email: x[3],
+          phone: x[4],
+          //gender: x[6],
+          //dateOfBirth: this.convertDate(x[7]),
+          //address: x[20],
+          //city: x[21],
+          //state: x[22],
+          //zip: x[23],
+          //worker_desciption: x[24],
+          //work_category: x[25],
+          import_status: "Loaded",
+        });
+        rownum++;
+      });
+      this.enrol_list.set(rows);
+    /*reader.onload = async (value: any) => {
+      let buffer = value?.target?.result;
+      let data = await this.xl.read(buffer);
+      //console.log(data);
+      
+    };*/
   }
 }

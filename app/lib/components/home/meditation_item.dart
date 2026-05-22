@@ -134,8 +134,8 @@ class MeditationsItemState extends State<MeditationItem> {
                     paymentStatus: "PENDING",
                     createdat: DateTime.now(),
                   );
-                  OrderData? order = await Service.order.add(orderData);
-                  if (order?.id == null) {
+                  var result = await Service.order.add(orderData);
+                  if (result?.row == null) {
                     Alert.show(
                       "Failed to create order. Please try again.",
                       isError: true,
@@ -148,7 +148,10 @@ class MeditationsItemState extends State<MeditationItem> {
                     var payment = await Service.setting.get('PAYMENT');
                     dynamic user = await Service.identity.me();
                     if (payment == 'ON') {
-                      await Service.store.set("latest_order_id", order!.id!);
+                      await Service.store.set(
+                        "latest_order_id",
+                        result!.row!.id!,
+                      );
                       UserData userData = UserData.fromJson(user);
                       RazorpayService.instance.startPayment(
                         options: {

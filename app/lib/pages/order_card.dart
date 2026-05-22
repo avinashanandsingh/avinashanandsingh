@@ -1,7 +1,11 @@
+import 'package:app/helpers/capitalize.dart';
 import 'package:app/models/order.dart';
+import 'package:app/pages/receipt.dart';
+import 'package:app/services/service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:app/theme/theme.dart';
+import '../helpers/globals.dart';
 
 class OrderCard extends StatelessWidget {
   final OrderData order;
@@ -99,11 +103,30 @@ class OrderCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Order # ${order.orderid}',
-                          style: TextTheme.of(context).labelSmall!.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: textColor,
+                        TextButton(
+                          onPressed: () async {
+                            var out = await Service.order.get({
+                              "criteria": [
+                                {
+                                  "column": "id",
+                                  "cop": "eq",
+                                  "value": order.id,
+                                },
+                              ],
+                            });
+
+                            navigatorKey.currentState?.push(
+                              MaterialPageRoute(
+                                builder: (context) => Receipt(order: out.row),
+                              ),
+                            );
+                          },
+                          child: Text(
+                            'Order # ${order.orderid}',
+                            style: TextTheme.of(context).labelSmall!.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: textColor,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -140,7 +163,7 @@ class OrderCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          order.context ?? '',
+                          order.context!.replaceAll("_", " ").capitalize(),
                           style: TextTheme.of(context).headlineSmall,
                         ),
                         const SizedBox(height: 4),

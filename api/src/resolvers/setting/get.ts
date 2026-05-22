@@ -15,7 +15,7 @@ export default async (
   let criteria = args.filter.criteria?.map((x) => {
     return { table: table, ...x };
   });
-  console.log(criteria);
+  
   let input: Select = {
     tables: [
       {

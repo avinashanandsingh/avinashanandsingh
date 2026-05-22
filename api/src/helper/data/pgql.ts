@@ -11,9 +11,11 @@ const reader = new Pool({
   password: process.env.DB_PASS,
   database: process.env.DB_NAME,
   keepAlive: true,
-  max: 10,
+  keepAliveInitialDelayMillis: 10000,
+  max: 20,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
+  maxLifetimeSeconds: 60,
   ssl: {
     ca: fs.readFileSync(file).toString(),
     // 'REQUIRED' ensures the connection fails if SSL cannot be established
@@ -28,9 +30,11 @@ const writer = new Pool({
   password: process.env.DB_PASS,
   database: process.env.DB_NAME,
   keepAlive: true,
-  max: 10,
+  max: 20,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
+  keepAliveInitialDelayMillis: 10000,
+  maxLifetimeSeconds: 60,
   ssl: {
     ca: fs.readFileSync(file).toString(),
     // 'REQUIRED' ensures the connection fails if SSL cannot be established

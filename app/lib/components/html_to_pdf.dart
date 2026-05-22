@@ -3,17 +3,20 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_native_html_to_pdf/flutter_native_html_to_pdf.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:printing/printing.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:open_filex/open_filex.dart';
 
-class HtmlToPdfDownloader extends StatefulWidget {
+class HtmlToPdf extends StatefulWidget {
   final String htmlContent;
   final String documentName;
   final Widget? child;
   final ButtonStyle? buttonStyle;
   final VoidCallback? onSuccess;
   final Function(dynamic)? onError;
+  final bool isPrint;
 
-  const HtmlToPdfDownloader({
+  const HtmlToPdf({
     super.key,
     required this.htmlContent,
     this.documentName = 'document',
@@ -21,13 +24,14 @@ class HtmlToPdfDownloader extends StatefulWidget {
     this.buttonStyle,
     this.onSuccess,
     this.onError,
+    this.isPrint = false,
   });
 
   @override
-  State<HtmlToPdfDownloader> createState() => _HtmlToPdfDownloaderState();
+  State<HtmlToPdf> createState() => HtmlToPdfState();
 }
 
-class _HtmlToPdfDownloaderState extends State<HtmlToPdfDownloader> {
+class HtmlToPdfState extends State<HtmlToPdf> {
   bool _isGenerating = false;
   final _converter = HtmlToPdfConverter();
 
@@ -46,7 +50,15 @@ class _HtmlToPdfDownloaderState extends State<HtmlToPdfDownloader> {
       );
 
       if (mounted) {
-        if (widget.onSuccess != null) {
+        if (widget.isPrint) {
+          await Printing.layoutPdf(
+            onLayout: (format) async => pdfFile.readAsBytes(),
+            name: widget.documentName,
+          );
+          if (widget.onSuccess != null) {
+            widget.onSuccess!();
+          }
+        } else if (widget.onSuccess != null) {
           widget.onSuccess!();
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -55,10 +67,12 @@ class _HtmlToPdfDownloaderState extends State<HtmlToPdfDownloader> {
               action: SnackBarAction(
                 label: 'Open',
                 onPressed: () async {
-                  final uri = Uri.file(pdfFile.path);
-                  if (await canLaunchUrl(uri)) {
-                    await launchUrl(uri);
-                  }
+                  print(pdfFile.path);
+                  //final uri = Uri.file(pdfFile.path);
+                  //if (await canLaunchUrl(uri)) {
+                  //await launchUrl(uri);
+                  //}
+                  final result = await OpenFilex.open(pdfFile.path);
                 },
               ),
             ),
@@ -95,7 +109,7 @@ class _HtmlToPdfDownloaderState extends State<HtmlToPdfDownloader> {
               height: 20,
               child: CircularProgressIndicator(strokeWidth: 2),
             )
-          : (widget.child ?? const Text('Download PDF')),
+          : (widget.child ?? Text(widget.isPrint ? 'Print' : 'Download')),
     );
   }
 }

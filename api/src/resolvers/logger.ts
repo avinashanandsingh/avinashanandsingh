@@ -19,7 +19,7 @@ export default {
       delete query["variables"]["input"]["password"];
     }
     
-    let request = {
+    let request:any = {
       headers: headers,
       body: query,
     };
@@ -47,10 +47,11 @@ export default {
       originator: originator,
       starttime: new Date().toISOString(),
       ip: ip,
-      request: request,
+      //request: request,
     };
     id = await helper.log.add(logger);
-
+    const buffer = Buffer.from(JSON.stringify(request), "utf-8");
+    await helper.s3.upload("logs/request", `${id}.json`, "application/json", buffer);
     return id;
   },
   update: async (id: string, status: string, data: any): Promise<string> => {
@@ -59,9 +60,14 @@ export default {
 
     let logger = {
       endtime: new Date(),
-      response: JSON.stringify(data),
+      //response: JSON.stringify(data),
       status: status,
     };
+    if(data != undefined){
+      const buffer = Buffer.from(JSON.stringify(data), "utf-8");
+      await helper.s3.upload("logs/response", `${id}.json`, "application/json", buffer);
+    }
+    //console.log("log.response: ", result);
     return await helper.log.update(id, logger);
   },
 };

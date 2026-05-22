@@ -485,6 +485,12 @@ const mapping = [
     role: UserRole.ANONYMOUS,
   },
   {
+    name: "import",
+    execute: entrollment.import,
+    include: true,
+    role: UserRole.ADMINISTRATOR,
+  },
+  {
     name: "updateEnrollment",
     execute: entrollment.update,
     include: true,

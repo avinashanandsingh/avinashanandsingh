@@ -4,21 +4,29 @@
         <div>
             <h2 class="text-2xl font-bold text-gray-800">Enrollments</h2>
             <p class="text-sm text-gray-500">Manage entrollments here</p>
-        </div>       
+        </div>
+        <button (click)="show(bulkDialog)"
+            class="flex items-center justify-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors shadow-md shadow-purple-100 font-medium">
+            <i class="bi bi-file-earmark-spreadsheet"></i>&nbsp;Bulk Enroll
+        </button>
     </div>
 
-<!-- Filter Area -->
+    <!-- Filter Area -->
     <form [formGroup]="filterForm">
         <div
             class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border border-gray-300 rounded p-3">
 
             <div class="flex-1 w-full">
-                <input type="hidden" formControlName="courseid"/>
-                <app-lov [items]="course_list()" [config]="{ minLength: 5, placeholder:'Select a Course', showImage: false }" (selected)="courseHandler($event!)"></app-lov>
+                <input type="hidden" formControlName="courseid" />
+                <app-lov [items]="course_list()"
+                    [config]="{ minLength: 5, placeholder:'Select a Course', showImage: false }"
+                    (selected)="courseHandler($event!)"></app-lov>
             </div>
             <div class="flex-1 w-full">
-                <input type="hidden" formControlName="scheduleid"/>
-                <app-lov [items]="schedule_list()" [config]="{ minLength: 5, placeholder:'Select a Schedule', showImage: false }" (selected)="scheduleHandler($event!)"></app-lov>
+                <input type="hidden" formControlName="scheduleid" />
+                <app-lov [items]="schedule_list()"
+                    [config]="{ minLength: 5, placeholder:'Select a Schedule', showImage: false }"
+                    (selected)="scheduleHandler($event!)"></app-lov>
             </div>
             <div class="flex-1 w-full">
                 <div id="enrolledat" class="flex flex-row gap-3">
@@ -26,7 +34,7 @@
                     <input type="date" class="input" placeholder="To Date" formControlName="to_date" />
                 </div>
             </div>
-            
+
             <div class="flex-1 w-full">
                 <select id="status" class="select" formControlName="status">
                     <option selected value="">Select a Status</option>
@@ -53,18 +61,19 @@
                     <tr>
                         <th class="px-3 py-3 font-semibold">Course</th>
                         <th class="px-3 py-3 font-semibold">Schedule</th>
-                        <th class="px-3 py-3 font-semibold">Enrollee</th>
+                        <th class="px-3 py-3 font-semibold">Enrollee&nbsp;Name</th>
+                        <th class="px-3 py-3 font-semibold">Enrollee&nbsp;Email</th>
                         <th class="px-3 py-3 font-semibold text-start">Enrolled&nbsp;Date</th>
                         <th class="px-3 py-3 font-semibold text-start">Completed&nbsp;Date</th>
-                        <th class="px-3 py-3 font-semibold text-start">Certified Date</th>
-                        <th class="px-3 py-3 font-semibold text-start">Dropped By</th>
-                        <th class="px-3 py-3 font-semibold text-start">Dropped Date</th>
+                        <th class="px-3 py-3 font-semibold text-start">Certified&nbsp;Date</th>
+                        <th class="px-3 py-3 font-semibold text-start">Dropped&nbsp;By</th>
+                        <th class="px-3 py-3 font-semibold text-start">Dropped&nbsp;Date</th>
                         <th class="px-3 py-3 font-semibold text-start">Notes</th>
                         <th class="px-3 py-3 font-semibold text-start">Status</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-gray-100">
-                     @for(row of list(); track row.id){
+                    @for(row of list(); track row.id){
                     <tr class="hover:bg-gray-50 transition">
                         <td class="p-3 whitespace-nowrap">
                             <div class="text-base font-medium text-gray-900">{{ row.course!.title }}</div>
@@ -73,35 +82,48 @@
                             <div class="text-base font-medium text-gray-900">{{ row.schedule!.title }}</div>
                         </td>
                         <td class="p-3 whitespace-nowrap">
-                            <div class="text-base font-medium text-gray-900">{{ row.user?.first_name! }} {{ row.user?.last_name! }}</div>
+                            <div class="text-base font-medium text-gray-900">
+                                {{ row.user?.first_name! }} {{ row.user?.last_name! }}
+                            </div>
                         </td>
                         <td class="p-3 whitespace-nowrap">
-                            <div class="text-base font-medium text-gray-900">{{ row.enrolledat | date:'dd-MM-yyy' }}</div>
+                            <div class="text-base font-medium text-gray-900">
+                                {{ row.user?.email }}
+                            </div>
                         </td>
                         <td class="p-3 whitespace-nowrap">
-                            <div class="text-base font-medium text-gray-900">{{ row.completedat| date:'dd-MM-yyy' }}</div>
+                            <div class="text-base font-medium text-gray-900">{{ row.enrolledat | date:'dd-MM-yyy' }}
+                            </div>
                         </td>
                         <td class="p-3 whitespace-nowrap">
-                            <div class="text-base font-medium text-gray-900">{{ row.certificate_issued_at| date:'dd-MM-yyy' }}</div>
+                            <div class="text-base font-medium text-gray-900">{{ row.completedat| date:'dd-MM-yyy' }}
+                            </div>
                         </td>
                         <td class="p-3 whitespace-nowrap">
-                            <div class="text-base font-medium text-gray-900">{{ row.droppedby?.first_name! }} {{ row.droppedby?.last_name! }}</div>
+                            <div class="text-base font-medium text-gray-900">{{ row.certificate_issued_at|
+                                date:'dd-MM-yyy' }}</div>
                         </td>
                         <td class="p-3 whitespace-nowrap">
-                            <div class="text-base font-medium text-gray-900">{{ row.droppedat | date:'dd-MM-yyy' }}</div>
+                            <div class="text-base font-medium text-gray-900">{{ row.droppedby?.first_name! }} {{
+                                row.droppedby?.last_name! }}</div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ row.droppedat | date:'dd-MM-yyy' }}
+                            </div>
                         </td>
                         <td class="p-3 whitespace-nowrap">
                             <div class="text-base font-medium text-gray-900">{{ row.notes }}</div>
                         </td>
                         <td class="p-3 whitespace-nowrap">
                             <div class="text-base font-medium text-gray-900">
-                                <button (click)="show(statusDialog, row.id!)" class="text-purple-600 hover:text-purple-900 text-base" title="Change Status">
+                                <button (click)="show(statusDialog, row.id!)"
+                                    class="text-purple-600 hover:text-purple-900 text-base" title="Change Status">
                                     {{ row.status }}
                                 </button>
                             </div>
                         </td>
                     </tr>
-                }
+                    }
                 </tbody>
             </table>
         </div>
@@ -118,6 +140,74 @@
     }
 </div>
 <loader [isOpen]="loader"></loader>
+<app-dialog [isOpen]="bulkDialog" [buttons]="dialogButtons" title="Bulk Enroll" [backdrop]="false" size="4xl">
+    <div title="Upload" class="mb-3">
+        <input id="upload" #file  type="file" accept=".xlsx" class="border border-violet-700 w-full rounded text-base text-slate-500
+            file:mr-4 file:py-2 file:px-4
+            file:border-r
+            file:text-sm file:font-semibold
+            file:bg-violet-50 file:text-violet-700
+            hover:file:bg-violet-100" (change)="selectImportFile($event)" />
+        <!-- (change)="fileChange($event)" -->
+    </div>
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-3">
+
+        <div class="flex-1 w-full">
+            <app-lov [items]="course_list()"
+                [config]="{ minLength: 5, placeholder:'Select a Course', showImage: false }"
+                (selected)="importCourseHandler($event!)"></app-lov>
+        </div>
+        <div class="flex-1 w-full">
+            <app-lov [items]="schedule_list()"
+                [config]="{ minLength: 5, placeholder:'Select a Schedule', showImage: false }"
+                (selected)="importScheduleHandler($event!)"></app-lov>
+        </div>
+    </div>
+    
+    <!-- Listing Table -->
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-base text-gray-600">
+                    <thead class="bg-gray-50 text-base uppercase text-gray-500 border-b border-gray-100">
+                        <tr>
+                            <th class="px-3 py-3 font-semibold">Id</th>
+                            <th class="px-3 py-3 font-semibold">First&nbsp;Name</th>
+                            <th class="px-3 py-3 font-semibold">Last&nbsp;Name</th>
+                            <th class="px-3 py-3 font-semibold text-start">Email</th>
+                            <th class="px-3 py-3 font-semibold text-start">Phone</th>
+                            <th class="px-3 py-3 font-semibold text-start">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        @for(row of enrol_list(); track row.rowId){
+                        <tr class="hover:bg-gray-50 transition">
+                            <td class="p-3 whitespace-nowrap">
+                                <div class="text-base font-medium text-gray-900">{{ row.rowId }}</div>
+                            </td>
+                            <td class="p-3 whitespace-nowrap">
+                                <div class="text-base font-medium text-gray-900">{{ row.first_name }}</div>
+                            </td>
+                            <td class="p-3 whitespace-nowrap">
+                                <div class="text-base font-medium text-gray-900">{{ row.last_name }}</div>
+                            </td>
+                            <td class="p-3 whitespace-nowrap">
+                                <div class="text-base font-medium text-gray-900">{{ row.email }}
+                                </div>
+                            </td>
+                            <td class="p-3 whitespace-nowrap">
+                                <div class="text-base font-medium text-gray-900">{{ row.phone }}
+                                </div>
+                            </td>
+                            <td class="p-3 whitespace-nowrap">
+                                <div class="text-base font-medium text-gray-900">{{ row.import_status }}</div>
+                            </td>
+                        </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+</app-dialog>
 <app-dialog [isOpen]="statusDialog" title="Change Status" [buttons]="statusDialogButtons" [backdrop]="false">
     <form [formGroup]="statusForm">
         <input type="hidden" formControlName="id">
@@ -126,7 +216,7 @@
             <label
                 class="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition">
                 <input type="radio" [value]="'INITIATED'" formControlName="status"
-                    class="h-4 w-4 text-blue-600 focus:ring-blue-500"/>
+                    class="h-4 w-4 text-blue-600 focus:ring-blue-500" />
                 <span class="flex items-center space-x-2">
                     <span class="text-blue-700 font-medium">Initiated</span>
                 </span>
@@ -136,7 +226,7 @@
                 <input type="radio" [value]="'ENROLLED'" formControlName="status"
                     class="h-4 w-4 text-blue-600 focus:ring-blue-500" />
                 <span class="flex items-center space-x-2">
-                    
+
                     <span class="text-amber-700 font-medium">Enrolled</span>
                 </span>
             </label>

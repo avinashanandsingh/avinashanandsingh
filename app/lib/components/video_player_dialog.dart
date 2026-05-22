@@ -52,6 +52,13 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog>
           enableCaption: true,
         ),
       );
+
+      _youtubeController!.addListener(() {
+        final position = _youtubeController!.value.position;
+
+        // Logic to track progress
+        print('Current Position: $position');
+      });
       setState(() {
         _isInitialized = true;
       });
@@ -64,9 +71,22 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog>
           Uri.parse(widget.url),
         );
         await _videoPlayerController!.initialize();
+        _videoPlayerController!.addListener(() {
+          final position = _videoPlayerController!.value.position;
+          final duration = _videoPlayerController!.value.duration;
+
+          // Logic to track progress
+          print('Current Position: $position');
+
+          // Logic to detect video end
+          if (position == duration) {
+            print('Video Ended');
+          }
+        });
 
         _chewieController = ChewieController(
           videoPlayerController: _videoPlayerController!,
+
           autoPlay: true,
           looping: false,
           aspectRatio: _videoPlayerController!.value.aspectRatio,
@@ -140,6 +160,9 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog>
         controller: _youtubeController!,
         showVideoProgressIndicator: true,
         progressIndicatorColor: colorScheme.primary,
+        onEnded: (metadata) {
+          print('ended:${metadata.duration}');
+        },
       );
     } else if (_chewieController != null) {
       return Chewie(controller: _chewieController!);

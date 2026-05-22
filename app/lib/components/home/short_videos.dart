@@ -80,7 +80,7 @@ class _ShortVideosState extends State<ShortVideos> {
         }
 
         // ── Data ─────────────────────────────────────────────────────────────
-        final videos = snapshot.data?.data ?? [];
+        final videos = snapshot.data?.list ?? [];
         if (videos.isEmpty) return const SizedBox.shrink();
 
         return _buildVideoList(videos);

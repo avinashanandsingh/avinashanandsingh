@@ -1,13 +1,19 @@
+import 'package:app/components/home/course_card.dart';
 import 'package:app/components/loader.dart';
+import 'package:app/models/course.dart';
+import 'package:app/models/enroll.dart';
 import 'package:app/models/order.dart';
 import 'package:app/models/user.dart';
+import 'package:app/pages/course.dart';
 import 'package:app/pages/order_card.dart';
 import 'package:app/services/service.dart';
 import 'package:app/utils/alert.dart';
 import 'package:app/utils/result.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../theme/theme.dart';
 import '../components/layout.dart';
+import 'package:app/helpers/globals.dart';
 //import '../page/create_course.dart';
 //import '../components/add_enrollment_bottom_sheet.dart';
 
@@ -23,6 +29,7 @@ class _DashboardState extends State<Dashboard>
     with SingleTickerProviderStateMixin {
   static const Color primaryPurple = AppColors.primary;
   List<OrderData> orderList = List.empty(growable: true);
+  List<EnrollData> enrollList = List.empty(growable: true);
   @override
   initState() {
     super.initState();
@@ -41,6 +48,7 @@ class _DashboardState extends State<Dashboard>
       currentIndex: 2,
       body: DefaultTabController(
         length: 2,
+        initialIndex: 0,
         child: Column(
           mainAxisSize:
               MainAxisSize.min, // Tells column to be only as big as needed
@@ -52,32 +60,6 @@ class _DashboardState extends State<Dashboard>
                 Tab(text: "Order History"),
               ],
               labelColor: Colors.black,
-              onTap: (idx) async {
-                switch (idx) {
-                  case 0:
-                    break;
-                  case 1:
-                    Loader.show();
-                    Result<OrderData> result = await Service.order.list({
-                      "criteria": [
-                        {
-                          "column": "createdby",
-                          "cop": "eq",
-                          "value": widget.user.id!,
-                        },
-                      ],
-                    });
-                    Loader.hide();
-                    if (result.succeed) {
-                      setState(() {
-                        orderList = result.data!;
-                      });
-                    } else {
-                      Alert.show(result.message!, isError: true);
-                    }
-                    break;
-                }
-              },
             ),
             // Wrapping in a Flexible or Expanded only works if
             // the parent of this Column has a constrained height!
@@ -91,205 +73,215 @@ class _DashboardState extends State<Dashboard>
   }
 
   Widget orderListTab() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-          if (orderList.isNotEmpty) ...[
-            Expanded(
-              child: ListView.builder(
-                itemCount: orderList.length,
-                itemBuilder: (context, index) {
-                  return OrderCard(order: orderList[index]);
-                },
-              ),
-            ),
-          ],
+    return FutureBuilder(
+      future: Service.order.list({
+        "criteria": [
+          {"column": "createdby", "cop": "eq", "value": widget.user.id!},
         ],
-      ),
+      }),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+          );
+        } else if (snapshot.hasData) {
+          Result<OrderData> result = snapshot.data!;
+          if (result.succeed) {
+            return Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                children: [
+                  if (result.list!.isNotEmpty) ...[
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: result.list!.length,
+                        itemBuilder: (context, index) {
+                          return OrderCard(order: result.list![index]);
+                        },
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            );
+          } else {
+            return Container();
+          }
+        } else {
+          return Container();
+        }
+      },
     );
   }
 
   Widget _buildCoursesTab() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemCount: 2,
-              itemBuilder: (context, index) {
-                return _buildCourseCard();
-              },
-            ),
-          ),
+    return FutureBuilder(
+      future: Service.enrollment.list({
+        "criteria": [
+          {"column": "userid", "cop": "eq", "value": widget.user.id!},
         ],
-      ),
+      }),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+          );
+        } else if (snapshot.hasData) {
+          var result = snapshot.data!;
+          if (result.succeed) {
+            return Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: result.list!.length,
+                      itemBuilder: (context, index) {
+                        return _buildCourseCard(result.list![index]);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            );
+          } else {
+            return Container();
+          }
+        } else {
+          return Container();
+        }
+      },
     );
   }
 
-  Widget _buildCourseCard() {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 16),
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        side: BorderSide(color: Colors.grey.withAlpha(50)),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      color: Colors.white,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(16),
-              topRight: Radius.circular(16),
-            ),
-            child: Container(
-              height: 160,
-              color: Colors.blue.shade700,
-              child: const Center(
-                child: Text(
-                  "LEARN SOFTWARE\nDEVELOPMENT\nWITH US!",
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
+  Widget _buildCourseCard(EnrollData item) {
+    String dated = "";
+    if (item.enrolledat != null) {
+      dated = DateFormat.yMMMMEEEEd().format(DateTime.parse(item.enrolledat!));
+    }
+    return GestureDetector(
+      onTap: () async {
+        List<String> statusList = ["ENROLLED", "COMPLETED"];
+        if (statusList.contains(item.status!)) {
+          Result<CourseData>? result = await Service.course.get({
+            "criteria": [
+              {"column": "id", "cop": "eq", "value": item.course?.id},
+            ],
+          });
+          if (result!.succeed) {
+            navigatorKey.currentState?.push(
+              MaterialPageRoute(
+                builder: (context) =>
+                    Course(data: result.row, scheduleId: item.scheduleId),
+              ),
+            );
+          } else {
+            Alert.show(result.message!, isError: false);
+          }
+        }
+      },
+      child: Card(
+        margin: const EdgeInsets.only(bottom: 16),
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          side: BorderSide(color: Colors.grey.withAlpha(50)),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        color: Colors.white,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipRRect(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(16),
+                topRight: Radius.circular(16),
+              ),
+              child: Container(
+                height: 100,
+                color: Colors.blue.shade700,
+                child: Center(
+                  child: Text(
+                    item.course!.title ?? '',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.green.shade50,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        "APPROVED",
-                        style: TextStyle(
-                          color: Colors.green.shade700,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 4,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.green.shade50,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          item.status!,
+                          style: TextStyle(
+                            color: Colors.green.shade700,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
-                    ),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.edit_outlined,
-                          color: Colors.grey.shade600,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 12),
-                        const Icon(
-                          Icons.delete_outline,
-                          color: Colors.red,
-                          size: 20,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  "BEGINNER'S GUIDE TO BECOMING A PROFESSIONAL FRONTEND DEVELOPER",
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontFamily: 'Serif',
-                    color: Colors.grey.shade800,
-                    fontWeight: FontWeight.bold,
-                    height: 1.4,
+                    ],
                   ),
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.calendar_today,
-                          size: 14,
-                          color: Colors.grey.shade600,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          "Created On 2nd Feb, 2026",
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
-                      ],
+                  const SizedBox(height: 12),
+                  Text(
+                    item.course!.description ?? '',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontFamily: 'Serif',
+                      color: Colors.grey.shade800,
+                      fontWeight: FontWeight.bold,
+                      height: 1.4,
                     ),
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.signal_cellular_alt,
-                          size: 14,
-                          color: Colors.grey.shade600,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          "Beginner",
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.people_outline,
-                          size: 14,
-                          color: Colors.grey.shade600,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          "60,000 Students Enrolled",
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey.shade600,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Text(
-                      "₹2,400",
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: primaryPurple,
-                        fontWeight: FontWeight.bold,
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Icon(
+                        Icons.calendar_today,
+                        size: 14,
+                        color: Colors.grey.shade600,
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                      const SizedBox(width: 4),
+                      Text(
+                        "Created On $dated",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

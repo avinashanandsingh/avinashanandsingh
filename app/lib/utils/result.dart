@@ -3,15 +3,15 @@ class Result<T> {
   bool succeed = false;
   String? message;
   T? row;
-  List<T>? data;
-  Result({required this.succeed, this.message, this.data, this.row});
+  List<T>? list;
+  Result({required this.succeed, this.message, this.list, this.row});
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
       'succeed': succeed,
       'message': message,
-      'list': data,
+      'list': list,
       'row': row,
     };
   }

@@ -7,6 +7,7 @@ import 'package:app/components/review_widget.dart';
 import 'package:app/components/video_card.dart';
 import 'package:app/helpers/enroll.dart';
 import 'package:app/models/course.dart';
+import 'package:app/models/module.dart';
 import 'package:app/models/order.dart';
 import 'package:app/models/qna.dart';
 import 'package:app/models/user.dart';
@@ -22,10 +23,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:app/helpers/globals.dart';
 import 'package:intl/intl.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
+import '../components/video_player_dialog.dart' as video_dialog;
 
 class Course extends StatefulWidget {
   final CourseData? data;
-  const Course({super.key, this.data});
+  final String? scheduleId;
+  const Course({super.key, this.data, this.scheduleId});
 
   @override
   State<Course> createState() => CourseState();
@@ -42,7 +45,7 @@ class CourseState extends State<Course> with SingleTickerProviderStateMixin {
     super.initState();
     paid = false;
     qna = Service.qna.list(widget.data?.id ?? '');
-    if (widget.data!.modules != null) {
+    if (widget.data!.modules!.isNotEmpty) {
       tabs += 1;
     }
     if (widget.data!.certified!) {
@@ -82,19 +85,28 @@ class CourseState extends State<Course> with SingleTickerProviderStateMixin {
                 padding: EdgeInsets.all(15),
                 child: FutureBuilder(
                   future: Service.schedule.get({
-                    "criteria": [
-                      {
-                        "column": "courseid",
-                        "cop": "eq",
-                        "value": widget.data?.id,
-                      },
-                      {
-                        "column": "status",
-                        "cop": "eq",
-                        "lop": "AND",
-                        "value": "ACTIVE",
-                      },
-                    ],
+                    if (widget.scheduleId == null)
+                      "criteria": [
+                        {
+                          "column": "courseid",
+                          "cop": "eq",
+                          "value": widget.data?.id,
+                        },
+                        {
+                          "column": "status",
+                          "cop": "eq",
+                          "lop": "AND",
+                          "value": "ACTIVE",
+                        },
+                      ],
+                    if (widget.scheduleId != null)
+                      "criteria": [
+                        {
+                          "column": "id",
+                          "cop": "eq",
+                          "value": widget.scheduleId,
+                        },
+                      ],
                   }),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
@@ -527,51 +539,23 @@ class CourseState extends State<Course> with SingleTickerProviderStateMixin {
     );
   }
 
-  Widget tabBar() {
-    return TabBar(
-      controller: tabController,
-      isScrollable: true,
-      labelColor: AppColors.textPrimary,
-      unselectedLabelColor: Colors.grey,
-      indicatorColor: AppColors.primary,
-      tabAlignment: TabAlignment.start,
-      indicatorWeight: 3,
-      labelStyle: TextTheme.of(context).labelSmall,
-      tabs: [
-        const Tab(text: "Overview"),
-        if (widget.data?.modules != null) const Tab(text: "Curriculum"),
-        if (widget.data!.certified!) const Tab(text: "Certificates"),
-      ],
-    );
-  }
-
   Widget tabContent() {
     return CustomTabView(
       controller: tabController,
       tabs: [
         Tab(text: "Overview"),
-        if (widget.data?.modules != null) Tab(text: "Curriculum"),
+        if (widget.data!.modules!.isNotEmpty) Tab(text: "Curriculum"),
         if (widget.data!.certified!) Tab(text: "Certificates"),
         Tab(text: 'Review'),
       ],
       children: [
         overview(),
-        if (widget.data?.modules != null) curriculum(),
+        if (widget.data!.modules!.isNotEmpty) curriculum(),
         //_buildForumTab(),
         if (widget.data!.certified!) certificate(),
         Container(padding: EdgeInsets.all(15), child: ReviewWidget()),
       ],
     );
-
-    /* return TabBarView(
-      controller: tabController,
-      children: [
-        overview(),
-        if (widget.data?.modules != null) curriculum(),
-        //_buildForumTab(),
-        if (widget.data!.certified!) certificate(),
-      ],
-    ); */
   }
 
   Widget overview() {
@@ -622,54 +606,18 @@ class CourseState extends State<Course> with SingleTickerProviderStateMixin {
   }
 
   Widget curriculum() {
-    final ml = widget.data?.modules;
-    //print(widget.data?.toJson());
-    final List<Map<String, dynamic>> list = List.empty(growable: true);
-    int i = 1;
-    for (var item in ml) {
-      //print(item);
-      list.add({
-        "num": i,
-        "id": item['id'],
-        "title": item['title'],
-        "time": item['duration'],
-        "completed": item['completed'],
-      });
+    List<ModuleData> list = widget.data!.modules ?? [];
+    int total = list.length;
+    int done = 0;
+    if (list.isNotEmpty) {
+      done = list.where((x) => x.completed == true).toList().length;
     }
-    final modules = [
-      {'num': '1', 'title': 'Introduction', 'time': '10:00', 'status': 'done'},
-      {
-        'num': '2',
-        'title': 'What is UX Design',
-        'time': '2:30 / 10:00',
-        'status': 'active',
-      },
-      {
-        'num': '3',
-        'title': 'Usability Testing',
-        'time': '10:00',
-        'status': 'pending',
-      },
-      {
-        'num': '4',
-        'title': 'Create Usability Test',
-        'time': '30:00',
-        'status': 'pending',
-      },
-      {
-        'num': '5',
-        'title': 'How to Implement',
-        'time': '30:00',
-        'status': 'pending',
-      },
-    ];
-
     return ListView(
       padding: const EdgeInsets.all(16.0),
       physics: const NeverScrollableScrollPhysics(),
       children: [
-        const Text(
-          "5 MODULES",
+        Text(
+          "${list.length} MODULES",
           style: TextStyle(
             color: AppColors.primary,
             fontSize: 16,
@@ -689,15 +637,15 @@ class CourseState extends State<Course> with SingleTickerProviderStateMixin {
         const SizedBox(height: 8),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: const [
+          children: [
             Text(
-              "1/5 Done",
-              style: TextStyle(
+              "$done/$total Done",
+              style: const TextStyle(
                 color: Colors.black87,
                 fontWeight: FontWeight.bold,
               ),
             ),
-            Text(
+            const Text(
               "20%",
               style: TextStyle(
                 color: AppColors.primary,
@@ -707,101 +655,75 @@ class CourseState extends State<Course> with SingleTickerProviderStateMixin {
           ],
         ),
         const SizedBox(height: 16),
-        ...modules.map((m) {
-          bool isDone = m['status'] == 'done';
-          bool isActive = m['status'] == 'active';
-          /* return FutureBuilder<bool>(
-            future: widget.data.modules,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                // 3. Show placeholder while loading
-                return Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  ),
-                );
-              } else if (snapshot.hasData) {
-                if (snapshot.data!) {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
-                    child: FloatingActionButton(
-                      onPressed: () => InviteDialog.show(context),
-                      elevation: 8,
-                      shape: const CircleBorder(),
-                      backgroundColor: AppColors.accentGold,
-                      child: const Icon(
-                        Icons.share,
-                        color: AppColors.primary,
-                        size: 24,
+        if (list.isNotEmpty) ...[
+          ...list.map((m) {
+            bool isDone = m.completed ?? false;
+            bool isActive = !(m.completed ?? false);
+            return GestureDetector(
+              onTap: () {
+                video_dialog.show(context, url: m.url!);
+              },
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 20.0),
+                child: Row(
+                  children: [
+                    if (isDone)
+                      const CircleAvatar(
+                        radius: 12,
+                        backgroundColor: Colors.teal,
+                        child: Icon(Icons.check, color: Colors.white, size: 16),
+                      )
+                    else if (isActive)
+                      CircleAvatar(
+                        radius: 12,
+                        backgroundColor: Colors.grey.shade200,
+                        child: Text(
+                          m.serial != null ? m.serial.toString() : '',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      )
+                    else
+                      CircleAvatar(
+                        radius: 12,
+                        backgroundColor: Colors.grey.shade100,
+                        child: Text(
+                          m.serial!.toString(),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey.shade500,
+                          ),
+                        ),
                       ),
-                    ),
-                  );
-                } else {
-                  return Container();
-                }
-              } else {
-                return Container();
-              }
-            },
-          ); */
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 20.0),
-            child: Row(
-              children: [
-                if (isDone)
-                  const CircleAvatar(
-                    radius: 12,
-                    backgroundColor: Colors.teal,
-                    child: Icon(Icons.check, color: Colors.white, size: 16),
-                  )
-                else if (isActive)
-                  CircleAvatar(
-                    radius: 12,
-                    backgroundColor: Colors.grey.shade200,
-                    child: Text(
-                      m['num']!,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.black87,
-                      ),
-                    ),
-                  )
-                else
-                  CircleAvatar(
-                    radius: 12,
-                    backgroundColor: Colors.grey.shade100,
-                    child: Text(
-                      m['num']!,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey.shade500,
-                      ),
-                    ),
-                  ),
 
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Text(
-                    m['title']!,
-                    style: TextStyle(
-                      color: isDone ? Colors.grey : Colors.black87,
-                      decoration: isDone ? TextDecoration.lineThrough : null,
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Text(
+                        m.title!,
+                        style: TextTheme.of(context).labelSmall!.copyWith(
+                          color: isDone ? Colors.grey : Colors.black87,
+                          decoration: isDone
+                              ? TextDecoration.lineThrough
+                              : null,
+                        ),
+                      ),
                     ),
-                  ),
+                    Text(
+                      m.duration!,
+                      style: TextStyle(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13,
+                      ),
+                    ),
+                  ],
                 ),
-                Text(
-                  m['time']!,
-                  style: TextStyle(
-                    color: AppColors.primary,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13,
-                  ),
-                ),
-              ],
-            ),
-          );
-        }),
+              ),
+            );
+          }),
+        ],
       ],
     );
   }

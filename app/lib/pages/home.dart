@@ -7,6 +7,7 @@ import 'package:app/models/course.dart';
 import 'package:app/models/resource.dart';
 import 'package:app/models/sacredvibe.dart';
 import 'package:app/services/service.dart';
+import 'package:app/utils/result.dart';
 import 'package:flutter/material.dart';
 import '../components/layout.dart';
 import '../components/home/section_header.dart';
@@ -119,39 +120,37 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
             ),
 
             const SizedBox(height: 8),
-            Section(
-              title: "SHORT COURSES",
-              subtitle: "Bite-sized transformational journeys.",
-              action: true,
-              onAction: () {
-                print("Load...");
-              },
-              child: FutureBuilder(
-                future: Service.course.list({
-                  "criteria": [
-                    {"column": "status", "cop": "eq", "value": "PUBLISHED"},
-                    {
-                      "column": "short",
-                      "cop": "eq",
-                      "lop": "AND",
-                      "value": true,
-                    },
-                  ],
-                }),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      ),
+            FutureBuilder(
+              future: Service.course.list({
+                "criteria": [
+                  {"column": "status", "cop": "eq", "value": "PUBLISHED"},
+                  {"column": "short", "cop": "eq", "lop": "AND", "value": true},
+                ],
+              }),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                  );
+                } else if (snapshot.hasData) {
+                  Result<CourseData> result = snapshot.data!;
+                  if (result.succeed) {
+                    return Section(
+                      title: "SHORT COURSES",
+                      subtitle: "Bite-sized transformational journeys.",
+                      action: false,
+                      child: ShortCourses(list: result.list!),
                     );
-                  } else if (snapshot.hasData) {
-                    return ShortCourses(list: snapshot.data!);
+                  } else {
+                    return Container();
                   }
+                } else {
                   return Container();
-                },
-              ),
+                }
+              },
             ),
 
             const SizedBox(height: 32),
@@ -171,14 +170,18 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                     ),
                   );
                 } else if (snapshot.hasData) {
-                  CourseData item = snapshot.data!;
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 15.0),
-                    child: CourseCard(
-                      data: item,
-                      width: MediaQuery.widthOf(context).toDouble(),
-                    ),
-                  );
+                  Result<CourseData> result = snapshot.data!;
+                  if (result.succeed) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 15.0),
+                      child: CourseCard(
+                        data: result.row!,
+                        width: MediaQuery.widthOf(context).toDouble(),
+                      ),
+                    );
+                  } else {
+                    return Container();
+                  }
                 }
                 return Container();
               },
@@ -226,8 +229,12 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                     ),
                   );
                 } else if (snapshot.hasData) {
-                  CourseData item = snapshot.data!;
-                  return AbundanceCard(data: item);
+                  Result<CourseData> result = snapshot.data!;
+                  if (result.succeed) {
+                    return AbundanceCard(data: result.row!);
+                  } else {
+                    return Container();
+                  }
                 }
                 return Container();
               },
@@ -286,14 +293,19 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
                     ),
                   );
                 } else if (snapshot.hasData) {
-                  return HeroCard<CourseCard>(
-                    pulseAnimation: _pulseAnimation,
-                    items: [
-                      for (var item in snapshot.data!) ...[
-                        CourseCard(data: item),
+                  Result<CourseData> result = snapshot.data!;
+                  if (result.succeed) {
+                    return HeroCard<CourseCard>(
+                      pulseAnimation: _pulseAnimation,
+                      items: [
+                        for (var item in result.list!) ...[
+                          CourseCard(data: item),
+                        ],
                       ],
-                    ],
-                  );
+                    );
+                  } else {
+                    return Container();
+                  }
                 }
                 return Container();
               },

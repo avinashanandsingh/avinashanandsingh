@@ -55,7 +55,7 @@ class OrderData {
           ? DateTime.parse(json['slot_date'])
           : null,
       name: json['name'] as String?,
-      price: double.parse(json['price']),
+      price: double.parse(json['price'] ?? '0.00'),
       orderStatus: json['order_status'] as String?,
       orderStatusReason: json['order_status_reason'] as String?,
       paymentStatus: json['payment_status'] as String?,
@@ -94,7 +94,7 @@ class OrderData {
   String? get slotAt {
     String? formatted;
     final date = DateFormat('dd-MMM-yyy');
-    if (createdat != null) {
+    if (slotDate != null) {
       formatted = date.format(slotDate!);
     }
     return formatted;

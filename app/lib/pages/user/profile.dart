@@ -227,7 +227,6 @@ class _ProfileState extends State<Profile> {
                   firstDate: DateTime(1900),
                   lastDate: DateTime.now(),
                   onChanged: (value) {
-                    print(value);
                     setState(() {
                       model.dob = value;
                     });

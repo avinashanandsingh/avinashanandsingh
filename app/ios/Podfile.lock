@@ -9,7 +9,11 @@ PODS:
     - OrderedSet (~> 6.0.3)
   - flutter_native_html_to_pdf (3.0.0):
     - Flutter
+  - open_filex (0.0.2):
+    - Flutter
   - OrderedSet (6.0.3)
+  - printing (1.0.0):
+    - Flutter
   - razorpay-core-pod (1.0.6)
   - razorpay-pod (1.5.3):
     - razorpay-core-pod (= 1.0.6)
@@ -21,6 +25,8 @@ DEPENDENCIES:
   - Flutter (from `Flutter`)
   - flutter_inappwebview_ios (from `.symlinks/plugins/flutter_inappwebview_ios/ios`)
   - flutter_native_html_to_pdf (from `.symlinks/plugins/flutter_native_html_to_pdf/ios`)
+  - open_filex (from `.symlinks/plugins/open_filex/ios`)
+  - printing (from `.symlinks/plugins/printing/ios`)
   - razorpay_flutter (from `.symlinks/plugins/razorpay_flutter/ios`)
 
 SPEC REPOS:
@@ -36,6 +42,10 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_inappwebview_ios/ios"
   flutter_native_html_to_pdf:
     :path: ".symlinks/plugins/flutter_native_html_to_pdf/ios"
+  open_filex:
+    :path: ".symlinks/plugins/open_filex/ios"
+  printing:
+    :path: ".symlinks/plugins/printing/ios"
   razorpay_flutter:
     :path: ".symlinks/plugins/razorpay_flutter/ios"
 
@@ -43,7 +53,9 @@ SPEC CHECKSUMS:
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
   flutter_inappwebview_ios: b89ba3482b96fb25e00c967aae065701b66e9b99
   flutter_native_html_to_pdf: bc36c5db34d51b05ba5d1e4581a16d51e6a79fef
+  open_filex: 432f3cd11432da3e39f47fcc0df2b1603854eff1
   OrderedSet: e539b66b644ff081c73a262d24ad552a69be3a94
+  printing: 54ff03f28fe9ba3aa93358afb80a8595a071dd07
   razorpay-core-pod: 6da5fb4ed280279d665507fdb50e213d793a5fe2
   razorpay-pod: 4385cf844aa29389313b741e20c72fe668970d49
   razorpay_flutter: 0e98e4fcaae27ad50e011d85f66d85e0a008754a
