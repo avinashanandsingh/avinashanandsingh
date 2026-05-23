@@ -1,5 +1,3 @@
-import 'package:app/components/home/course_card.dart';
-import 'package:app/components/loader.dart';
 import 'package:app/models/course.dart';
 import 'package:app/models/enroll.dart';
 import 'package:app/models/order.dart';

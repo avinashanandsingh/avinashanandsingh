@@ -13,7 +13,7 @@ class Order {
     List<OrderData> data = [];
     dynamic body = {
       "query":
-          r'query list ($filter: Filter!) { orders(filter: $filter) { count rows { id context contextid context_data name price order_status order_status_reason payment_status payment_status_reason paymentid orderid signature createdat } } }',
+          r'query list ($filter: Filter!) { orders(filter: $filter) { count rows { id context contextid context_data name price order_status order_status_reason payment_status payment_status_reason paymentid orderid signature createdat file } } }',
       "variables": {"filter": filter ?? {}},
     };
 
@@ -41,7 +41,7 @@ class Order {
     Result<OrderData> out = Result<OrderData>(succeed: false);
     dynamic body = {
       "query":
-          r'query get ($filter: Filter!) { order(filter: $filter) { id context contextid context_data name slot_date price order_status order_status_reason payment_status payment_status_reason paymentid orderid signature createdat creator { id first_name last_name email phone }  } }',
+          r'query get ($filter: Filter!) { order(filter: $filter) { id context contextid context_data name slot_date price order_status order_status_reason payment_status payment_status_reason paymentid orderid signature createdat creator { id first_name last_name email phone } file } }',
       "variables": {"filter": filter ?? {}},
     };
 

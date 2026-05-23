@@ -5,6 +5,7 @@ import 'package:app/services/service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:app/theme/theme.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../helpers/globals.dart';
 
 class OrderCard extends StatelessWidget {
@@ -73,7 +74,6 @@ class OrderCard extends StatelessWidget {
     final secondaryTextColor = isDark
         ? AppColors.textSecondaryDark
         : AppColors.textSecondary;
-
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -103,8 +103,8 @@ class OrderCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        TextButton(
-                          onPressed: () async {
+                        GestureDetector(
+                          onTap: () async {
                             var out = await Service.order.get({
                               "criteria": [
                                 {
@@ -115,10 +115,46 @@ class OrderCard extends StatelessWidget {
                               ],
                             });
 
-                            navigatorKey.currentState?.push(
+                            /* navigatorKey.currentState?.push(
                               MaterialPageRoute(
                                 builder: (context) => Receipt(order: out.row),
                               ),
+                            ); */
+                            var orderId = out.row?.orderid;
+                            showDialog(
+                              context: context,
+                              fullscreenDialog: true,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: Text('Order: $orderId'),
+                                  titlePadding: EdgeInsets.all(15),
+                                  contentPadding: EdgeInsets.all(0),
+                                  actionsPadding: EdgeInsets.all(10),
+
+                                  content: Receipt(
+                                    order: out.row,
+                                    layout: false,
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      style: TextButton.styleFrom(
+                                        foregroundColor:
+                                            Colors.white, // Text color
+                                        backgroundColor: AppColors
+                                            .primary, // Optional background
+                                      ),
+                                      onPressed: () => Navigator.pop(
+                                        context,
+                                      ), // Closes the dialog
+                                      child: Text(
+                                        'OK',
+                                        style: TextTheme.of(context).labelSmall!
+                                            .copyWith(color: Colors.white),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
                             );
                           },
                           child: Text(
@@ -126,6 +162,7 @@ class OrderCard extends StatelessWidget {
                             style: TextTheme.of(context).labelSmall!.copyWith(
                               fontWeight: FontWeight.bold,
                               color: textColor,
+                              decoration: TextDecoration.underline,
                             ),
                           ),
                         ),
@@ -230,6 +267,32 @@ class OrderCard extends StatelessWidget {
                   ],
                 ),
               ),
+              if (order.file != null) ...[
+                Row(
+                  children: [
+                    TextButton.icon(
+                      onPressed: () async {
+                        final Uri uri = Uri.parse(order.file!);
+                        try {
+                          if (await canLaunchUrl(uri)) {
+                            await launchUrl(
+                              uri,
+                              mode: LaunchMode.externalApplication,
+                            );
+                          }
+                        } catch (e) {
+                          debugPrint('Could not launch ${order.file}: $e');
+                        }
+                      },
+                      icon: Icon(Icons.download),
+                      label: Text(
+                        "Download Report",
+                        style: TextTheme.of(context).labelSmall,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ],
           ),
         ),

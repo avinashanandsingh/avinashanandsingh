@@ -455,6 +455,12 @@ const mapping = [
     role: UserRole.ADMINISTRATOR,
   },
   {
+    name: "uploadAuraReport",
+    execute: service.upload,
+    include: true,
+    role: UserRole.ADMINISTRATOR,
+  },
+  {
     name: "deleteService",
     execute: service.delete,
     include: true,

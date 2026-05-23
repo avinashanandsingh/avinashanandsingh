@@ -164,6 +164,7 @@
                     <th class="px-3 py-3">Start&nbsp;Time</th>
                     <th class="px-3 py-3">End&nbsp;Time</th>
                     <th class="px-3 py-3">Status</th>
+                    <th class="px-3 py-3">Action</th>
                 </tr>
             </thead>
 
@@ -183,7 +184,8 @@
                     <td class="px-3 py-3 text-gray-600">
                         @if(row.status === 'CONFIRMED'){
                         <button (click)="show(statusDialog, 'STATUS', row.id!)"
-                            class="text-emerald-700 hover:text-emerald-700 text-base cursor-pointer" title="Change Status">
+                            class="text-emerald-700 hover:text-emerald-700 text-base cursor-pointer"
+                            title="Change Status">
                             {{ row.status }}
                         </button>
                         }@else if(row.status === 'INITIATED'){
@@ -198,12 +200,26 @@
                         </button>
                         }
                     </td>
+                    <td>
+                        <button class="text-purple-600 hover:text-purple-900 text-base pr-3 cursor-pointer" title="Upload Report" (click)="show(uploadDialog,'UPLOAD', row.id!)">
+                            <i class="bi bi-upload"></i>
+                        </button>
+                    </td>
                 </tr>
                 }
             </tbody>
         </table>
     </div>
 </app-dialog>
+<app-dialog [isOpen]="uploadDialog" title="Uplaod Report" [buttons]="uploadDialogButtons" [backdrop]="false">
+    <input id="upload" #file  type="file" accept=".pdf" class="border border-violet-700 w-full rounded text-base text-slate-500
+            file:mr-4 file:py-2 file:px-4
+            file:border-r
+            file:text-sm file:font-semibold
+            file:bg-violet-50 file:text-violet-700
+            hover:file:bg-violet-100" (change)="selectReportFile($event)" />
+</app-dialog>
+
 <app-dialog [isOpen]="statusDialog" title="Change Status" [buttons]="statusDialogButtons" [backdrop]="false">
     <form [formGroup]="statusForm">
         <input type="hidden" formControlName="id">
@@ -212,7 +228,7 @@
             <label
                 class="flex items-center space-x-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:border-blue-500 transition">
                 <input type="radio" [value]="'INITIATED'" formControlName="status"
-                    class="h-4 w-4 text-blue-600 focus:ring-blue-500"/>
+                    class="h-4 w-4 text-blue-600 focus:ring-blue-500" />
                 <span class="flex items-center space-x-2">
                     <span class="text-blue-700 font-medium">Initiated</span>
                 </span>
@@ -222,7 +238,7 @@
                 <input type="radio" [value]="'CANCELLED'" formControlName="status"
                     class="h-4 w-4 text-blue-600 focus:ring-blue-500" />
                 <span class="flex items-center space-x-2">
-                    
+
                     <span class="text-amber-700 font-medium">Cancelled</span>
                 </span>
             </label>

@@ -32,8 +32,9 @@ export class Aura implements OnInit {
   formDialog = signal<boolean>(false);
   listDialog = signal<boolean>(false);
   slot_list = signal<IAppointmentData[]>([]);
-  mode = signal<'ADD' | 'EDIT' | 'BOOKING' | 'STATUS' | null>(null);
+  mode = signal<'ADD' | 'EDIT' | 'BOOKING' | 'STATUS' | 'UPLOAD' | null>(null);
   file = signal<File | null>(null);
+  reportFile = signal<File | null>(null);
   dialogTitle = signal<string>('New Service');
   parentForm: FormGroup;
 
@@ -97,54 +98,114 @@ export class Aura implements OnInit {
 
   expandedRowId = signal<string | null>(null);
   statusDialog = signal<boolean>(false);
-    statusForm: FormGroup = new FormGroup({
-      id: new FormControl(''),
-      status: new FormControl('', Validators.required),
-    });
-  
-    statusDialogButtons = signal<Array<{ label: string; action: any; type: any }>>([
-        {
-          label: 'Close',
-          action: () => {
-            this.hide(this.statusDialog);
-          },
-          type: 'btn btn-secondary w-full',
-        },
-        {
-          label: 'Save',
-          action: async () => {
-            if (this.statusForm.invalid) return;
-            this.show(this.loader);
-            let formData = this.statusForm.getRawValue();
-            let result = await this.order.changeStatus('ORDER',formData.id, formData.status);
-            if (formData.id) {
-              if (result?.data?.updateOrder) {
-                Swal.fire({
-                  title: 'Success',
-                  html: 'Status changed successfully',
-                  icon: 'success',
-                  timer: 3000,
-                });
-              } else {
-                let error = result?.errors?.shift();
-                let msg = error?.extensions?.originalError?.message;
-                Swal.fire({
-                  title: 'Failed',
-                  html: msg,
-                  icon: 'error',
-                  timer: 3000,
-                });
-              }
-            }
-            
-            this.load({});
-            this.statusForm.reset();
-            this.hide(this.loader);
-            this.hide(this.statusDialog);
-          },
-          type: 'btn btn-primary w-full',
-        },
-      ]);
+  statusForm: FormGroup = new FormGroup({
+    id: new FormControl(''),
+    status: new FormControl('', Validators.required),
+  });
+
+  statusDialogButtons = signal<Array<{ label: string; action: any; type: any }>>([
+    {
+      label: 'Close',
+      action: () => {
+        this.hide(this.statusDialog);
+      },
+      type: 'btn btn-secondary w-full',
+    },
+    {
+      label: 'Save',
+      action: async () => {
+        if (this.statusForm.invalid) return;
+        this.show(this.loader);
+        let formData = this.statusForm.getRawValue();
+        let result = await this.order.changeStatus('ORDER', formData.id, formData.status);
+        if (formData.id) {
+          if (result?.data?.updateOrder) {
+            Swal.fire({
+              title: 'Success',
+              html: 'Status changed successfully',
+              icon: 'success',
+              timer: 3000,
+            });
+          } else {
+            let error = result?.errors?.shift();
+            let msg = error?.extensions?.originalError?.message;
+            Swal.fire({
+              title: 'Failed',
+              html: msg,
+              icon: 'error',
+              timer: 3000,
+            });
+          }
+        }
+
+        this.load({});
+        this.statusForm.reset();
+        this.hide(this.loader);
+        this.hide(this.statusDialog);
+      },
+      type: 'btn btn-primary w-full',
+    },
+  ]);
+  uploadDialog = signal<boolean>(false);
+  slot = signal<IAppointmentData | null>(null);
+  uploadDialogButtons = signal<Array<{ label: string; action: any; type: any }>>([
+    {
+      label: 'Close',
+      action: () => {
+        this.hide(this.uploadDialog);
+      },
+      type: 'btn btn-secondary w-full',
+    },
+    {
+      label: 'Save',
+      action: async () => {
+        var fd = new FormData();
+        let slot = this.slot();
+        let body: any = {};
+        if (slot !== null) {
+          body = {
+            query:
+              'mutation upload ($id: UUID!, $file: File!) { uploadAuraReport(id:$id, file: $file) { id } }',
+            variables: {
+              id: slot.id,
+              file: null,
+            },
+          };
+        }
+        fd.append('operations', JSON.stringify(body));
+        fd.append('map', JSON.stringify({ '0': ['variables.file'] }));
+        let file = this.reportFile();
+        if (file) {
+          fd.append('0', file!, file.name);
+        } else {
+          fd.append('0', '');
+        }
+
+        this.show(this.loader);
+        let result: any = await this.service.save(fd);
+        if (result?.data?.uploadAuraReport) {
+          Swal.fire({
+            title: 'Success',
+            html: 'Report uploaded successfully',
+            icon: 'success',
+            timer: 3000,
+          });
+        } else {
+          let error = result?.errors?.shift();
+          let msg = error?.extensions?.originalError?.message;
+          Swal.fire({
+            title: 'Failed',
+            html: msg,
+            icon: 'error',
+            timer: 3000,
+          });
+        }
+        this.hide(this.loader);
+        this.hide(this.uploadDialog);
+      },
+      type: 'btn btn-primary w-full',
+    },
+  ]);
   constructor(
     private service: AuraService,
     private appointment: AppointmentService,
@@ -172,7 +233,7 @@ export class Aura implements OnInit {
       this.timeslots.push(row);
     }
     this.show(this.loader);
-    await this.load({});    
+    await this.load({});
     this.hide(this.loader);
   }
 
@@ -199,37 +260,44 @@ export class Aura implements OnInit {
   removeRow(index: number) {
     this.timeslots.removeAt(index);
   }
-  async show(me: WritableSignal<boolean>, mode?:'ADD' |'EDIT' | 'BOOKING' | 'STATUS', id?: string) {
-    
+  async show(
+    me: WritableSignal<boolean>,
+    mode?: 'ADD' | 'EDIT' | 'BOOKING' | 'STATUS' | 'UPLOAD',
+    id?: string,
+  ) {
     if (mode!) {
       this.mode.set(mode!);
     }
     switch (mode!) {
-      case "ADD":
+      case 'ADD':
         break;
-      case "EDIT":
+      case 'EDIT':
         let row = this.list().find((x) => x.id === id);
         this.parentForm.patchValue(row!);
         this.dialogTitle.set('Update Module');
         break;
-      case "BOOKING":
+      case 'BOOKING':
         this.show(this.loader);
         let result = await this.appointment.list({
-          criteria:[
+          criteria: [
             {
-              column: "slotid",
+              column: 'slotid',
               cop: COP.eq,
-              value: id
-            }
-          ]
+              value: id,
+            },
+          ],
         });
         this.hide(this.loader);
         this.slot_list.set(result?.rows ?? []);
         break;
-        case "STATUS":
-          let slot = this.slot_list().find(x=>x.id === id);
-          this.statusForm.patchValue({id: id, status: slot?.status});
-        
+      case 'STATUS':
+        let slot = this.slot_list().find((x) => x.id === id);
+        this.statusForm.patchValue({ id: id, status: slot?.status });
+
+        break;
+      case 'UPLOAD':
+        let slr = this.slot_list().find((x) => x.id === id);
+        this.slot.set(slr!);
         break;
     }
     me.set(true);
@@ -238,35 +306,41 @@ export class Aura implements OnInit {
     me.set(false);
     //this.form.reset();
   }
-  async delete(id: string): Promise<void> {   
+
+  selectReportFile(e: any) {
+    let file = e?.target?.files[0];
+    console.log(file);
+    this.reportFile.set(file);
+  }
+  async delete(id: string): Promise<void> {
     let dialog = await Swal.fire({
-          title: 'Are you sure, want to delete?',
-          showDenyButton: true,
-          showCancelButton: false,
-          confirmButtonText: 'Confirm',
-          denyButtonText: 'Cancel',
-          customClass: {
-            actions: 'my-actions',
-            cancelButton: 'order-1 right-gap',
-            confirmButton: 'order-2',
-            denyButton: 'order-3',
-          },
+      title: 'Are you sure, want to delete?',
+      showDenyButton: true,
+      showCancelButton: false,
+      confirmButtonText: 'Confirm',
+      denyButtonText: 'Cancel',
+      customClass: {
+        actions: 'my-actions',
+        cancelButton: 'order-1 right-gap',
+        confirmButton: 'order-2',
+        denyButton: 'order-3',
+      },
+    });
+
+    if (dialog.isConfirmed) {
+      this.show(this.loader);
+      let result = await this.service.delete(id);
+      if (result) {
+        Swal.fire({
+          title: 'Success',
+          html: 'Branding content has been deleted',
+          icon: 'success',
+          timer: 3000,
         });
-    
-        if (dialog.isConfirmed) {
-          this.show(this.loader);
-          let result = await this.service.delete(id);
-          if (result) {        
-            Swal.fire({
-                title: 'Success',
-                html: 'Branding content has been deleted',
-                icon: 'success',
-                timer: 3000,
-              });
-            this.load({});
-            this.hide(this.loader);
-          }
-        }
+        this.load({});
+        this.hide(this.loader);
+      }
+    }
   }
 
   toggleRow(id: string) {

@@ -13,7 +13,8 @@ import '../components/layout.dart';
 
 class Receipt extends StatefulWidget {
   final OrderData? order;
-  const Receipt({super.key, this.order});
+  final bool? layout;
+  const Receipt({super.key, this.order, this.layout = true});
 
   @override
   State<Receipt> createState() => ReceiptState();
@@ -150,12 +151,553 @@ class ReceiptState extends State<Receipt> with SingleTickerProviderStateMixin {
     final primaryColor = isDark ? AppColors.accentGold : AppColors.primary;
     final cardBg = isDark ? AppColors.cardBackgroundDark : Colors.white;
 
-    return Layout(
-      titleText: 'CONFIRMATION',
-      isSerif: true,
-      showBottomNav: false,
-      showBack: true,
-      body: Container(
+    if (widget.layout!) {
+      return Layout(
+        titleText: 'CONFIRMATION',
+        isSerif: false,
+        showBottomNav: false,
+        showBack: false,
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: isDark
+                  ? [const Color(0xFF1E0E35), const Color(0xFF121212)]
+                  : [AppColors.primary.withAlpha(20), Colors.white],
+            ),
+          ),
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                // ── Success Animated Checkmark Banner ──
+                if (widget.order?.orderStatus! == "CONFIRMED" ||
+                    widget.order?.paymentStatus! == "PAID") ...[
+                  Center(
+                    child: Column(
+                      children: [
+                        AnimatedBuilder(
+                          animation: _glowAnimation,
+                          builder: (context, child) {
+                            return Transform.scale(
+                              scale:
+                                  _scaleAnimation.value * _glowAnimation.value,
+                              child: Container(
+                                width: 76,
+                                height: 76,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.green.shade500.withValues(
+                                    alpha: 0.15,
+                                  ),
+                                  border: Border.all(
+                                    color: Colors.green.shade400.withValues(
+                                      alpha: 0.4,
+                                    ),
+                                    width: 2,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.green.shade400.withValues(
+                                        alpha: 0.2,
+                                      ),
+                                      blurRadius: 20,
+                                      spreadRadius: 2,
+                                    ),
+                                  ],
+                                ),
+                                child: Center(
+                                  child: Container(
+                                    width: 56,
+                                    height: 56,
+                                    decoration: const BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: Colors.green,
+                                    ),
+                                    child: const Icon(
+                                      Icons.check_rounded,
+                                      color: Colors.white,
+                                      size: 36,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                        const SizedBox(height: 16),
+                        ScaleTransition(
+                          scale: _scaleAnimation,
+                          child: Text(
+                            "Order is confirmed.",
+                            style: TextTheme.of(context).headlineSmall!
+                                .copyWith(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: isDark
+                                      ? AppColors.accentGold
+                                      : AppColors.primary,
+                                  letterSpacing: 1.2,
+                                ),
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        FadeTransition(
+                          opacity: _fadeAnimation,
+                          child: Text(
+                            "Thank you for your order; we truly value your patronage.",
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.inter(
+                              fontSize: 13,
+                              color: isDark
+                                  ? AppColors.textSecondaryDark
+                                  : AppColors.textSecondary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 28),
+
+                // ── Interactive Receipt Card ──
+                FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: ClipPath(
+                    clipper: ReceiptSideCutoutClipper(
+                      cutoutPosition: 0.65,
+                      cutoutRadius: 12,
+                    ),
+                    child: Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: cardBg,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(
+                              alpha: isDark ? 0.3 : 0.08,
+                            ),
+                            blurRadius: 20,
+                            offset: const Offset(0, 8),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Top Header Strip of the card
+                          Container(
+                            height: 8,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  primaryColor,
+                                  primaryColor.withValues(alpha: 0.5),
+                                ],
+                              ),
+                              borderRadius: const BorderRadius.only(
+                                topLeft: Radius.circular(20),
+                                topRight: Radius.circular(20),
+                              ),
+                            ),
+                          ),
+
+                          // Top Section Content
+                          Padding(
+                            padding: const EdgeInsets.all(24.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'BOOKING ID',
+                                          style: GoogleFonts.lato(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.bold,
+                                            color: isDark
+                                                ? AppColors.textSecondaryDark
+                                                : AppColors.textSecondary,
+                                            letterSpacing: 1.1,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 2),
+                                        Text(
+                                          '#${widget.order?.orderid}',
+                                          style: GoogleFonts.inter(
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.bold,
+                                            color: isDark
+                                                ? Colors.white
+                                                : AppColors.textPrimary,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    // Brand name badge
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: primaryColor.withValues(
+                                          alpha: 0.1,
+                                        ),
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Text(
+                                        "COACH AVINASH",
+                                        style: GoogleFonts.inter(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w900,
+                                          color: primaryColor,
+                                          letterSpacing: 1.0,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 20),
+
+                                // Course Name
+                                Text(
+                                  (widget.order?.context ?? '')
+                                      .replaceAll('_', ' ')
+                                      .capitalize(),
+                                  style: GoogleFonts.inter(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: isDark
+                                        ? AppColors.accentGold
+                                        : AppColors.primary,
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+
+                                // Date and Time slots
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.calendar_today_outlined,
+                                      size: 16,
+                                      color: primaryColor,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      (widget.order?.slotAt ??
+                                              widget.order?.orderDate) ??
+                                          '',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w600,
+                                        color: isDark
+                                            ? Colors.white70
+                                            : Colors.black87,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.access_time_rounded,
+                                      size: 16,
+                                      color: primaryColor,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        (widget.order?.name ??
+                                                widget
+                                                    .order
+                                                    ?.contextData['title']) ??
+                                            '',
+                                        style: GoogleFonts.inter(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w600,
+                                          color: isDark
+                                              ? Colors.white70
+                                              : Colors.black87,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+
+                                const SizedBox(height: 24),
+
+                                // User details section
+                                Container(
+                                  padding: const EdgeInsets.all(14),
+                                  decoration: BoxDecoration(
+                                    color: isDark
+                                        ? Colors.black.withValues(alpha: 0.3)
+                                        : Colors.grey.shade50,
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: isDark
+                                          ? Colors.white.withValues(alpha: 0.08)
+                                          : Colors.grey.shade200,
+                                    ),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'PARTICIPANT DETAILS',
+                                        style: GoogleFonts.lato(
+                                          fontSize: 9,
+                                          fontWeight: FontWeight.bold,
+                                          color: isDark
+                                              ? AppColors.textSecondaryDark
+                                              : AppColors.textSecondary,
+                                          letterSpacing: 1.1,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  widget
+                                                          .order
+                                                          ?.creator
+                                                          ?.fullName ??
+                                                      '',
+                                                  style: GoogleFonts.inter(
+                                                    fontSize: 13,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: isDark
+                                                        ? Colors.white
+                                                        : Colors.black87,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  '${widget.order?.creator?.email}  •  ${widget.order?.creator?.phone}',
+                                                  style: GoogleFonts.inter(
+                                                    fontSize: 11,
+                                                    color: isDark
+                                                        ? AppColors
+                                                              .textSecondaryDark
+                                                        : AppColors
+                                                              .textSecondary,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          // Dashed Divider positioned exactly between side cutouts
+                          CustomPaint(
+                            size: const Size(double.infinity, 1),
+                            painter: DashedLinePainter(
+                              color: isDark
+                                  ? Colors.white.withValues(alpha: 0.15)
+                                  : Colors.grey.shade300,
+                              dashWidth: 6,
+                              dashSpace: 4,
+                            ),
+                          ),
+
+                          // Bottom Section Content (Payment / Price)
+                          Padding(
+                            padding: const EdgeInsets.all(24.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Bill Summary title
+                                Text(
+                                  'BILLING SUMMARY',
+                                  style: GoogleFonts.lato(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.bold,
+                                    color: isDark
+                                        ? AppColors.textSecondaryDark
+                                        : AppColors.textSecondary,
+                                    letterSpacing: 1.1,
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+
+                                // Price breakdown rows
+                                _buildSummaryRow(
+                                  'Price',
+                                  '₹${widget.order?.price?.toStringAsFixed(2)}',
+                                  isDark,
+                                ),
+                                const SizedBox(height: 8),
+                                _buildSummaryRow(
+                                  'Discount / Offer',
+                                  '-₹0.00',
+                                  isDark,
+                                  isDiscount: true,
+                                ),
+
+                                //const SizedBox(height: 8),
+                                //_buildSummaryRow('Taxes & Fees', '₹0.00', isDark),
+                                const Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 14),
+                                  child: Divider(height: 1),
+                                ),
+
+                                // Total Row
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      'Total Paid',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: isDark
+                                            ? Colors.white
+                                            : AppColors.textPrimary,
+                                      ),
+                                    ),
+                                    Text(
+                                      '₹${widget.order?.price?.toStringAsFixed(2)}',
+                                      style: GoogleFonts.inter(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w900,
+                                        color: isDark
+                                            ? AppColors.accentGold
+                                            : AppColors.primary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 28),
+
+                // ── Interactive Buttons (Download PDF, Email, Calendar) ──
+                /* FadeTransition(
+                opacity: _fadeAnimation,
+                child: Column(
+                  children: [
+                    // Symmetrical 2x2 Grid of Actions
+                    Row(
+                      children: [
+                        Expanded(
+                          child: HtmlToPdf(
+                            htmlContent: _generateHtmlReceipt(),
+                            isPrint: false,
+                            documentName: 'receipt_${widget.order?.orderid}',
+                            buttonStyle: ElevatedButton.styleFrom(
+                              backgroundColor: isDark
+                                  ? AppColors.cardBackgroundDark
+                                  : Colors.white,
+                              foregroundColor: primaryColor,
+                              side: BorderSide(
+                                color: primaryColor.withValues(alpha: 0.5),
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              elevation: 0,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(
+                                  Icons.picture_as_pdf_outlined,
+                                  size: 18,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'PDF Receipt',
+                                  style: GoogleFonts.inter(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: HtmlToPdf(
+                            htmlContent: _generateHtmlReceipt(),
+                            documentName: 'receipt_${widget.order?.orderid}',
+                            isPrint: true,
+                            buttonStyle: ElevatedButton.styleFrom(
+                              backgroundColor: isDark
+                                  ? AppColors.cardBackgroundDark
+                                  : Colors.white,
+                              foregroundColor: primaryColor,
+                              side: BorderSide(
+                                color: primaryColor.withValues(alpha: 0.5),
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              padding: const EdgeInsets.symmetric(vertical: 14),
+                              elevation: 0,
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.print_outlined, size: 18),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Print Receipt',
+                                  style: GoogleFonts.inter(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                  ],
+                ),
+              ), */
+              ],
+            ),
+          ),
+        ),
+      );
+    } else {
+      return Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
@@ -342,27 +884,6 @@ class ReceiptState extends State<Receipt> with SingleTickerProviderStateMixin {
                                     ],
                                   ),
                                   // Brand name badge
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 10,
-                                      vertical: 4,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: primaryColor.withValues(
-                                        alpha: 0.1,
-                                      ),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Text(
-                                      "COACH AVINASH",
-                                      style: GoogleFonts.inter(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w900,
-                                        color: primaryColor,
-                                        letterSpacing: 1.0,
-                                      ),
-                                    ),
-                                  ),
                                 ],
                               ),
                               const SizedBox(height: 20),
@@ -688,8 +1209,8 @@ class ReceiptState extends State<Receipt> with SingleTickerProviderStateMixin {
             ],
           ),
         ),
-      ),
-    );
+      );
+    }
   }
 
   Widget _buildSummaryRow(

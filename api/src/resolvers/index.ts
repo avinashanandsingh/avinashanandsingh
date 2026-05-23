@@ -121,6 +121,7 @@ const resolvers = {
     addService: shield,
     updateService: shield,
     deleteService: shield,
+    uploadAuraReport: shield,
     postReview: shield,
     deleteReview: shield,
     newInquiry: shield,

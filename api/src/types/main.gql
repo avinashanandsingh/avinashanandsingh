@@ -164,6 +164,7 @@ type Mutation {
   addService(input: ServiceIn!): Service!
   updateService(id:UUID!, input: ServiceIn!): Service!
   deleteService(id:UUID!): Service!
+  uploadAuraReport(id:UUID!, file: File): Order!
 
   postReview(input: ReviewIn!): Review!
   deleteReview(id:UUID!): Review!

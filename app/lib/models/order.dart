@@ -10,6 +10,7 @@ class OrderData {
   String? slotid;
   DateTime? slotDate;
   String? name;
+  String? file;
   double? price;
   String? orderStatus;
   String? orderStatusReason;
@@ -42,6 +43,7 @@ class OrderData {
     this.createdat,
     this.updater,
     this.updatedat,
+    this.file,
   });
 
   factory OrderData.fromJson(Map<String, dynamic> json) {
@@ -75,6 +77,7 @@ class OrderData {
       updatedat: json['updatedat'] != null
           ? DateTime.parse(json['updatedat'])
           : null,
+      file: json['file'] as String?,
     );
   }
 

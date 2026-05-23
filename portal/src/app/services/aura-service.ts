@@ -4,6 +4,7 @@ import { Header } from './header';
 import Filter from '../models/filter';
 import Data from '../models/data';
 import { IAuraData } from '../models/aura';
+import { StorageService } from './storage-service';
 
 @Injectable({
   providedIn: 'root',
@@ -13,6 +14,7 @@ export class AuraService {
   constructor(
     private api: ApiService,
     private header: Header,
+    private store: StorageService
   ) {}
 
   async list(filter: Filter): Promise<Data<IAuraData>> {
@@ -71,6 +73,12 @@ export class AuraService {
     let header = this.header.api();
     return await this.api.post(this.url, header, body);
   }
+  async save(body: FormData): Promise<any> {
+    //let header = this.header.api();
+    let token = this.store!.get('xt');
+    return await this.api.postForm(this.url, { authorization: token }, body);
+  }
+
   async delete(id: String) {
     let body = {
       query: 'mutation delete($id: UUID!) { deleteService (id: $id) { id } }',
