@@ -1,23 +1,41 @@
+import 'package:app/models/progress.dart';
+import 'package:app/services/service.dart';
+import 'package:app/utils/result.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'package:video_player/video_player.dart';
 import 'package:chewie/chewie.dart';
 
-void show(BuildContext context, {required String url}) {
+void show(
+  BuildContext context, {
+  required String url,
+  bool? trackingEnable = false,
+  String? moduleId,
+}) {
   showDialog(
     context: context,
     barrierDismissible: false,
     builder: (BuildContext context) {
-      return VideoPlayerDialog(url: url);
+      return VideoPlayerDialog(
+        url: url,
+        trackingEnable: trackingEnable,
+        moduleId: moduleId,
+      );
     },
   );
 }
 
 class VideoPlayerDialog extends StatefulWidget {
   final String url;
-
-  const VideoPlayerDialog({super.key, required this.url});
+  final bool? trackingEnable;
+  final String? moduleId;
+  const VideoPlayerDialog({
+    super.key,
+    required this.url,
+    this.trackingEnable = false,
+    this.moduleId,
+  });
 
   @override
   State<VideoPlayerDialog> createState() => _VideoPlayerDialogState();
@@ -54,10 +72,10 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog>
       );
 
       _youtubeController!.addListener(() {
-        final position = _youtubeController!.value.position;
+        //final position = _youtubeController!.value.position;
 
         // Logic to track progress
-        print('Current Position: $position');
+        //print('Current Position: $position');
       });
       setState(() {
         _isInitialized = true;
@@ -71,17 +89,17 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog>
           Uri.parse(widget.url),
         );
         await _videoPlayerController!.initialize();
-        _videoPlayerController!.addListener(() {
+        _videoPlayerController!.addListener(() async {
           final position = _videoPlayerController!.value.position;
-          final duration = _videoPlayerController!.value.duration;
+          //inal duration = _videoPlayerController!.value.duration;
 
           // Logic to track progress
           print('Current Position: $position');
 
           // Logic to detect video end
-          if (position == duration) {
+          /* if (position == duration) {
             print('Video Ended');
-          }
+          } */
         });
 
         _chewieController = ChewieController(
@@ -160,8 +178,16 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog>
         controller: _youtubeController!,
         showVideoProgressIndicator: true,
         progressIndicatorColor: colorScheme.primary,
-        onEnded: (metadata) {
-          print('ended:${metadata.duration}');
+        onEnded: (metadata) async {
+          ProgressData data = ProgressData();
+          data.moduleId = widget.moduleId;
+
+          String duration = metadata.duration.toString();
+
+          data.timeSpent = duration.substring(0, duration.lastIndexOf('.'));
+          data.completed = true;
+          data.completedAt = DateTime.now();
+          await Service.module.track(data);
         },
       );
     } else if (_chewieController != null) {

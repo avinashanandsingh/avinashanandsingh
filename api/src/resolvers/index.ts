@@ -149,6 +149,7 @@ const resolvers = {
     updateSmtp: shield,
     enroll: shield,
     import: shield,
+    track: shield,
   },
   /* Subscription: {
     access: {      

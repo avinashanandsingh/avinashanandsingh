@@ -143,8 +143,6 @@ type Module {
   duration: String
   url: String
   sort: Int
-  completed: Boolean
-  completedat: DateTime
   status: Status
   creator: User
   createdat: Date
@@ -194,7 +192,7 @@ type Enrollment {
   droppedat: DateTime
   droppedby: User
   notes: String
-  progress: [UserProgress!]!
+  progress: [Progress!]!
 }
 
 type EnrollmentResult {
@@ -202,20 +200,20 @@ type EnrollmentResult {
   rows: [Enrollment]
 }
 
-type UserProgress {
+type Progress {
   id: UUID
   enrollmentid: UUID
+  enrollment: JSON
   moduleid: UUID
-  completedat: DateTime
-  time_spent_seconds: Int
+  module: JSON
+  time_spent: String
   completed: Boolean
-  course: Course
-  module: Module
+  completedat: DateTime
 }
 
 type ProgressResult {
   count: Int
-  rows: [UserProgress]
+  rows: [Progress]
 }
 
 type Notification {

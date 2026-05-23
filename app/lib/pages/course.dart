@@ -610,7 +610,7 @@ class CourseState extends State<Course> with SingleTickerProviderStateMixin {
     int total = list.length;
     int done = 0;
     if (list.isNotEmpty) {
-      done = list.where((x) => x.completed == true).toList().length;
+      done = 0; // list.where((x) => x.completed == true).toList().length;
     }
     return ListView(
       padding: const EdgeInsets.all(16.0),
@@ -646,7 +646,7 @@ class CourseState extends State<Course> with SingleTickerProviderStateMixin {
               ),
             ),
             const Text(
-              "20%",
+              "0%",
               style: TextStyle(
                 color: AppColors.primary,
                 fontWeight: FontWeight.bold,
@@ -657,17 +657,23 @@ class CourseState extends State<Course> with SingleTickerProviderStateMixin {
         const SizedBox(height: 16),
         if (list.isNotEmpty) ...[
           ...list.map((m) {
-            bool isDone = m.completed ?? false;
-            bool isActive = !(m.completed ?? false);
+            bool isDone = false;
+            bool isActive = !(false);
             return GestureDetector(
               onTap: () {
-                video_dialog.show(context, url: m.url!);
+                video_dialog.show(
+                  context,
+                  url: m.url!,
+                  trackingEnable: true,
+                  moduleId: m.id,
+                );
               },
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 20.0),
                 child: Row(
                   children: [
                     if (isDone)
+                      // ignore: dead_code
                       const CircleAvatar(
                         radius: 12,
                         backgroundColor: Colors.teal,

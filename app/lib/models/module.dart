@@ -11,8 +11,6 @@ class ModuleData {
   String? title;
   String? duration;
   String? url;
-  bool? completed;
-  DateTime? completedAt;
   String? status;
 
   ModuleData({
@@ -25,8 +23,6 @@ class ModuleData {
     this.title,
     this.duration,
     this.url,
-    this.completed,
-    this.completedAt,
     this.status,
   });
 
@@ -40,10 +36,6 @@ class ModuleData {
       title: json['title'] as String?,
       duration: json['duration'] as String?,
       url: json['url'] as String?,
-      completed: json['completed'] as bool?,
-      completedAt: json['completedat'] != null
-          ? DateTime.parse(json['completedat'])
-          : null,
       status: json['status'] as String?,
     );
   }
@@ -57,8 +49,6 @@ class ModuleData {
       if (title != null) 'title': title,
       if (duration != null) 'duration': duration,
       if (url != null) 'url': url,
-      if (completed != null) 'completed': completed,
-      if (completedAt != null) 'completedat': completedAt,
       if (status != null) 'status': status,
     };
   }

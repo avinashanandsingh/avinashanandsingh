@@ -32,6 +32,7 @@ import meditation from "./meditation";
 import order from "./order";
 import appointment from "./appointment";
 import reaction from "./reaction";
+import progress from "./progress";
 
 const mapping = [
   {
@@ -913,6 +914,12 @@ const mapping = [
   {
     name: "appointments",
     execute: appointment.list,
+    include: true,
+    role: UserRole.ANONYMOUS,
+  },
+  {
+    name: "track",
+    execute: progress.track,
     include: true,
     role: UserRole.ANONYMOUS,
   },

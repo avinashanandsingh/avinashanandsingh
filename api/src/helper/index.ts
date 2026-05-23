@@ -19,6 +19,9 @@ import timeslot from "./timeslot";
 import schedule from "./schedule";
 import reaction from "./reaction";
 import course from "./course";
+import progress from "./progress";
+import _module from "./module";
+
 export default {
   enum: _enum,
   otp: otp,
@@ -43,6 +46,8 @@ export default {
   schedule,
   reaction,
   course,
+  progress,
+  module: _module,
   toMoney(num: number) {
     return Math.round(num * 100) / 100;
   },

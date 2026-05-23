@@ -14,7 +14,7 @@ class Course {
     List<CourseData> data = [];
     dynamic body = {
       "query":
-          r'query list ($filter: Filter!) { courses(filter: $filter) { count rows { id title description about duration validity thumbnail url certified short level free currency price offer status review modules { id title duration url completed } } } }',
+          r'query list ($filter: Filter!) { courses(filter: $filter) { count rows { id title description about duration validity thumbnail url certified short level free currency price offer status review modules { id title duration url } } } }',
       "variables": {"filter": filter},
     };
     dynamic result = await api.post(url, body);

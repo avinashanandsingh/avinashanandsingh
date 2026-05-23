@@ -1,4 +1,5 @@
 import 'package:app/models/module.dart';
+import 'package:app/models/progress.dart';
 import 'package:app/services/api.dart';
 import 'package:app/services/base.dart';
 import 'package:app/utils/result.dart';
@@ -14,7 +15,7 @@ class Module implements Query<ModuleData> {
     Result<ModuleData> out = Result<ModuleData>(succeed: false);
     dynamic body = {
       "query":
-          r'query list ($filter: Filter!) { modules(filter: $filter) { count rows { id courseid course { id title } scheduleid schedule { id title } title duration url completed completedat status } } }',
+          r'query list ($filter: Filter!) { modules(filter: $filter) { count rows { id courseid course { id title } scheduleid schedule { id title } title duration url status } } }',
       "variables": {
         "filter": {
           "criteria": [
@@ -47,7 +48,7 @@ class Module implements Query<ModuleData> {
     Result<ModuleData> out = Result<ModuleData>(succeed: false);
     dynamic body = {
       "query":
-          r'query get ($filter: Filter!) { module(filter: $filter) { id courseid course { id title } scheduleid schedule { id title } title duration url completed completedat status } }',
+          r'query get ($filter: Filter!) { module(filter: $filter) { id courseid course { id title } scheduleid schedule { id title } title duration url status } }',
       "variables": {"filter": filter},
     };
     dynamic result = await api.post(url, body);
@@ -62,6 +63,29 @@ class Module implements Query<ModuleData> {
       dynamic row = result?['data']['module'];
       out.succeed = true;
       out.row = ModuleData.fromJson(row);
+    }
+    return out;
+  }
+
+  Future<Result<ProgressData>> track(ProgressData dataIn) async {
+    Result<ProgressData> out = Result<ProgressData>(succeed: false);
+    dynamic body = {
+      "query":
+          r'mutation update ($input: ProgressIn!) { track(input: $input) { id } }',
+      "variables": {"input": dataIn.toJson()},
+    };
+    dynamic result = await api.post(url, body);
+    if (result['errors'] != null) {
+      dynamic error = result!['errors']![0];
+      String msg =
+          error?['extensions']?['originalError']?['message'] ??
+          error?['message'];
+      out.succeed = false;
+      out.message = msg;
+    } else {
+      dynamic row = result?['data']['track'];
+      out.succeed = true;
+      out.row = ProgressData.fromJson(row);
     }
     return out;
   }

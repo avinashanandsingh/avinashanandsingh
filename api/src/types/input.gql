@@ -319,3 +319,12 @@ input ReactionIn {
   context: Context!
   contextid: UUID!
 }
+
+
+input ProgressIn {
+  enrollmentId: UUID
+  moduleId: UUID
+  timeSpent: String!
+  completed: Boolean
+  completedat: DateTime
+}

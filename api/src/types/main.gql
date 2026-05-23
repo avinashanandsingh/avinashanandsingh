@@ -123,6 +123,7 @@ type Mutation {
   addModule(input: ModuleIn!): Module!
   updateModule(id:UUID!, input: ModuleIn!): Module!
   deleteModule(id:UUID!): Module!
+  track(input: ProgressIn!):Progress!
 
   enroll(input: EnrollIn!): Enrollment!
   import(input: ImportIn!): Enrollment!
