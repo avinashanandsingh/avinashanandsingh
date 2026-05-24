@@ -660,13 +660,16 @@ class CourseState extends State<Course> with SingleTickerProviderStateMixin {
             bool isDone = false;
             bool isActive = !(false);
             return GestureDetector(
-              onTap: () {
-                video_dialog.show(
-                  context,
-                  url: m.url!,
-                  trackingEnable: true,
-                  moduleId: m.id,
-                );
+              onTap: () async {
+                var enrolled = await Service.course.isEnrolled(m.courseId!);
+                if (enrolled) {
+                  video_dialog.show(
+                    context,
+                    url: m.url!,
+                    trackingEnable: true,
+                    moduleId: m.id,
+                  );
+                }
               },
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 20.0),
