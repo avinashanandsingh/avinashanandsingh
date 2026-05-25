@@ -384,6 +384,12 @@ const mapping = [
     role: UserRole.ANONYMOUS,
   },
   {
+    name: "reviewSummary",
+    execute: review.summary,
+    include: false,
+    role: UserRole.ANONYMOUS,
+  },
+  {
     name: "review",
     execute: review.get,
     include: false,

@@ -57,12 +57,16 @@ class UserData {
 
 class UserBasicData {
   String? id;
+  String? avatar;
   String? firstName;
   String? lastName;
   String? email;
   String? phone;
+  String? get fullName => "$firstName $lastName";
+
   UserBasicData({
     this.id,
+    this.avatar,
     this.firstName,
     this.lastName,
     this.email,
@@ -76,17 +80,19 @@ class UserBasicData {
       lastName: json['last_name'] as String?,
       email: json['email'] as String?,
       phone: json['phone'] as String?,
+      avatar: json["avatar"] as String?,
     );
   }
 
   // Object to JSON conversion
   Map<String, dynamic> toJson() {
     return {
-      'id': id,
-      'first_name': firstName,
-      'last_name': lastName,
-      'email': email,
-      'phone': phone,
+      if (id != null) 'id': id,
+      if (avatar != null) 'avatar': avatar,
+      if (firstName != null) 'first_name': firstName,
+      if (lastName != null) 'last_name': lastName,
+      if (email != null) 'email': email,
+      if (phone != null) 'phone': phone,
     };
   }
 }

@@ -46,6 +46,7 @@ const resolvers = {
     appointments: shield,
     review: shield,
     reviews: shield,
+    reviewSummary: shield,
     reactionCount: shield,
     reaction: shield,
     reactions: shield,

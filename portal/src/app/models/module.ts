@@ -12,6 +12,4 @@ export interface IModuleData {
   sort?: number;
   url?: string;
   status?: string;
-  completed?: boolean;
-  completedat?: Date;
 }

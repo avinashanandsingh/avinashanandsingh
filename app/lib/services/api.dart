@@ -32,8 +32,10 @@ class ApiService {
       } else {
         response = await http.get(Uri.parse(url), headers: headers);
       }
+
       result = jsonDecode(response.body);
     } catch (e) {
+      print("api.error: ${e.toString()}");
       rethrow;
     }
     return result;

@@ -98,7 +98,8 @@ type Course {
   createdat: Date
   updater: User
   updatedat: Date
-  modules: [Module]
+  schedule: JSON
+  modules: JSON
 }
 
 type CourseResult {
@@ -431,7 +432,7 @@ type Review {
   contextid: UUID
   userid: UUID
   user: User
-  title: String
+  rating: Int
   content: String
   public: Boolean
   createdat: DateTime
@@ -440,6 +441,18 @@ type Review {
 type ReviewResult {
   count: Int
   rows: [Review]
+}
+
+type ReviewSummary {
+  context: Context
+  contextid: UUID
+  reviews: Int
+  average: Float
+  r1: Int
+  r2: Int
+  r3: Int
+  r4: Int
+  r5: Int
 }
 
 type Inquiry {

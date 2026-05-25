@@ -1,9 +1,8 @@
-import 'package:app/components/action_icon_data.dart';
-import 'package:app/components/error_overlay.dart';
-import 'package:app/components/title_widget.dart';
-import 'package:app/models/user.dart';
-import 'package:app/services/identity.dart';
 import 'package:flutter/material.dart';
+import '../components/action_icon_data.dart';
+import '../components/title_widget.dart';
+import '../models/user.dart';
+import '../services/identity.dart';
 import '../theme/theme.dart';
 
 class Header extends AppBar {
@@ -36,11 +35,6 @@ class Header extends AppBar {
                      } else {
                        return TitleWidget(title: titleText);
                      }
-                   } else if (snapshot.hasError) {
-                     return ErrorOverlay(
-                       message: snapshot.error!.toString(),
-                       title: 'Error',
-                     );
                    } else {
                      return TitleWidget(title: titleText);
                    }

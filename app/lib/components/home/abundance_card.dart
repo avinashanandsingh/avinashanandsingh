@@ -113,7 +113,8 @@ class AbundanceCard extends StatelessWidget {
                     if (flag) {
                       navigatorKey.currentState?.push(
                         MaterialPageRoute(
-                          builder: (context) => Course(data: data),
+                          builder: (context) =>
+                              Course(data: data, enrolled: snapshot.data),
                         ),
                       );
                     } else {
@@ -137,7 +138,7 @@ class AbundanceCard extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    snapshot.data! ? "View Detail" : "Enroll Now",
+                    snapshot.data == true ? "View Detail" : "Enroll Now",
                     style: GoogleFonts.lato(
                       fontWeight: FontWeight.bold,
                       fontSize: 14,

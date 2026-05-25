@@ -14,7 +14,7 @@ class Course {
     List<CourseData> data = [];
     dynamic body = {
       "query":
-          r'query list ($filter: Filter!) { courses(filter: $filter) { count rows { id title description about duration validity thumbnail url certified short level free currency price offer status review modules { id courseid scheduleid title duration url } } } }',
+          r'query list ($filter: Filter!) { courses(filter: $filter) { count rows { id title description about duration validity thumbnail url certified short level free currency price offer status review schedule modules } } }',
       "variables": {"filter": filter},
     };
     dynamic result = await api.post(url, body);
@@ -40,7 +40,7 @@ class Course {
     Result<CourseData> out = Result<CourseData>(succeed: false);
     dynamic body = {
       "query":
-          r'query get ($filter: Filter!) { course(filter: $filter) { id title description about duration validity thumbnail url certified short level free currency price offer status review modules { id courseid scheduleid title duration url completed } } }',
+          r'query get ($filter: Filter!) { course(filter: $filter) { id title description about duration validity thumbnail url certified short level free currency price offer status review schedule modules } }',
       "variables": {"filter": filter},
     };
     dynamic result = await api.post(url, body);
@@ -53,7 +53,6 @@ class Course {
       out.message = msg;
     } else {
       dynamic row = result?['data']['course'];
-
       out.succeed = true;
       out.row = CourseData.fromJson(row);
     }
@@ -63,42 +62,19 @@ class Course {
   Future<bool> isEnrolled(String courseId) async {
     bool flag = false;
     UserData? me = await Service.identity.me();
-    dynamic body = {
-      "query":
-          r'query isEnrolled ($courseId: UUID!) { isEnrolled(courseId: $courseId) { courseid scheduleid userid } }',
-      "variables": {"courseId": courseId},
-    };
+
     if (me != null) {
-      body = {
+      dynamic body = {
         "query":
             r'query isEnrolled ($courseId: UUID!, $userId: UUID) { isEnrolled(courseId: $courseId, userId: $userId) { courseid scheduleid userid } }',
         "variables": {"courseId": courseId, "userId": me.id!},
       };
-    }
-    dynamic result = await api.post(url, body);
-    if (result['errors'] == null) {
-      flag = (result['data']?['isEnrolled'] != null);
+
+      dynamic result = await api.post(url, body);
+      if (result['errors'] == null) {
+        flag = (result['data']?['isEnrolled'] != null);
+      }
     }
     return flag;
-  }
-
-  Future<dynamic> postReview(
-    String courseId,
-    int rating,
-    String content,
-  ) async {
-    dynamic body = {
-      "query":
-          r'mutation add ($input: ReviewIn!) { postReview(input: $input) { id } }',
-      "variables": {
-        "input": {
-          "context": "COURSE",
-          "contextid": courseId,
-          "rating": rating,
-          "content": content,
-        },
-      },
-    };
-    return await api.post(url, body);
   }
 }

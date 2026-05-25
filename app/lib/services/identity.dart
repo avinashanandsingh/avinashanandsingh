@@ -42,7 +42,8 @@ class Identity extends ChangeNotifier {
     String? token = await store.get('token');
     UserData? user;
     if (token != null) {
-      if (await isLoggedIn()) {
+      bool flag = await isLoggedIn();
+      if (flag) {
         user = UserData.fromJson(JwtDecoder.decode(token));
       }
     }
@@ -66,8 +67,10 @@ class Identity extends ChangeNotifier {
       };
 
       dynamic result = await api.post(url, body);
-      if (result?['data']?['verify'] != null) {
-        flag = result?['data']?['verify']! as bool;
+      if (result['errors'] == null) {
+        if (result?['data']?['verify'] != null) {
+          flag = result?['data']?['verify']! as bool;
+        }
       }
     }
     return flag;

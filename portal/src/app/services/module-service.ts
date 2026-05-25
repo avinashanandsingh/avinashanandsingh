@@ -20,7 +20,7 @@ export class ModuleService {
   async list(filter: Filter): Promise<Data<IModuleData>> {
     let body = {
       query:
-        'query list ($filter: Filter!) { modules(filter: $filter) { count rows { id title duration url courseid course { id title } scheduleid schedule { id title} sort completed completedat status } } }',
+        'query list ($filter: Filter!) { modules(filter: $filter) { count rows { id title duration url courseid course { id title } scheduleid schedule { id title} sort status } } }',
       variables: {
         filter: {
           ...filter,
@@ -34,7 +34,7 @@ export class ModuleService {
 
   async get(id: String) {
     let body = {
-      query: 'query get($id: UUID!) { module (id: $id) { id title duration url courseid course { id title } scheduleid schedule { id title} sort completed completedat } }',
+      query: 'query get($id: UUID!) { module (id: $id) { id title duration url courseid course { id title } scheduleid schedule { id title} sort } }',
       variables: {
         id: id,
       },

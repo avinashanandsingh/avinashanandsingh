@@ -1,4 +1,3 @@
-import 'package:app/components/error_overlay.dart';
 import 'package:app/components/invite_dialog.dart';
 import 'package:app/models/short.dart';
 import 'package:app/models/user.dart';
@@ -188,9 +187,5 @@ class _LayoutState extends State<Layout> {
             : null,
       ),
     );
-  }
-
-  Widget onError(Object? object) {
-    return ErrorOverlay(message: object!.toString(), title: 'Error');
   }
 }

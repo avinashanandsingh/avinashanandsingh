@@ -1,4 +1,5 @@
 import 'package:app/models/module.dart';
+import 'package:app/models/schedule.dart';
 
 class CourseData {
   String? id;
@@ -19,6 +20,7 @@ class CourseData {
   String? status;
   int? reviews;
   double? rating;
+  ScheduleData? schedule;
   List<ModuleData>? modules;
 
   double get sale => (offer! > 0 && offer! <= price!) ? offer! : price!;
@@ -41,6 +43,7 @@ class CourseData {
     this.offer,
     this.reviews,
     this.rating,
+    this.schedule,
     this.modules,
   });
 
@@ -55,6 +58,11 @@ class CourseData {
         lst.add(module);
         i++;
       }
+    }
+
+    ScheduleData? scheduleData;
+    if (json['schedule'] != null) {
+      scheduleData = ScheduleData.fromJson(json['schedule']);
     }
 
     try {
@@ -76,6 +84,7 @@ class CourseData {
         offer: double.parse(json['offer'] ?? '0.00'),
         reviews: json['review']?['reviews'] ?? '0' as int?,
         rating: double.parse(json['review']?['rating'] ?? '0.00'),
+        schedule: scheduleData,
         modules: lst,
       );
     } catch (e) {

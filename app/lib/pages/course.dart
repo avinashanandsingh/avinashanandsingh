@@ -4,6 +4,7 @@ import 'package:app/components/loader.dart';
 import 'package:app/components/price_tag.dart';
 import 'package:app/components/review_dialog.dart' as review_dialog;
 import 'package:app/components/review_widget.dart';
+import 'package:app/components/schedule_card.dart';
 import 'package:app/components/video_card.dart';
 import 'package:app/helpers/enroll.dart';
 import 'package:app/models/course.dart';
@@ -21,14 +22,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:app/helpers/globals.dart';
-import 'package:intl/intl.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import '../components/video_player_dialog.dart' as video_dialog;
 
 class Course extends StatefulWidget {
   final CourseData? data;
+  final bool? enrolled;
   final String? scheduleId;
-  const Course({super.key, this.data, this.scheduleId});
+  const Course({super.key, this.data, this.scheduleId, this.enrolled});
 
   @override
   State<Course> createState() => CourseState();
@@ -81,232 +82,20 @@ class CourseState extends State<Course> with SingleTickerProviderStateMixin {
               metadataGrid(),
 
               Divider(),
-              Container(
-                padding: EdgeInsets.all(15),
-                child: FutureBuilder(
-                  future: Service.schedule.get({
-                    if (widget.scheduleId == null)
-                      "criteria": [
-                        {
-                          "column": "courseid",
-                          "cop": "eq",
-                          "value": widget.data?.id,
-                        },
-                        {
-                          "column": "status",
-                          "cop": "eq",
-                          "lop": "AND",
-                          "value": "ACTIVE",
-                        },
-                      ],
-                    if (widget.scheduleId != null)
-                      "criteria": [
-                        {
-                          "column": "id",
-                          "cop": "eq",
-                          "value": widget.scheduleId,
-                        },
-                      ],
-                  }),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
-                      );
-                    } else if (snapshot.hasData) {
-                      if (snapshot.data != null) {
-                        String formattedStartDate = DateFormat.yMMMMEEEEd()
-                            .format(DateTime.parse(snapshot.data!.startDate!));
-                        String formattedEndDate = DateFormat.yMMMMEEEEd()
-                            .format(DateTime.parse(snapshot.data!.endDate!));
-
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              snapshot.data!.title!,
-                              style: TextTheme.of(context).headlineSmall,
-                            ),
-
-                            Row(
-                              children: [
-                                Text(
-                                  "Start Date: ",
-                                  style: TextTheme.of(context).labelSmall!
-                                      .copyWith(fontWeight: FontWeight.bold),
-                                ),
-                                Text(
-                                  formattedStartDate,
-                                  style: TextTheme.of(context).labelSmall,
-                                ),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Text(
-                                  "End Date: ",
-                                  style: TextTheme.of(context).labelSmall!
-                                      .copyWith(fontWeight: FontWeight.bold),
-                                ),
-                                Text(
-                                  formattedEndDate,
-                                  style: TextTheme.of(context).labelSmall,
-                                ),
-                              ],
-                            ),
-                            Row(
-                              children: [
-                                Text(
-                                  "Time: ",
-                                  style: TextTheme.of(context).labelSmall!
-                                      .copyWith(fontWeight: FontWeight.bold),
-                                ),
-                                Text(
-                                  "${snapshot.data!.formattedStartTime!} to ${snapshot.data!.formattedEndTime!}",
-                                  style: TextTheme.of(context).labelSmall,
-                                ),
-                              ],
-                            ),
-                            /* Row(
-                                children: [
-                                  Text(
-                                    "End Time: ",
-                                    style: TextTheme.of(context).labelSmall!
-                                        .copyWith(fontWeight: FontWeight.bold),
-                                  ),
-                                  Text(snapshot.data!.formattedEndTime!),
-                                ],
-                              ), */
-                          ],
-                        );
-                      } else {
-                        return Container();
-                      }
-                    } else {
-                      return Container();
-                    }
-                  },
-                ),
-              ),
-              Padding(
-                padding: EdgeInsetsGeometry.symmetric(horizontal: 15),
-                child: FutureBuilder<bool>(
-                  future: Service.course.isEnrolled(widget.data!.id!),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
-                      );
-                    } else if (snapshot.hasData) {
-                      if (!snapshot.data!) {
-                        if (widget.data!.free!) {
-                          return TextButton(
-                            onPressed: () async {
-                              print('clicked free');
-                              Loader.show();
-                              var result = await EnrollHelper.initiate(
-                                widget.data!.id!,
-                              );
-                              Loader.hide();
-                              if (result.succeed) {
-                                EnrollHelper.enrolled(result.id!);
-                                navigatorKey.currentState?.push(
-                                  MaterialPageRoute(
-                                    builder: (context) => Home(),
-                                  ),
-                                );
-                              } else {
-                                Alert.show(result.message!, isError: true);
-                              }
-                            },
-                            child: Text(
-                              'Enroll Now',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          );
-                        } else {
-                          return Row(
-                            children: [
-                              PriceTag(
-                                offer: widget.data!.offer ?? 0.00,
-                                price: widget.data!.price ?? 0.00,
-                              ),
-                              Spacer(),
-                              TextButton(
-                                onPressed: () async {
-                                  if (widget.data!.short!) {
-                                    Loader.show();
-                                    var result = await EnrollHelper.initiate(
-                                      widget.data!.id!,
-                                    );
-                                    Loader.hide();
-
-                                    if (result.succeed) {
-                                      checkout();
-                                      if (paid) {
-                                        result = await EnrollHelper.enrolled(
-                                          result.id!,
-                                        );
-                                        if (result.succeed) {
-                                          navigatorKey.currentState?.push(
-                                            MaterialPageRoute(
-                                              builder: (context) => Home(),
-                                            ),
-                                          );
-                                        } else {
-                                          Alert.show(
-                                            result.message!,
-                                            isError: true,
-                                          );
-                                        }
-                                      }
-                                    } else {
-                                      setState(() {
-                                        paid = false;
-                                      });
-                                      Alert.show(
-                                        result.message!,
-                                        isError: true,
-                                      );
-                                    }
-                                  } else {
-                                    navigatorKey.currentState?.push(
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            Enroll(course: widget.data!),
-                                      ),
-                                    );
-                                  }
-                                },
-                                child: Text(
-                                  'Enroll Now',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          );
-                        }
-                      } else {
-                        return Container();
-                      }
-                    }
-                    return Container();
-                  },
-                ),
-              ),
-
+              schedule(),
+              if (widget.enrolled == false) ...[
+                if (widget.data!.free!) ...[
+                  Padding(
+                    padding: EdgeInsetsGeometry.symmetric(horizontal: 15),
+                    child: freeWidget(),
+                  ),
+                ] else ...[
+                  Padding(
+                    padding: EdgeInsetsGeometry.symmetric(horizontal: 15),
+                    child: paidWidget(),
+                  ),
+                ],
+              ],
               Divider(),
               Padding(
                 padding: EdgeInsetsGeometry.symmetric(horizontal: 8),
@@ -403,7 +192,6 @@ class CourseState extends State<Course> with SingleTickerProviderStateMixin {
   }
 
   void handlePaymentError(PaymentFailureResponse response) async {
-    print('callled');
     setState(() {
       paid = false;
     });
@@ -553,7 +341,10 @@ class CourseState extends State<Course> with SingleTickerProviderStateMixin {
         if (widget.data!.modules!.isNotEmpty) curriculum(),
         //_buildForumTab(),
         if (widget.data!.certified!) certificate(),
-        Container(padding: EdgeInsets.all(15), child: ReviewWidget()),
+        Container(
+          padding: EdgeInsets.all(15),
+          child: ReviewWidget(type: "COURSE", id: widget.data!.id!),
+        ),
       ],
     );
   }
@@ -675,35 +466,25 @@ class CourseState extends State<Course> with SingleTickerProviderStateMixin {
                 padding: const EdgeInsets.only(bottom: 20.0),
                 child: Row(
                   children: [
-                    if (isDone)
+                    if (widget.enrolled == true)
                       // ignore: dead_code
-                      const CircleAvatar(
-                        radius: 12,
-                        backgroundColor: Colors.teal,
-                        child: Icon(Icons.check, color: Colors.white, size: 16),
-                      )
-                    else if (isActive)
                       CircleAvatar(
                         radius: 12,
-                        backgroundColor: Colors.grey.shade200,
-                        child: Text(
-                          m.serial != null ? m.serial.toString() : '',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.black87,
-                          ),
+                        backgroundColor: Colors.purple,
+                        child: Icon(
+                          Icons.lock_open_outlined,
+                          color: Colors.white,
+                          size: 18,
                         ),
                       )
                     else
                       CircleAvatar(
                         radius: 12,
-                        backgroundColor: Colors.grey.shade100,
-                        child: Text(
-                          m.serial!.toString(),
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey.shade500,
-                          ),
+                        backgroundColor: Colors.purple,
+                        child: Icon(
+                          Icons.lock_outline,
+                          color: Colors.white,
+                          size: 18,
                         ),
                       ),
 
@@ -801,5 +582,123 @@ class CourseState extends State<Course> with SingleTickerProviderStateMixin {
         ),
       ],
     );
+  }
+
+  Widget freeWidget() {
+    return TextButton(
+      onPressed: () async {
+        print('clicked free');
+        Loader.show();
+        var result = await EnrollHelper.initiate(widget.data!.id!);
+        Loader.hide();
+        if (result.succeed) {
+          EnrollHelper.enrolled(result.id!);
+          navigatorKey.currentState?.push(
+            MaterialPageRoute(builder: (context) => Home()),
+          );
+        } else {
+          Alert.show(result.message!, isError: true);
+        }
+      },
+      child: Text(
+        'Enroll Now',
+        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
+  Widget paidWidget() {
+    return Row(
+      children: [
+        PriceTag(
+          offer: widget.data!.offer ?? 0.00,
+          price: widget.data!.price ?? 0.00,
+        ),
+        Spacer(),
+        TextButton(
+          onPressed: () async {
+            if (widget.data!.short!) {
+              Loader.show();
+              var result = await EnrollHelper.initiate(widget.data!.id!);
+              Loader.hide();
+
+              if (result.succeed) {
+                checkout();
+                if (paid) {
+                  result = await EnrollHelper.enrolled(result.id!);
+                  if (result.succeed) {
+                    navigatorKey.currentState?.push(
+                      MaterialPageRoute(builder: (context) => Home()),
+                    );
+                  } else {
+                    Alert.show(result.message!, isError: true);
+                  }
+                }
+              } else {
+                setState(() {
+                  paid = false;
+                });
+                Alert.show(result.message!, isError: true);
+              }
+            } else {
+              navigatorKey.currentState?.push(
+                MaterialPageRoute(
+                  builder: (context) => Enroll(course: widget.data!),
+                ),
+              );
+            }
+          },
+          child: Text(
+            'Enroll Now',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget schedule() {
+    if (widget.scheduleId != null) {
+      String courseId = widget.data!.id!;
+      return FutureBuilder(
+        future: Service.schedule.get({
+          if (widget.scheduleId == null)
+            "criteria": [
+              {"column": "courseid", "cop": "eq", "value": courseId},
+              {
+                "column": "status",
+                "cop": "eq",
+                "lop": "AND",
+                "value": "ACTIVE",
+              },
+              {"column": "id", "cop": "eq", "value": widget.scheduleId},
+            ],
+        }),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: CircularProgressIndicator(strokeWidth: 2),
+              ),
+            );
+          } else if (snapshot.hasData) {
+            if (snapshot.data != null) {
+              return ScheduleCard(data: snapshot.data!);
+            } else {
+              return Container();
+            }
+          } else {
+            return Container();
+          }
+        },
+      );
+    } else {
+      if (widget.data!.schedule != null) {
+        return ScheduleCard(data: widget.data!.schedule!);
+      } else {
+        return Container();
+      }
+    }
   }
 }

@@ -1,15 +1,15 @@
 import { GraphQLError } from "graphql";
 import helper from "../../helper/index";
 import Select from "../../models/select";
-import Filter from "../../models/filter";
+import { COP, LOP } from "../../models/enum";
 
 export default async (
   _: any,
-  args: { filter: Filter },
+  args: { context: string; contextId: string },
   _ctx: any,
 ): Promise<any> => {
   let row: any;
-  let table = "view_reviews";
+  let table = "view_review_summary";
   let fields = await helper.data.columns([{ name: table }]);
   let input: Select = {
     tables: [
@@ -20,7 +20,21 @@ export default async (
         }),
       },
     ],
-    criteria: args.filter.criteria,
+    criteria: [
+      {
+        table,
+        column: "context",
+        cop: COP.eq,
+        value: args.context,
+      },
+      {
+        table,
+        column: "contextid",
+        cop: COP.eq,
+        lop: LOP.AND,
+        value: args.contextId,
+      },
+    ],
   };
   let result = await helper.data.select<any>(input);
   if (result?.count! > 0) {

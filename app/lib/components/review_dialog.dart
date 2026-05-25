@@ -123,13 +123,13 @@ class ReviewDialogState extends State<ReviewDialog> {
                 dynamic result;
                 if (widget.ref is CourseData) {
                   Loader.show();
-                  result = await Service.course.postReview(
+                  result = await Service.review.post(
+                    'COURSE',
                     widget.ref?.id,
                     rating,
                     content!,
                   );
                   Loader.hide();
-                  print(result);
                   if (result?['errors'] == null) {
                     Navigator.pop(context);
                     Alert.show(

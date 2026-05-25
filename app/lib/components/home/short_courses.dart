@@ -29,9 +29,13 @@ class ShortCourses extends StatelessWidget {
             onTap: () async {
               bool flag = await Service.identity.isLoggedIn();
               if (flag) {
+                bool enrolled = await Service.course.isEnrolled(
+                  list[index].id!,
+                );
                 navigatorKey.currentState?.push(
                   MaterialPageRoute(
-                    builder: (context) => Course(data: list[index]),
+                    builder: (context) =>
+                        Course(data: list[index], enrolled: enrolled),
                   ),
                 );
               } else {

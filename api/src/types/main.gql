@@ -56,9 +56,6 @@ type Query {
   service(id: UUID!): Service!
   services(filter: Filter!): ServiceResult!
 
-  review(id: UUID!): Review!
-  reviews(filter: Filter!): ReviewResult!
-
   inquiry(id: UUID!): Inquiry!
   inquiries(filter: Filter!): InquiryResult!
 
@@ -92,6 +89,11 @@ type Query {
   reactionCount(filter: Filter!): Int!
   reaction(filter: Filter!): Reaction!
   reactions(filter: Filter!): ReactionResult!
+
+  review(filter: Filter!): Review!
+  reviews(filter: Filter!): ReviewResult!
+  reviewSummary(context:Context!, contextId: UUID!): ReviewSummary
+
 }
 
 type Mutation {

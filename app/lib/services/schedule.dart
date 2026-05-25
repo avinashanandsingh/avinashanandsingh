@@ -39,7 +39,7 @@ class Schedule {
     ScheduleData? data;
     dynamic body = {
       "query":
-          r'query get ($filter: Filter!) { schedule(filter: $filter) { id title start_date end_date start_time end_time formatted_start_time formatted_end_time } }',
+          r'query get ($filter: Filter!) { schedule(filter: $filter) { id title start_date end_date start_time end_time } }',
       "variables": {"filter": filter},
     };
     dynamic result = await api.post(url, body);

@@ -1,48 +1,130 @@
+import 'package:app/helpers/convert.dart';
+import 'package:app/models/filter.dart';
+import 'package:app/models/review.dart';
+import 'package:app/services/service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../theme/theme.dart';
 
-class ReviewWidget extends StatelessWidget {
-  const ReviewWidget({super.key});
+class ReviewWidget extends StatefulWidget {
+  final String id;
+  final String type;
+  const ReviewWidget({super.key, required this.type, required this.id});
+
+  @override
+  State<ReviewWidget> createState() => ReviewState();
+}
+
+class ReviewState extends State<ReviewWidget> {
+  List<ReviewData> list = List.empty(growable: true);
+
+  final ScrollController scroller = ScrollController();
+  int page = 1;
+  int offset = 0;
+  int limit = 5;
+  bool isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData(); // Initial load
+    scroller.addListener(() {
+      // Check if user is at the bottom
+      if (scroller.position.pixels >= scroller.position.maxScrollExtent &&
+          !isLoading) {
+        fetchData();
+      }
+    });
+  }
+
+  Future<void> fetchData() async {
+    setState(() => isLoading = true);
+    // Simulate API call
+
+    var result = await Service.review.list({
+      "criteria": [
+        {"column": "context", "cop": "eq", "value": widget.type},
+        {"column": "contextid", "cop": "eq", "lop": "AND", "value": widget.id},
+      ],
+      "offset": offset,
+      "limit": limit,
+    });
+    if (result.succeed) {
+      setState(() {
+        list.addAll(result.list!);
+        page++;
+        offset = (page - 1) * limit;
+        isLoading = false;
+      });
+    } else {
+      setState(() => isLoading = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const ReviewSummary(
-          averageRating: 4.5,
-          totalReviews: 273,
-          ratingDistribution: {5: 0.9, 4: 0.7, 3: 0.5, 2: 0.3, 1: 0.1},
+        FutureBuilder(
+          future: Service.review.summary(widget.type, widget.id),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Container();
+            } else if (snapshot.hasData) {
+              var result = snapshot.data;
+              if (result!.succeed) {
+                return ReviewSummary(
+                  averageRating: result.row!.average!,
+                  totalReviews: result.row!.reviews!,
+                  ratingDistribution: {
+                    5: Convert.shiftDecimal(result.row!.r5!),
+                    4: Convert.shiftDecimal(result.row!.r4!),
+                    3: Convert.shiftDecimal(result.row!.r3!),
+                    2: Convert.shiftDecimal(result.row!.r2!),
+                    1: Convert.shiftDecimal(result.row!.r1!),
+                  },
+                );
+              } else {
+                return Container();
+              }
+            } else {
+              return Container();
+            }
+          },
         ),
+
         const SizedBox(height: 32),
-        const ReviewItem(
-          name: 'Jason Smith',
-          rating: 4,
-          date: '20 Feb 2022',
-          review:
-              'This course definitely brings me more values than I expect. Thank you so much both of you guys!',
-        ),
-        const Divider(height: 32),
-        const ReviewItem(
-          name: 'Wilson Armela',
-          rating: 4,
-          date: '20 Feb 2022',
-          review:
-              'Super helpful class! I\'m on my way to create a Digital Marketing Agency and I have found plenty of value inside this course. Highly recommend!',
-        ),
-        const Divider(height: 32),
-        const ReviewItem(
-          name: 'Ajax Simpson',
-          rating: 4,
-          date: '20 Feb 2022',
-          review: 'This class exceeded my expectations!',
+        SizedBox(
+          height: 300,
+          child: ListView.builder(
+            controller: scroller,
+            //shrinkWrap: true,
+            //physics: const NeverScrollableScrollPhysics(),
+            itemCount: list.length + (isLoading ? 1 : 0),
+            itemBuilder: (context, index) {
+              if (index == list.length) {
+                return Center(
+                  child: CircularProgressIndicator(),
+                ); // Bottom loader
+              }
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ReviewItem(data: list[index]),
+                  const Divider(height: 32),
+                ],
+              );
+            },
+          ),
         ),
         const SizedBox(height: 24),
         SizedBox(
           width: double.infinity,
           child: OutlinedButton(
-            onPressed: () {},
+            onPressed: () async {
+              await fetchData();
+            },
             style: OutlinedButton.styleFrom(
               side: const BorderSide(color: AppColors.primary),
               padding: const EdgeInsets.symmetric(vertical: 16),
@@ -149,18 +231,9 @@ class ReviewSummary extends StatelessWidget {
 }
 
 class ReviewItem extends StatelessWidget {
-  final String name;
-  final int rating;
-  final String date;
-  final String review;
+  final ReviewData data;
 
-  const ReviewItem({
-    super.key,
-    required this.name,
-    required this.rating,
-    required this.date,
-    required this.review,
-  });
+  const ReviewItem({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {
@@ -168,7 +241,7 @@ class ReviewItem extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          name,
+          data.user!.fullName!,
           style: GoogleFonts.inter(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -182,7 +255,7 @@ class ReviewItem extends StatelessWidget {
             Row(
               children: List.generate(5, (index) {
                 return Icon(
-                  index < rating
+                  index < data.rating!
                       ? Icons.star_rounded
                       : Icons.star_outline_rounded,
                   color: Colors.amber,
@@ -191,7 +264,7 @@ class ReviewItem extends StatelessWidget {
               }),
             ),
             Text(
-              date,
+              data.postedAt!,
               style: GoogleFonts.inter(
                 fontSize: 14,
                 color: Colors.grey[500],
@@ -202,10 +275,10 @@ class ReviewItem extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         Text(
-          review,
+          data.content ?? '',
           style: GoogleFonts.inter(
             fontSize: 15,
-            color: Colors.black87.withOpacity(0.7),
+            color: Colors.black87.withValues(alpha: 0.7),
             height: 1.6,
           ),
         ),

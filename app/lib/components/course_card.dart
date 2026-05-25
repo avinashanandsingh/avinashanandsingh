@@ -101,8 +101,11 @@ class CourseCard extends StatelessWidget {
           () async {
             bool flag = await Service.identity.isLoggedIn();
             if (flag) {
+              bool enrolled = await Service.course.isEnrolled(data.id!);
               navigatorKey.currentState?.push(
-                MaterialPageRoute(builder: (context) => Course(data: data)),
+                MaterialPageRoute(
+                  builder: (context) => Course(data: data, enrolled: enrolled),
+                ),
               );
             } else {
               navigatorKey.currentState?.push(

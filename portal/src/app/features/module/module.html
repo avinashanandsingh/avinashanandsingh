@@ -73,12 +73,6 @@
                             Url
                         </th>
                         <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
-                            Completed
-                        </th>
-                        <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
-                            Completed&nbsp;On
-                        </th>
-                        <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider">
                             Status
                         </th>
                         <th class="p-3 text-left text-base font-medium text-gray-500 uppercase tracking-wider w-20">
@@ -103,14 +97,6 @@
                         </td>
                         <td class="p-3 whitespace-nowrap">
                             <div class="text-base font-medium text-gray-900">{{ item.url }}</div>
-                        </td>
-                        <td class="p-3 whitespace-nowrap">
-                            <div class="text-base font-medium text-gray-900">{{ item.completed }}</div>
-                        </td>
-                        <td class="p-3 whitespace-nowrap">
-                            <div class="text-base font-medium text-gray-900">
-                                {{ item.completedat! | date:'dd-MMM-yyyy HH:MM a' }}
-                            </div>
                         </td>
                         <td class="p-3 whitespace-nowrap text-base text-gray-500">
                             @switch (item.status) {
