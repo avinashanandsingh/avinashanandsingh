@@ -9,12 +9,11 @@ class Course {
   final String url = dotenv.env['URL'] ?? '';
   final ApiService api = ApiService();
   Future<Result<CourseData>> list(dynamic filter) async {
-    //print('called ${filter?.toJson()}');
     Result<CourseData> out = Result<CourseData>(succeed: false);
     List<CourseData> data = [];
     dynamic body = {
       "query":
-          r'query list ($filter: Filter!) { courses(filter: $filter) { count rows { id title description about duration validity thumbnail url certified short level free currency price offer status review schedule modules } } }',
+          r'query list ($filter: Filter!) { courses(filter: $filter) { count rows { id title description about duration validity thumbnail url certified short level free currency price offer status review schedule modules qna } } }',
       "variables": {"filter": filter},
     };
     dynamic result = await api.post(url, body);
@@ -40,7 +39,7 @@ class Course {
     Result<CourseData> out = Result<CourseData>(succeed: false);
     dynamic body = {
       "query":
-          r'query get ($filter: Filter!) { course(filter: $filter) { id title description about duration validity thumbnail url certified short level free currency price offer status review schedule modules } }',
+          r'query get ($filter: Filter!) { course(filter: $filter) { id title description about duration validity thumbnail url certified short level free currency price offer status review schedule modules qna } }',
       "variables": {"filter": filter},
     };
     dynamic result = await api.post(url, body);

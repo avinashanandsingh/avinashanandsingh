@@ -208,13 +208,11 @@ class QnaFormState extends State<QnaForm> {
         paymentStatus: "PENDING",
         createdat: DateTime.now(),
       );
-      var order = await Service.order.add(orderData);
+      var result = await Service.order.add(orderData);
 
-      if (order?.id == null) {
-        Alert.show("Failed to create order. Please try again.", isError: true);
-      } else {
+      if (result!.succeed) {
         if (payment == 'ON') {
-          await Service.store.set("latest_order_id", order!.id!);
+          await Service.store.set("latest_order_id", result.row!.id!);
           var userData = UserData.fromJson(user);
           RazorpayService.instance.startPayment(
             onSuccess: handlePaymentSuccess,
@@ -238,6 +236,8 @@ class QnaFormState extends State<QnaForm> {
             },
           );
         }
+      } else {
+        Alert.show("Failed to create order. Please try again.", isError: true);
       }
     }
   }

@@ -2,8 +2,9 @@ import { GraphQLError } from "graphql";
 import helper from "../../helper/index";
 import Select from "../../models/select";
 import { COP } from "../../models/enum";
+import Filter from "../../models/filter";
 
-export default async (_: any, args: any, ctx: any): Promise<any> => {
+export default async (_: any, args: { filter: Filter }, _ctx: any): Promise<any> => {
   let row: any;
   let table = "view_enrollments";
   let fields = await helper.data.columns([{ name: table }]);
@@ -16,14 +17,7 @@ export default async (_: any, args: any, ctx: any): Promise<any> => {
         }),
       },
     ],
-    criteria: [
-      {
-        table,
-        column: "id",
-        cop: COP.eq,
-        value: args.id,
-      },
-    ],
+    criteria: args.filter.criteria
   };
   let result = await helper.data.select<any>(input);
   if (result?.count! > 0) {

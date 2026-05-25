@@ -35,7 +35,6 @@ class ApiService {
 
       result = jsonDecode(response.body);
     } catch (e) {
-      print("api.error: ${e.toString()}");
       rethrow;
     }
     return result;

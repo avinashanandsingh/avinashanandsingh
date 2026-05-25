@@ -33,8 +33,6 @@ class ReviewDialogState extends State<ReviewDialog> {
     super.initState();
     content = '';
     rating = 0;
-
-    print(widget.ref.toString());
   }
 
   @override

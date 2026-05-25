@@ -33,7 +33,6 @@ class Branding {
         );
       }
     }
-    //print(data);
     return data;
   }
 }

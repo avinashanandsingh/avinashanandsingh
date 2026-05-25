@@ -6,11 +6,12 @@ import 'package:app/components/review_dialog.dart' as review_dialog;
 import 'package:app/components/review_widget.dart';
 import 'package:app/components/schedule_card.dart';
 import 'package:app/components/video_card.dart';
+import 'package:app/helpers/capitalize.dart';
 import 'package:app/helpers/enroll.dart';
 import 'package:app/models/course.dart';
+import 'package:app/models/enroll.dart';
 import 'package:app/models/module.dart';
 import 'package:app/models/order.dart';
-import 'package:app/models/qna.dart';
 import 'package:app/models/user.dart';
 import 'package:app/pages/enroll.dart';
 import 'package:app/pages/home.dart';
@@ -18,6 +19,7 @@ import 'package:app/services/razorpay.dart';
 import 'package:app/services/service.dart';
 import 'package:app/theme/theme.dart';
 import 'package:app/utils/alert.dart';
+import 'package:app/utils/result.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -40,12 +42,11 @@ class CourseState extends State<Course> with SingleTickerProviderStateMixin {
   bool paid = false;
   late AppTheme theme = AppTheme();
   int tabs = 2;
-  late Future<List<QnaData>> qna = Service.qna.list(widget.data?.id ?? '');
+  int counter = 0;
   @override
   void initState() {
     super.initState();
     paid = false;
-    qna = Service.qna.list(widget.data?.id ?? '');
     if (widget.data!.modules!.isNotEmpty) {
       tabs += 1;
     }
@@ -53,6 +54,13 @@ class CourseState extends State<Course> with SingleTickerProviderStateMixin {
       tabs += 1;
     }
     tabController = TabController(length: tabs, vsync: this);
+  }
+
+  void reload() {
+    setState(() {
+      // Modifying the state triggers a rebuild of this widget
+      counter++;
+    });
   }
 
   @override
@@ -110,7 +118,11 @@ class CourseState extends State<Course> with SingleTickerProviderStateMixin {
   }
 
   void checkout() async {
-    bool bought = await Service.order.bought(widget.data!.id!, "SHORT_COURSE");
+    String context = "COURSE";
+    if (widget.data!.short!) {
+      context = "SHORT_COURSE";
+    }
+    bool bought = await Service.order.bought(widget.data!.id!, context);
     if (bought) {
       Alert.show(
         "You're enrolled! Jump back into your learning.",
@@ -118,10 +130,10 @@ class CourseState extends State<Course> with SingleTickerProviderStateMixin {
       );
     } else {
       var payment = await Service.setting.get('PAYMENT');
-      dynamic user = await Service.identity.me();
+      UserData? user = await Service.identity.me();
 
       var orderData = OrderData(
-        context: "SHORT_COURSE",
+        context: context,
         contextid: widget.data!.id!,
         price: widget.data!.sale,
         orderStatus: "INITIATED",
@@ -129,14 +141,12 @@ class CourseState extends State<Course> with SingleTickerProviderStateMixin {
         paymentStatus: "PENDING",
         createdat: DateTime.now(),
       );
-      var order = await Service.order.add(orderData);
+      var result = await Service.order.add(orderData);
 
-      if (order?.id == null) {
-        Alert.show("Failed to create order. Please try again.", isError: true);
-      } else {
+      if (result!.succeed) {
         if (payment == 'ON') {
-          await Service.store.set("latest_order_id", order!.id!);
-          var userData = UserData.fromJson(user);
+          await Service.store.set("latest_order_id", result.row!.id!);
+
           RazorpayService.instance.startPayment(
             onSuccess: handlePaymentSuccess,
             onFailure: handlePaymentError,
@@ -146,19 +156,21 @@ class CourseState extends State<Course> with SingleTickerProviderStateMixin {
               'amount':
                   1 * 100, // amount in the smallest currency unit amount * 100
               'name': dotenv.env['COMPANY'] ?? '',
-              'description': "Short Course - ${widget.data!.title}",
+              'description':
+                  "${context.replaceAll('_', ' ').capitalize()} - ${widget.data!.title}",
               'timeout': 300, // in seconds
               'prefill': {
-                "name":
-                    "${userData.firstName ?? ''} ${userData.lastName ?? ''}",
-                "contact": userData.phone,
-                "email": userData.email,
+                "name": "${user?.firstName ?? ''} ${user?.lastName ?? ''}",
+                "contact": user?.phone,
+                "email": user?.email,
               },
               'theme': {'color': '#5A2A82'},
               'modal': {'confirm_close': true, 'handle_back': true},
             },
           );
         }
+      } else {
+        Alert.show("Failed to create order. Please try again.", isError: true);
       }
     }
   }
@@ -587,15 +599,12 @@ class CourseState extends State<Course> with SingleTickerProviderStateMixin {
   Widget freeWidget() {
     return TextButton(
       onPressed: () async {
-        print('clicked free');
         Loader.show();
         var result = await EnrollHelper.initiate(widget.data!.id!);
         Loader.hide();
         if (result.succeed) {
           EnrollHelper.enrolled(result.id!);
-          navigatorKey.currentState?.push(
-            MaterialPageRoute(builder: (context) => Home()),
-          );
+          reload();
         } else {
           Alert.show(result.message!, isError: true);
         }
@@ -618,34 +627,92 @@ class CourseState extends State<Course> with SingleTickerProviderStateMixin {
         TextButton(
           onPressed: () async {
             if (widget.data!.short!) {
-              Loader.show();
-              var result = await EnrollHelper.initiate(widget.data!.id!);
-              Loader.hide();
-
-              if (result.succeed) {
+              EnrollData? initiated = await EnrollHelper.isInitiated(
+                widget.data!.id!,
+              );
+              if (initiated != null) {
                 checkout();
                 if (paid) {
-                  result = await EnrollHelper.enrolled(result.id!);
-                  if (result.succeed) {
-                    navigatorKey.currentState?.push(
-                      MaterialPageRoute(builder: (context) => Home()),
-                    );
-                  } else {
+                  var result = await EnrollHelper.enrolled(initiated.id!);
+                  if (!result.succeed) {
                     Alert.show(result.message!, isError: true);
                   }
                 }
               } else {
-                setState(() {
-                  paid = false;
-                });
-                Alert.show(result.message!, isError: true);
+                Loader.show();
+                var result = await EnrollHelper.initiate(widget.data!.id!);
+                Loader.hide();
+
+                if (result.succeed) {
+                  checkout();
+                  if (paid) {
+                    result = await EnrollHelper.enrolled(result.id!);
+                    if (!result.succeed) {
+                      Alert.show(result.message!, isError: true);
+                    }
+                  }
+                } else {
+                  setState(() {
+                    paid = false;
+                  });
+                  Alert.show(result.message!, isError: true);
+                }
               }
+              reload();
             } else {
-              navigatorKey.currentState?.push(
-                MaterialPageRoute(
-                  builder: (context) => Enroll(course: widget.data!),
-                ),
-              );
+              if (widget.data!.qna!) {
+                EnrollData? initiated = await EnrollHelper.isInitiated(
+                  widget.data!.id!,
+                );
+                if (initiated != null) {
+                  checkout();
+                  if (paid) {
+                    var result = await EnrollHelper.enrolled(initiated.id!);
+                    if (!result.succeed) {
+                      Alert.show(result.message!, isError: true);
+                    }
+                  }
+                } else {
+                  navigatorKey.currentState?.push(
+                    MaterialPageRoute(
+                      builder: (context) => Enroll(course: widget.data!),
+                    ),
+                  );
+                }
+              } else {
+                EnrollData? initiated = await EnrollHelper.isInitiated(
+                  widget.data!.id!,
+                );
+                if (initiated != null) {
+                  checkout();
+                  if (paid) {
+                    var result = await EnrollHelper.enrolled(initiated.id!);
+                    if (!result.succeed) {
+                      Alert.show(result.message!, isError: true);
+                    }
+                  }
+                } else {
+                  Loader.show();
+                  var result = await EnrollHelper.initiate(widget.data!.id!);
+                  Loader.hide();
+                  if (result.succeed) {
+                    checkout();
+                    if (paid) {
+                      result = await EnrollHelper.enrolled(result.id!);
+                      if (!result.succeed) {
+                        Alert.show(result.message!, isError: true);
+                      }
+                    }
+                  } else {
+                    setState(() {
+                      paid = false;
+                    });
+                    Alert.show(result.message!, isError: true);
+                  }
+                }
+
+                reload();
+              }
             }
           },
           child: Text(

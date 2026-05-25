@@ -51,7 +51,6 @@ class MeditationsItemState extends State<MeditationItem> {
       updatedat: DateTime.now(),
     );
     OrderData? order = await Service.order.update(orderId!, orderData);
-    print('updated Order: ${order?.toJson()}');
     if (order?.id == null) {
       Alert.show(
         "Payment was successful but failed to update order. Please contact support.",

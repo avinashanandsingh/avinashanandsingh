@@ -88,22 +88,17 @@ class ReviewSummaryData {
   });
 
   factory ReviewSummaryData.fromJson(Map<String, dynamic> json) {
-    try {
-      return ReviewSummaryData(
-        context: json['context'] as String?,
-        contextId: json['contextid'] as String?,
-        reviews: json['reviews'] as int?,
-        average: json['average'] as double?,
-        r1: json['r1'] as int?,
-        r2: json['r2'] as int?,
-        r3: json['r3'] as int?,
-        r4: json['r4'] as int?,
-        r5: json['r5'] as int?,
-      );
-    } catch (e) {
-      print("e: ${e.toString()}");
-    }
-    return ReviewSummaryData();
+    return ReviewSummaryData(
+      context: json['context'] as String?,
+      contextId: json['contextid'] as String?,
+      reviews: json['reviews'] as int?,
+      average: json['average'] as double?,
+      r1: json['r1'] as int?,
+      r2: json['r2'] as int?,
+      r3: json['r3'] as int?,
+      r4: json['r4'] as int?,
+      r5: json['r5'] as int?,
+    );
   }
 
   // Object to JSON conversion

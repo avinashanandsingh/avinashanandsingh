@@ -22,6 +22,7 @@ class CourseData {
   double? rating;
   ScheduleData? schedule;
   List<ModuleData>? modules;
+  bool? qna;
 
   double get sale => (offer! > 0 && offer! <= price!) ? offer! : price!;
 
@@ -45,6 +46,7 @@ class CourseData {
     this.rating,
     this.schedule,
     this.modules,
+    this.qna,
   });
 
   factory CourseData.fromJson(Map<String, dynamic> json) {
@@ -65,32 +67,28 @@ class CourseData {
       scheduleData = ScheduleData.fromJson(json['schedule']);
     }
 
-    try {
-      return CourseData(
-        id: json['id'] as String?,
-        title: json['title'] as String?,
-        description: json['description'] as String?,
-        about: json['about'] as String?,
-        duration: json['duration'] as String?,
-        validity: json['validity'] as int?,
-        thumbnail: json['thumbnail'] as String?,
-        url: json['url'] as String?,
-        level: json['level'] as String?,
-        short: json['short'] as bool?,
-        certified: json['certified'] as bool?,
-        free: json['free'] as bool?,
-        currency: json['currency'] as String?,
-        price: double.parse(json['price'] ?? '0.00'),
-        offer: double.parse(json['offer'] ?? '0.00'),
-        reviews: json['review']?['reviews'] ?? '0' as int?,
-        rating: double.parse(json['review']?['rating'] ?? '0.00'),
-        schedule: scheduleData,
-        modules: lst,
-      );
-    } catch (e) {
-      print('course constructor error: ${e.toString()}');
-      return CourseData();
-    }
+    return CourseData(
+      id: json['id'] as String?,
+      title: json['title'] as String?,
+      description: json['description'] as String?,
+      about: json['about'] as String?,
+      duration: json['duration'] as String?,
+      validity: json['validity'] as int?,
+      thumbnail: json['thumbnail'] as String?,
+      url: json['url'] as String?,
+      level: json['level'] as String?,
+      short: json['short'] as bool?,
+      certified: json['certified'] as bool?,
+      free: json['free'] as bool?,
+      currency: json['currency'] as String?,
+      price: double.parse(json['price'] ?? '0.00'),
+      offer: double.parse(json['offer'] ?? '0.00'),
+      reviews: json['review']?['reviews'] ?? '0' as int?,
+      rating: double.parse(json['review']?['rating'] ?? '0.00'),
+      schedule: scheduleData,
+      modules: lst,
+      qna: json['qna'] as bool?,
+    );
   }
 
   // Object to JSON conversion

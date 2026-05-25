@@ -8,7 +8,6 @@ class Order {
   final ApiService api = ApiService();
 
   Future<Result<OrderData>> list(dynamic filter) async {
-    //print('called ${filter?.toJson()}');
     Result<OrderData> out = Result<OrderData>(succeed: false);
     List<OrderData> data = [];
     dynamic body = {
@@ -37,7 +36,6 @@ class Order {
   }
 
   Future<Result<OrderData>> get(dynamic filter) async {
-    //print('called ${filter?.toJson()}');
     Result<OrderData> out = Result<OrderData>(succeed: false);
     dynamic body = {
       "query":

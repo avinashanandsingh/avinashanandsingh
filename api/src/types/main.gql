@@ -30,7 +30,7 @@ type Query {
   contents(filter: Filter!): ContentResult!
 
   isEnrolled(courseId: UUID!, userId: UUID): Enrollment
-  enrollment(id: UUID!): Enrollment!
+  enrollment(filter: Filter!): Enrollment!
   enrollments(filter: Filter!): EnrollmentResult!
 
   myEnrolledCourses: EnrollmentResult!  

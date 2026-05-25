@@ -34,7 +34,7 @@ class Enrollment {
     return out;
   }
 
-  Future<EnrollData?> get(Map<String, dynamic> filter) async {
+  Future<EnrollData?> get(dynamic filter) async {
     EnrollData? data;
     dynamic body = {
       "query":
@@ -43,8 +43,10 @@ class Enrollment {
     };
     dynamic result = await api.post(url, body);
     if (result != null) {
-      dynamic row = result?['data']['enrollment'];
-      data = EnrollData.fromJson(row);
+      dynamic row = result?['data']?['enrollment'];
+      if (row != null) {
+        data = EnrollData.fromJson(row);
+      }
     }
     return data;
   }

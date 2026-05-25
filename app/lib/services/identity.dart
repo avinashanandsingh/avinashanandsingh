@@ -83,16 +83,6 @@ class Identity extends ChangeNotifier {
     };
 
     return await api.post(url, body);
-    /* String? token = result['data']['signin'];
-    print("sign in token: ${token}");
-    if (token != null) {
-      // Fixed: Use correct token field from signin response
-      await store.set("token", token);
-      flag = true;
-    } else {
-      await store.remove("token");
-    }
-    return flag; */
   }
 
   Future<dynamic> signup(RegisterData entity) async {

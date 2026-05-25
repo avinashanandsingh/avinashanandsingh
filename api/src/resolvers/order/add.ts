@@ -26,7 +26,7 @@ export default async (
   let orderDate = helper.date.utcTimeStamp();
   let id = helper.orderId(orderDate);
   values?.push(id);
-
+  try{
   let row = await helper.data.insert(input, values);
   if (row !== undefined) {
     return row;
@@ -40,4 +40,7 @@ export default async (
       },
     });
   }
+}catch(e){
+  console.log(e);
+}
 };

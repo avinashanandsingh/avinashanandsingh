@@ -49,6 +49,13 @@ export default async (
           lop: LOP.AND,
           value: schedule.id,
         },
+        {
+          table: view,
+          column: "status",
+          cop: COP.eq,
+          lop: LOP.AND,
+          value: "ENROLLED",
+        },
       ],
     };
     if (args.userId) {
