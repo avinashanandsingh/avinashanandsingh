@@ -887,7 +887,6 @@ class ReceiptState extends State<Receipt> with SingleTickerProviderStateMixin {
                                 ],
                               ),
                               const SizedBox(height: 20),
-
                               // Course Name
                               Text(
                                 (widget.order?.context ?? '')
@@ -902,7 +901,39 @@ class ReceiptState extends State<Receipt> with SingleTickerProviderStateMixin {
                                 ),
                               ),
                               const SizedBox(height: 12),
-
+                              if (widget.order?.contextData['name'] !=
+                                  null) ...[
+                                Row(
+                                  children: [
+                                    Text(
+                                      (widget.order?.contextData['name'] ?? ''),
+                                      style: TextTheme.of(context).labelSmall!
+                                          .copyWith(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: isDark
+                                                ? AppColors.accentGold
+                                                : AppColors.primary,
+                                          ),
+                                    ),
+                                    if ((widget.order?.seat ?? 0) > 0) ...[
+                                      Spacer(),
+                                      Text(
+                                        'Slot-${widget.order?.seat!.toString()}',
+                                        style: TextTheme.of(context).labelSmall!
+                                            .copyWith(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.bold,
+                                              color: isDark
+                                                  ? AppColors.accentGold
+                                                  : AppColors.primary,
+                                            ),
+                                      ),
+                                    ],
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                              ],
                               // Date and Time slots
                               Row(
                                 children: [

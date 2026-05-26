@@ -289,6 +289,7 @@ input OrderIn {
   contextid: UUID
   slotid: UUID
   slot_date: DateTime
+  seat: Int
   price: Float
   order_status: OrderStatus = "INITIATED"
   order_status_reason: String

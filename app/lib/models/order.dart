@@ -9,6 +9,7 @@ class OrderData {
   dynamic contextData;
   String? slotid;
   DateTime? slotDate;
+  int? seat;
   String? name;
   String? file;
   double? price;
@@ -30,6 +31,7 @@ class OrderData {
     this.contextData,
     this.slotid,
     this.slotDate,
+    this.seat = 0,
     this.name,
     this.price,
     this.orderStatus,
@@ -56,6 +58,7 @@ class OrderData {
       slotDate: json['slot_date'] != null
           ? DateTime.parse(json['slot_date'])
           : null,
+      seat: json['seat'] as int?,
       name: json['name'] as String?,
       price: double.parse(json['price'] ?? '0.00'),
       orderStatus: json['order_status'] as String?,
@@ -119,6 +122,7 @@ class OrderData {
       if (contextid != null) 'contextid': contextid,
       if (slotid != null) 'slotid': slotid,
       if (slotDate != null) 'slot_date': slotDate,
+      if (seat != null) 'seat': seat,
       if (price != null) 'price': price,
       if (orderStatus != null) 'order_status': orderStatus,
       if (orderStatusReason != null) 'order_status_reason': orderStatusReason,

@@ -55,25 +55,6 @@ class AbundanceCard extends StatelessWidget {
                   ),
                 ),
               ),
-              Positioned(
-                bottom: -28,
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const CircleAvatar(
-                    radius: 28,
-                    backgroundColor: AppColors.accentGold,
-                    child: Icon(
-                      Icons.diamond_outlined,
-                      color: Colors.white,
-                      size: 28,
-                    ),
-                  ),
-                ),
-              ),
             ],
           ),
           const SizedBox(height: 40),

@@ -22,6 +22,7 @@ class SlotBookingState extends State<SlotBooking> {
   int? selectedSlotIndex;
   DateTime? selectedDate;
   bool paid = false;
+  int counter = 0;
   @override
   void initState() {
     super.initState();
@@ -31,6 +32,13 @@ class SlotBookingState extends State<SlotBooking> {
   @override
   void dispose() {
     super.dispose();
+  }
+
+  void reload() {
+    setState(() {
+      // Modifying the state triggers a rebuild of this widget
+      counter++;
+    });
   }
 
   void handlePaymentSuccess(PaymentSuccessResponse response) async {
@@ -265,21 +273,23 @@ class SlotBookingState extends State<SlotBooking> {
                               ),
                               child: Row(
                                 children: [
-                                  Radio<int>(
-                                    value: index,
-                                    groupValue: selectedSlotIndex,
-                                    activeColor:
-                                        Colors.purple, // AppColors.primary
-                                    onChanged: (val) {
-                                      setState(() {
-                                        selectedSlotIndex = val;
-                                      });
-                                    },
-                                    materialTapTargetSize:
-                                        MaterialTapTargetSize.shrinkWrap,
-                                    visualDensity: VisualDensity.compact,
-                                  ),
-                                  const SizedBox(width: 8),
+                                  if (slot.capacity > 0) ...[
+                                    Radio<int>(
+                                      value: index,
+                                      groupValue: selectedSlotIndex,
+                                      activeColor:
+                                          Colors.purple, // AppColors.primary
+                                      onChanged: (val) {
+                                        setState(() {
+                                          selectedSlotIndex = val;
+                                        });
+                                      },
+                                      materialTapTargetSize:
+                                          MaterialTapTargetSize.shrinkWrap,
+                                      visualDensity: VisualDensity.compact,
+                                    ),
+                                    const SizedBox(width: 8),
+                                  ],
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment:
@@ -389,17 +399,6 @@ class SlotBookingState extends State<SlotBooking> {
                 ElevatedButton(
                   onPressed: (selectedSlotIndex != null && selectedDate != null)
                       ? () async {
-                          // NOTE: Uncomment and fix these logic lines based on your actual imports
-                          /* bool bought = await Service.order.bought(
-                            item.id!,
-                            "AURA_SCANNING",
-                          );
-                          if (bought) {
-                            Alert.show(
-                              "Your time slot is already booked.",
-                              isError: false,
-                            );
-                          } else { */
                           var payment = await Service.setting.get('PAYMENT');
                           UserData? user = await Service.identity.me();
                           var slot = item.slots![selectedSlotIndex!];
@@ -409,6 +408,7 @@ class SlotBookingState extends State<SlotBooking> {
                             contextid: item.id,
                             slotid: slot.id,
                             slotDate: selectedDate,
+                            seat: slot.capacity,
                             name: "Aura Scan - ${item.name} - ${slot.name}",
                             price: item.sale,
                             orderStatus: "INITIATED",
