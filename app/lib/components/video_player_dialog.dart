@@ -1,6 +1,5 @@
 import 'package:app/models/progress.dart';
 import 'package:app/services/service.dart';
-import 'package:app/utils/result.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
@@ -91,15 +90,23 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog>
         await _videoPlayerController!.initialize();
         _videoPlayerController!.addListener(() async {
           final position = _videoPlayerController!.value.position;
-          //inal duration = _videoPlayerController!.value.duration;
-
+          final duration = _videoPlayerController!.value.duration;
           // Logic to track progress
           print('Current Position: $position');
 
-          // Logic to detect video end
-          /* if (position == duration) {
-            print('Video Ended');
-          } */
+          if (position >= duration && duration > Duration.zero) {
+            if (widget.trackingEnable == true) {
+              ProgressData data = ProgressData();
+              data.moduleId = widget.moduleId;
+
+              String time = duration.toString();
+
+              data.timeSpent = time.substring(0, time.lastIndexOf('.'));
+              data.completed = true;
+              data.completedAt = DateTime.now();
+              await Service.module.track(data);
+            }
+          }
         });
 
         _chewieController = ChewieController(
@@ -179,15 +186,17 @@ class _VideoPlayerDialogState extends State<VideoPlayerDialog>
         showVideoProgressIndicator: true,
         progressIndicatorColor: colorScheme.primary,
         onEnded: (metadata) async {
-          ProgressData data = ProgressData();
-          data.moduleId = widget.moduleId;
+          if (widget.trackingEnable == true) {
+            ProgressData data = ProgressData();
+            data.moduleId = widget.moduleId;
 
-          String duration = metadata.duration.toString();
+            String duration = metadata.duration.toString();
 
-          data.timeSpent = duration.substring(0, duration.lastIndexOf('.'));
-          data.completed = true;
-          data.completedAt = DateTime.now();
-          await Service.module.track(data);
+            data.timeSpent = duration.substring(0, duration.lastIndexOf('.'));
+            data.completed = true;
+            data.completedAt = DateTime.now();
+            await Service.module.track(data);
+          }
         },
       );
     } else if (_chewieController != null) {
