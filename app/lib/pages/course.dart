@@ -154,8 +154,7 @@ class CourseState extends State<Course> with SingleTickerProviderStateMixin {
             options: {
               'key': dotenv.env['RAZORPAY_KEY'] ?? '', // Replace with your key
               'currency': 'INR',
-              'amount':
-                  1 * 100, // amount in the smallest currency unit amount * 100
+              'amount': widget.data!.sale * 100,
               'name': dotenv.env['COMPANY'] ?? '',
               'description':
                   "${context.replaceAll('_', ' ').capitalize()} - ${widget.data!.title}",

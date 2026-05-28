@@ -434,9 +434,7 @@ class SlotBookingState extends State<SlotBooking> {
                                       dotenv.env['RAZORPAY_KEY'] ??
                                       '', // Replace with your key
                                   'currency': 'INR',
-                                  'amount':
-                                      1 *
-                                      100, // amount in the smallest currency unit amount * 100
+                                  'amount': item.sale * 100,
                                   'name': dotenv.env['COMPANY'] ?? '',
                                   'description':
                                       'Aura Scan - ${item.name!} - ${slot.name!}',

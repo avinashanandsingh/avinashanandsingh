@@ -220,8 +220,7 @@ class QnaFormState extends State<QnaForm> {
             options: {
               'key': dotenv.env['RAZORPAY_KEY'] ?? '', // Replace with your key
               'currency': 'INR',
-              'amount':
-                  1 * 100, // amount in the smallest currency unit amount * 100
+              'amount': widget.course!.sale * 100,
               'name': dotenv.env['COMPANY'] ?? '',
               'description': "Course - ${widget.course!.title}",
               'timeout': 300, // in seconds
