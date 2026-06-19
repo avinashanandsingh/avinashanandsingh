@@ -17,7 +17,30 @@ class CustomTabView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
+    return Column(
+      children: [
+        TabBar(
+          controller: controller,
+          isScrollable: true,
+          labelColor: Colors.black,
+          unselectedLabelColor: Colors.grey,
+          indicatorColor: AppColors.primary,
+          indicatorWeight: 3,
+          tabAlignment: TabAlignment.start,
+          tabs: tabs,
+        ),
+        SizedBox(
+          height: height ?? MediaQuery.of(context).size.height,
+          child: Padding(
+            padding: EdgeInsetsGeometry.all(15),
+            child: TabBarView(controller: controller, children: children),
+          ),
+        ),
+      ],
+    );
+
+    /* return SingleChildScrollView(
+      physics: const ClampingScrollPhysics(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -31,12 +54,13 @@ class CustomTabView extends StatelessWidget {
             tabAlignment: TabAlignment.start,
             tabs: tabs,
           ),
+
           SizedBox(
-            height: height ?? MediaQuery.of(context).size.height * 1.2,
+            height: height ?? MediaQuery.of(context).size.height,
             child: TabBarView(controller: controller, children: children),
           ),
         ],
       ),
-    );
+    ); */
   }
 }

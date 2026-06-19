@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../theme/theme.dart';
 
 class Section extends StatelessWidget {
   final String title;
@@ -29,12 +28,12 @@ class Section extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  const Icon(
+                  /*  const Icon(
                     Icons.auto_awesome,
                     color: AppColors.accentGold,
                     size: 18,
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 8), */
                   Text(title, style: Theme.of(context).textTheme.displayMedium),
                 ],
               ),

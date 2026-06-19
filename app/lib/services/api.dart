@@ -2,9 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:app/services/storage.dart';
 import 'package:app/utils/alert.dart';
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import '../helpers/globals.dart';
 
 class ApiService {
   //static final ApiService instance = ApiService._init();

@@ -11,8 +11,8 @@ class ScheduleCard extends StatelessWidget {
   Widget build(BuildContext context) {
     DateTime sd = DateTime.parse(data.startDate!);
     DateTime ed = DateTime.parse(data.endDate!);
-    String startDate = DateFormat.yMMMMEEEEd().format(sd);
-    String endDate = DateFormat.yMMMMEEEEd().format(ed);
+    String startDate = DateFormat('E, MMM d, yyyy').format(sd);
+    String endDate = DateFormat('E, MMM d, yyyy').format(ed);
     String startTime = Convert.timeFormat(data.startTime!);
     String endTime = Convert.timeFormat(data.endTime!);
     return Container(
@@ -20,44 +20,85 @@ class ScheduleCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(data.title!, style: TextTheme.of(context).headlineSmall),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                Icons.calendar_today,
+                color: Colors.purple.shade700,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Text(data.title!, style: TextTheme.of(context).headlineSmall),
+            ],
+          ),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Start Date: ",
+                    style: TextTheme.of(context).labelSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                      color: Colors.purple.shade800,
+                    ),
+                  ),
+                  Text(
+                    startDate,
+                    style: TextTheme.of(
+                      context,
+                    ).labelSmall?.copyWith(fontSize: 12),
+                  ),
+                ],
+              ),
+              const SizedBox(width: 8),
 
-          Row(
-            children: [
-              Text(
-                "Start Date: ",
-                style: TextTheme.of(
-                  context,
-                ).labelSmall!.copyWith(fontWeight: FontWeight.bold),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "End Date: ",
+                    style: TextTheme.of(context).labelSmall?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                      color: Colors.purple.shade800,
+                    ),
+                  ),
+                  Text(
+                    endDate,
+                    style: TextTheme.of(
+                      context,
+                    ).labelSmall?.copyWith(fontSize: 12),
+                  ),
+                ],
               ),
-              Text(startDate, style: TextTheme.of(context).labelSmall),
+              const SizedBox(width: 8),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Time: ",
+                    style: TextTheme.of(context).labelSmall!.copyWith(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                      color: Colors.purple.shade800,
+                    ),
+                  ),
+                  Text(
+                    "$startTime to $endTime",
+                    style: TextTheme.of(
+                      context,
+                    ).labelSmall?.copyWith(fontSize: 12),
+                  ),
+                ],
+              ),
             ],
           ),
-          Row(
-            children: [
-              Text(
-                "End Date: ",
-                style: TextTheme.of(
-                  context,
-                ).labelSmall!.copyWith(fontWeight: FontWeight.bold),
-              ),
-              Text(endDate, style: TextTheme.of(context).labelSmall),
-            ],
-          ),
-          Row(
-            children: [
-              Text(
-                "Time: ",
-                style: TextTheme.of(
-                  context,
-                ).labelSmall!.copyWith(fontWeight: FontWeight.bold),
-              ),
-              Text(
-                "$startTime to $endTime",
-                style: TextTheme.of(context).labelSmall,
-              ),
-            ],
-          ),
+
           /* Row(
                                   children: [
                                     Text(

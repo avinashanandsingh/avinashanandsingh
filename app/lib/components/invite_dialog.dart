@@ -112,7 +112,7 @@ class InviteDialogState extends State<InviteDialog> {
                   //_buildTextField("Last Name", Icons.person_outline),
                   const SizedBox(height: 16),
                   CustomFormField(
-                    hintText: "Eamil Address",
+                    hintText: "Email Address",
                     prefixIcon: Icons.email_outlined,
                     type: FieldType.email,
                     isRequired: true,

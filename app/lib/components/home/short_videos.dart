@@ -217,7 +217,7 @@ class _ShortVideosState extends State<ShortVideos> {
         physics: const NeverScrollableScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 16),
         itemCount: 3,
-        itemBuilder: (_, __) => _SkeletonCard(),
+        itemBuilder: (_, _) => _SkeletonCard(),
       ),
     );
   }

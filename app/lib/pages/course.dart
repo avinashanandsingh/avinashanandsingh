@@ -1,3 +1,4 @@
+import 'package:app/components/button_strip.dart';
 import 'package:app/components/course/curriculum.dart';
 import 'package:app/components/custom_tab_view.dart';
 import 'package:app/components/layout.dart';
@@ -11,22 +12,18 @@ import 'package:app/helpers/capitalize.dart';
 import 'package:app/helpers/enroll.dart';
 import 'package:app/models/course.dart';
 import 'package:app/models/enroll.dart';
-import 'package:app/models/module.dart';
 import 'package:app/models/order.dart';
 import 'package:app/models/user.dart';
 import 'package:app/pages/enroll.dart';
-import 'package:app/pages/home.dart';
 import 'package:app/services/razorpay.dart';
 import 'package:app/services/service.dart';
 import 'package:app/theme/theme.dart';
 import 'package:app/utils/alert.dart';
-import 'package:app/utils/result.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:app/helpers/globals.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
-import '../components/video_player_dialog.dart' as video_dialog;
 
 class Course extends StatefulWidget {
   final CourseData? data;
@@ -44,9 +41,11 @@ class CourseState extends State<Course> with SingleTickerProviderStateMixin {
   late AppTheme theme = AppTheme();
   int tabs = 2;
   int counter = 0;
+  String activeTab = 'overview';
   @override
   void initState() {
     super.initState();
+    activeTab = 'overview';
     paid = false;
     if (widget.data!.modules!.isNotEmpty) {
       tabs += 1;
@@ -79,40 +78,63 @@ class CourseState extends State<Course> with SingleTickerProviderStateMixin {
       showBottomNav: true,
       showActions: true,
       showBack: true,
-      body: Container(
-        padding: EdgeInsets.all(0),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize:
-                MainAxisSize.min, // Tells column to be only as big as needed
-            children: [
-              headerInfo(),
-              metadataGrid(),
+      body: SingleChildScrollView(
+        physics: const ClampingScrollPhysics(),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            headerInfo(),
+            metaData(),
 
-              Divider(),
-              schedule(),
-              if (widget.enrolled == false) ...[
-                if (widget.data!.free!) ...[
-                  Padding(
-                    padding: EdgeInsetsGeometry.symmetric(horizontal: 15),
-                    child: freeWidget(),
-                  ),
-                ] else ...[
-                  Padding(
-                    padding: EdgeInsetsGeometry.symmetric(horizontal: 15),
-                    child: paidWidget(),
-                  ),
-                ],
+            Divider(),
+            schedule(),
+            if (widget.enrolled == false) ...[
+              if (widget.data!.free!) ...[
+                Padding(
+                  padding: EdgeInsetsGeometry.symmetric(horizontal: 15),
+                  child: freeWidget(),
+                ),
+              ] else ...[
+                Padding(
+                  padding: EdgeInsetsGeometry.symmetric(horizontal: 15),
+                  child: paidWidget(),
+                ),
               ],
-              Divider(),
-              Padding(
-                padding: EdgeInsetsGeometry.symmetric(horizontal: 8),
-                child: VideoCard(url: widget.data!.url!),
-              ),
-              tabContent(),
             ],
-          ),
+            Divider(),
+            Padding(
+              padding: EdgeInsetsGeometry.symmetric(horizontal: 8),
+              child: VideoCard(url: widget.data!.url!),
+            ),
+
+            ButtonStrip(
+              activeId: activeTab,
+              onTabSelected: (String value) {
+                setState(() {
+                  activeTab = value;
+                });
+              },
+            ),
+            if (activeTab == 'overview') ...[
+              SingleChildScrollView(child: overview()),
+            ],
+            if (activeTab == 'curriculum') ...[
+              if (widget.data!.modules!.isNotEmpty)
+                Curriculum(
+                  list: widget.data!.modules!,
+                  enrolled: widget.enrolled,
+                ),
+            ],
+            if (activeTab == 'certificate') ...[
+              if (widget.data!.certified!) certificate(),
+            ],
+            if (activeTab == 'review') ...[
+              ReviewWidget(type: "COURSE", id: widget.data!.id!),
+            ],
+            //tabContent(),
+          ],
         ),
       ),
     );
@@ -256,6 +278,24 @@ class CourseState extends State<Course> with SingleTickerProviderStateMixin {
               ),
             ],
           ),
+          const SizedBox(height: 8),
+          Wrap(
+            direction: Axis.horizontal,
+            alignment: WrapAlignment.spaceBetween,
+            children: [
+              Icon(Icons.star, color: Colors.orange, size: 16),
+              const SizedBox(width: 8),
+              Text(
+                '${widget.data!.rating ?? 0} (${widget.data!.reviews ?? 0} Reviews)',
+                style: TextTheme.of(context).labelSmall,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(width: 8),
+              Icon(Icons.language, color: Colors.grey, size: 16),
+              const SizedBox(width: 8),
+              Text('English', style: TextTheme.of(context).labelSmall),
+            ],
+          ),
         ],
       ),
     );
@@ -264,18 +304,6 @@ class CourseState extends State<Course> with SingleTickerProviderStateMixin {
   Widget metadataGrid() {
     int modules = widget.data?.modules?.length ?? 0;
     final metadata = [
-      {
-        'icon': Icons.star,
-        'iconColor': Colors.orange,
-        'text':
-            '${widget.data!.rating ?? 0} (${widget.data!.reviews ?? 0} Reviews)',
-      },
-      {'icon': Icons.language, 'iconColor': Colors.grey, 'text': 'English'},
-      {
-        'icon': Icons.insert_drive_file_outlined,
-        'iconColor': Colors.grey,
-        'text': widget.data!.certified! ? 'Certified' : 'Non-Certified',
-      },
       {
         'icon': Icons.grid_view,
         'iconColor': Colors.grey,
@@ -339,6 +367,175 @@ class CourseState extends State<Course> with SingleTickerProviderStateMixin {
     );
   }
 
+  Widget metaData() {
+    int modules = widget.data?.modules?.length ?? 0;
+    final metadata = [
+      {
+        'icon': Icons.grid_view,
+        'iconColor': Colors.grey,
+        'text': '$modules Modules',
+      },
+      {
+        'icon': Icons.person_outline,
+        'iconColor': Colors.grey,
+        'text': '500 Enrolled Student',
+      },
+      {
+        'icon': Icons.access_time,
+        'iconColor': Colors.grey,
+        'text': widget.data!.duration!,
+      },
+      {
+        'icon': Icons.calendar_today,
+        'iconColor': Colors.grey,
+        'text': 'Validity: ${widget.data!.validity} days',
+      },
+      {
+        'icon': Icons.signal_cellular_alt,
+        'iconColor': Colors.grey,
+        'text': widget.data!.level ?? 'N/A',
+      },
+    ];
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 15),
+
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.person_outline,
+                color: Colors.purple.shade700,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '500',
+                    style: TextTheme.of(context).labelSmall?.copyWith(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    'Enrollments',
+                    style: TextTheme.of(
+                      context,
+                    ).labelSmall?.copyWith(fontSize: 10),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+              const SizedBox(width: 8),
+              Icon(Icons.grid_view, color: Colors.purple.shade700, size: 20),
+              const SizedBox(width: 8),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '$modules',
+                    style: TextTheme.of(context).labelSmall?.copyWith(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    'Modules',
+                    style: TextTheme.of(
+                      context,
+                    ).labelSmall?.copyWith(fontSize: 10),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+              const SizedBox(width: 8),
+              Icon(Icons.grid_view, color: Colors.purple.shade700, size: 20),
+              const SizedBox(width: 8),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  /*  Text(
+                    'Duration',
+                    style: TextTheme.of(
+                      context,
+                    ).labelSmall?.copyWith(fontSize: 10),
+                    overflow: TextOverflow.ellipsis,
+                  ), */
+                  Text(
+                    widget.data!.duration!.replaceAll(' ', '\n'),
+                    style: TextTheme.of(
+                      context,
+                    ).labelSmall?.copyWith(fontSize: 10),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+              const SizedBox(width: 8),
+              Icon(
+                Icons.calendar_today,
+                color: Colors.purple.shade700,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Validity',
+                    style: TextTheme.of(context).labelSmall?.copyWith(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    '${widget.data!.validity} days',
+                    style: TextTheme.of(
+                      context,
+                    ).labelSmall?.copyWith(fontSize: 10),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+              const SizedBox(width: 8),
+              Icon(
+                Icons.signal_cellular_alt,
+                color: Colors.purple.shade700,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Level',
+                    style: TextTheme.of(context).labelSmall?.copyWith(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    widget.data!.level ?? 'N/A',
+                    style: TextTheme.of(
+                      context,
+                    ).labelSmall?.copyWith(fontSize: 10),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget tabContent() {
     return CustomTabView(
       controller: tabController,
@@ -349,70 +546,66 @@ class CourseState extends State<Course> with SingleTickerProviderStateMixin {
         Tab(text: 'Review'),
       ],
       children: [
-        overview(),
+        SingleChildScrollView(child: overview()),
         if (widget.data!.modules!.isNotEmpty)
           Curriculum(list: widget.data!.modules!, enrolled: widget.enrolled),
         //_buildForumTab(),
         if (widget.data!.certified!) certificate(),
-        Container(
-          padding: EdgeInsets.all(15),
-          child: ReviewWidget(type: "COURSE", id: widget.data!.id!),
-        ),
+        ReviewWidget(type: "COURSE", id: widget.data!.id!),
       ],
     );
   }
 
   Widget overview() {
-    return ListView(
-      padding: const EdgeInsets.all(16.0),
-      physics: const NeverScrollableScrollPhysics(),
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              "ABOUT COURSE",
-              style: GoogleFonts.montserrat(
-                color: AppColors.primary,
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            TextButton.icon(
-              onPressed: () => review_dialog.show(context, widget.data),
-              icon: const Icon(
-                Icons.rate_review_outlined,
-                size: 16,
-                color: AppColors.primary,
-              ),
-              label: Text(
-                "Write Review",
+    return Padding(
+      padding: EdgeInsetsGeometry.all(15),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "ABOUT COURSE",
                 style: GoogleFonts.montserrat(
                   color: AppColors.primary,
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
                 ),
               ),
+              TextButton.icon(
+                onPressed: () => review_dialog.show(context, widget.data),
+                icon: const Icon(
+                  Icons.rate_review_outlined,
+                  size: 16,
+                  color: AppColors.primary,
+                ),
+                label: Text(
+                  "Write Review",
+                  style: GoogleFonts.montserrat(
+                    color: AppColors.primary,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          Text(widget.data!.description!.trim()),
+          if (widget.data!.about != null) ...[
+            Text(
+              widget.data!.about!.trim(),
+              style: TextTheme.of(context).bodyMedium,
             ),
           ],
-        ),
-        const SizedBox(height: 12),
-
-        Text(widget.data!.description!.trim()),
-        if (widget.data!.about != null) ...[
-          Text(
-            widget.data!.about!.trim(),
-            style: TextTheme.of(context).bodyMedium,
-          ),
         ],
-      ],
+      ),
     );
   }
 
   Widget certificate() {
-    return ListView(
-      padding: const EdgeInsets.all(16.0),
-      physics: const NeverScrollableScrollPhysics(),
+    return Column(
       children: [
         Container(
           padding: const EdgeInsets.all(16),
@@ -434,39 +627,27 @@ class CourseState extends State<Course> with SingleTickerProviderStateMixin {
                 ),
               ),
               const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      "AIML Certificate",
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                      ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "${widget.data!.title!} Certificate",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                  ),
+                  const SizedBox(height: 4),
+                  TextButton.icon(
+                    onPressed: () {},
+                    icon: const Icon(
+                      Icons.download,
+                      color: AppColors.primary,
+                      size: 18,
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      "PDF • 2.4 MB • 42 pages",
-                      style: TextStyle(
-                        color: Colors.grey.shade600,
-                        fontSize: 12,
-                      ),
+                    label: const Text(
+                      "Download",
+                      style: TextStyle(color: AppColors.primary, fontSize: 13),
                     ),
-                  ],
-                ),
-              ),
-              TextButton.icon(
-                onPressed: () {},
-                icon: const Icon(
-                  Icons.download,
-                  color: AppColors.primary,
-                  size: 18,
-                ),
-                label: const Text(
-                  "Download",
-                  style: TextStyle(color: AppColors.primary),
-                ),
+                  ),
+                ],
               ),
             ],
           ),

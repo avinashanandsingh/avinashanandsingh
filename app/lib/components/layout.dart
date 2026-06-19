@@ -100,6 +100,7 @@ class _LayoutState extends State<Layout> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Scaffold(
+        resizeToAvoidBottomInset: false,
         backgroundColor: Colors.white,
         appBar: widget.showHeader
             ? Header(
@@ -166,10 +167,10 @@ class _LayoutState extends State<Layout> {
                     onPressed: () => InviteDialog.show(context),
                     elevation: 8,
                     shape: const CircleBorder(),
-                    backgroundColor: AppColors.accentGold,
+                    backgroundColor: AppColors.primary,
                     child: const Icon(
                       Icons.share,
-                      color: AppColors.primary,
+                      color: AppColors.textPrimaryDark,
                       size: 24,
                     ),
                   ),

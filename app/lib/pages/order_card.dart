@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:app/theme/theme.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../helpers/globals.dart';
 
 class OrderCard extends StatelessWidget {
   final OrderData order;

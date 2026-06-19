@@ -14,7 +14,7 @@ class PriceTag extends StatelessWidget {
         // Current Price
         if (offer > 0) ...[
           Text(
-            '\₹${offer.toStringAsFixed(2)}',
+            '₹${offer.toStringAsFixed(2)}',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -23,7 +23,7 @@ class PriceTag extends StatelessWidget {
           ),
         ] else ...[
           Text(
-            '\₹${price!.toStringAsFixed(2)}',
+            '₹${price!.toStringAsFixed(2)}',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -37,7 +37,7 @@ class PriceTag extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(left: 8.0),
             child: Text(
-              '\₹${price!.toStringAsFixed(2)}',
+              '₹${price!.toStringAsFixed(2)}',
               style: TextStyle(
                 fontSize: 18 * 0.8, // Slightly smaller
                 color: AppColors.primaryLight,

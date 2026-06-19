@@ -1,4 +1,3 @@
-import 'package:app/models/aura.dart';
 import 'package:app/models/common.dart';
 import 'package:app/models/geo.dart';
 import 'package:app/services/api.dart';

@@ -1,11 +1,8 @@
-import 'dart:io';
-import 'package:app/components/connection_wrapper.dart';
 import 'package:app/helpers/globals.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:app/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:app/pages/splash.dart';
-import 'package:app/helpers/globals.dart';
 
 final themeProvider = ThemeProvider();
 Future<Widget> _resolveInitialScreen() async {

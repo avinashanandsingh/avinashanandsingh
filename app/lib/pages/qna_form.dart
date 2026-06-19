@@ -5,10 +5,8 @@ import 'package:app/components/label.dart';
 import 'package:app/components/loader.dart';
 import 'package:app/helpers/enroll.dart';
 import 'package:app/models/course.dart';
-import 'package:app/models/enroll.dart';
 import 'package:app/models/order.dart';
 import 'package:app/models/qna.dart';
-import 'package:app/models/schedule.dart';
 import 'package:app/models/user.dart';
 import 'package:app/pages/home.dart';
 import 'package:app/services/razorpay.dart';
@@ -197,7 +195,7 @@ class QnaFormState extends State<QnaForm> {
       );
     } else {
       var payment = await Service.setting.get('PAYMENT');
-      dynamic user = await Service.identity.me();
+      UserData? user = await Service.identity.me();
 
       var orderData = OrderData(
         context: "COURSE",
@@ -213,7 +211,7 @@ class QnaFormState extends State<QnaForm> {
       if (result!.succeed) {
         if (payment == 'ON') {
           await Service.store.set("latest_order_id", result.row!.id!);
-          var userData = UserData.fromJson(user);
+          //var userData = UserData.fromJson(user);
           RazorpayService.instance.startPayment(
             onSuccess: handlePaymentSuccess,
             onFailure: handlePaymentError,
@@ -225,10 +223,9 @@ class QnaFormState extends State<QnaForm> {
               'description': "Course - ${widget.course!.title}",
               'timeout': 300, // in seconds
               'prefill': {
-                "name":
-                    "${userData.firstName ?? ''} ${userData.lastName ?? ''}",
-                "contact": userData.phone,
-                "email": userData.email,
+                "name": "${user?.firstName ?? ''} ${user?.lastName ?? ''}",
+                "contact": user?.phone,
+                "email": user?.email,
               },
               'theme': {'color': '#5A2A82'},
               'modal': {'confirm_close': true, 'handle_back': true},

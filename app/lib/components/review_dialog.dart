@@ -5,7 +5,6 @@ import 'package:app/theme/theme.dart';
 import 'package:app/utils/alert.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:app/helpers/globals.dart';
 
 void show(BuildContext context, dynamic ref) {
   showDialog(

@@ -1,5 +1,4 @@
 import 'package:app/helpers/convert.dart';
-import 'package:app/models/filter.dart';
 import 'package:app/models/review.dart';
 import 'package:app/services/service.dart';
 import 'package:flutter/material.dart';
@@ -63,84 +62,87 @@ class ReviewState extends State<ReviewWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        FutureBuilder(
-          future: Service.review.summary(widget.type, widget.id),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Container();
-            } else if (snapshot.hasData) {
-              var result = snapshot.data;
-              if (result!.succeed) {
-                return ReviewSummary(
-                  averageRating: result.row!.average!,
-                  totalReviews: result.row!.reviews!,
-                  ratingDistribution: {
-                    5: Convert.shiftDecimal(result.row!.r5!),
-                    4: Convert.shiftDecimal(result.row!.r4!),
-                    3: Convert.shiftDecimal(result.row!.r3!),
-                    2: Convert.shiftDecimal(result.row!.r2!),
-                    1: Convert.shiftDecimal(result.row!.r1!),
-                  },
-                );
+    return Container(
+      padding: EdgeInsetsGeometry.all(15),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          FutureBuilder(
+            future: Service.review.summary(widget.type, widget.id),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Container();
+              } else if (snapshot.hasData) {
+                var result = snapshot.data;
+                if (result!.succeed) {
+                  return ReviewSummary(
+                    averageRating: result.row!.average!,
+                    totalReviews: result.row!.reviews!,
+                    ratingDistribution: {
+                      5: Convert.shiftDecimal(result.row!.r5!),
+                      4: Convert.shiftDecimal(result.row!.r4!),
+                      3: Convert.shiftDecimal(result.row!.r3!),
+                      2: Convert.shiftDecimal(result.row!.r2!),
+                      1: Convert.shiftDecimal(result.row!.r1!),
+                    },
+                  );
+                } else {
+                  return Container();
+                }
               } else {
                 return Container();
               }
-            } else {
-              return Container();
-            }
-          },
-        ),
-
-        const SizedBox(height: 32),
-        SizedBox(
-          height: 300,
-          child: ListView.builder(
-            controller: scroller,
-            //shrinkWrap: true,
-            //physics: const NeverScrollableScrollPhysics(),
-            itemCount: list.length + (isLoading ? 1 : 0),
-            itemBuilder: (context, index) {
-              if (index == list.length) {
-                return Center(
-                  child: CircularProgressIndicator(),
-                ); // Bottom loader
-              }
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ReviewItem(data: list[index]),
-                  const Divider(height: 32),
-                ],
-              );
             },
           ),
-        ),
-        const SizedBox(height: 24),
-        SizedBox(
-          width: double.infinity,
-          child: OutlinedButton(
-            onPressed: () async {
-              await fetchData();
-            },
-            style: OutlinedButton.styleFrom(
-              side: const BorderSide(color: AppColors.primary),
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+
+          const SizedBox(height: 24),
+          SizedBox(
+            height: 300,
+            child: ListView.builder(
+              //controller: scroller,
+              //shrinkWrap: true,
+              //physics: const NeverScrollableScrollPhysics(),
+              itemCount: list.length + (isLoading ? 1 : 0),
+              itemBuilder: (context, index) {
+                if (index == list.length) {
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  ); // Bottom loader
+                }
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ReviewItem(data: list[index]),
+                    const Divider(height: 4),
+                  ],
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
+              onPressed: () async {
+                await fetchData();
+              },
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: AppColors.primary),
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: Text(
+                'View More',
+                style: TextTheme.of(
+                  context,
+                ).labelMedium!.copyWith(color: Colors.white),
               ),
             ),
-            child: Text(
-              'View More',
-              style: TextTheme.of(
-                context,
-              ).labelMedium!.copyWith(color: Colors.white),
-            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -243,13 +245,14 @@ class ReviewItem extends StatelessWidget {
         Text(
           data.user!.fullName!,
           style: GoogleFonts.inter(
-            fontSize: 18,
+            fontSize: 16,
             fontWeight: FontWeight.bold,
             color: Colors.black87,
           ),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 8),
         Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Row(
@@ -265,7 +268,7 @@ class ReviewItem extends StatelessWidget {
             ),
             Text(
               data.postedAt!,
-              style: GoogleFonts.inter(
+              style: GoogleFonts.montserrat(
                 fontSize: 14,
                 color: Colors.grey[500],
                 fontWeight: FontWeight.w500,
@@ -273,15 +276,19 @@ class ReviewItem extends StatelessWidget {
             ),
           ],
         ),
-        const SizedBox(height: 16),
-        Text(
-          data.content ?? '',
-          style: GoogleFonts.inter(
-            fontSize: 15,
-            color: Colors.black87.withValues(alpha: 0.7),
-            height: 1.6,
+        if (data.content != null) ...[
+          const SizedBox(height: 8),
+
+          Text(
+            data.content ?? '',
+            softWrap: true,
+            style: GoogleFonts.montserrat(
+              fontSize: 15,
+              color: Colors.black87.withValues(alpha: 0.7),
+              //height: 1.6,
+            ),
           ),
-        ),
+        ],
       ],
     );
   }

@@ -1,5 +1,4 @@
 import 'package:app/models/reaction.dart';
-import 'package:app/models/resource.dart';
 import 'package:app/services/api.dart';
 import 'package:app/utils/result.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';

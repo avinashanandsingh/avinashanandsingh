@@ -1,7 +1,6 @@
 import 'package:app/models/profile.dart';
 import 'package:app/services/api.dart';
 import 'package:app/services/storage.dart';
-import 'package:app/utils/alert.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 

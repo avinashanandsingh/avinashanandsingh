@@ -1,14 +1,20 @@
 <div class="p-6 bg-white space-y-3 rounded min-h-screen">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
+        <div class="w-full">
             <h2 class="text-2xl font-bold text-gray-800">Enrollments</h2>
             <p class="text-sm text-gray-500">Manage entrollments here</p>
         </div>
-        <button (click)="show(bulkDialog)"
-            class="flex items-center justify-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors shadow-md shadow-purple-100 font-medium">
-            <i class="bi bi-file-earmark-spreadsheet"></i>&nbsp;Bulk Enroll
-        </button>
+        <div class="flex flex-row gap-3 w-full justify-end">
+            <button (click)="show(newDialog)"
+                class="justify-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors shadow-md shadow-purple-100 font-medium">
+                <i class="bi bi-plus"></i>&nbsp;Enroll
+            </button>
+            <button (click)="show(bulkDialog)"
+                class="justify-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors shadow-md shadow-purple-100 font-medium">
+                <i class="bi bi-file-earmark-spreadsheet"></i>&nbsp;Bulk Enroll
+            </button>
+        </div>
     </div>
 
     <!-- Filter Area -->
@@ -27,6 +33,12 @@
                 <app-lov [items]="schedule_list()"
                     [config]="{ minLength: 5, placeholder:'Select a Schedule', showImage: false }"
                     (selected)="scheduleHandler($event!)"></app-lov>
+            </div>
+            <div class="flex-1 w-full">
+                <input type="hidden" formControlName="userid" />
+                <app-lov [items]="user_list()"
+                    [config]="{ minLength: 5, placeholder:'Select a Enrollee', showImage: false }"
+                    (selected)="userHandler($event!)"></app-lov>
             </div>
             <div class="flex-1 w-full">
                 <div id="enrolledat" class="flex flex-row gap-3">
@@ -142,7 +154,7 @@
 <loader [isOpen]="loader"></loader>
 <app-dialog [isOpen]="bulkDialog" [buttons]="dialogButtons" title="Bulk Enroll" [backdrop]="false" size="4xl">
     <div title="Upload" class="mb-3">
-        <input id="upload" #file  type="file" accept=".xlsx" class="border border-violet-700 w-full rounded text-base text-slate-500
+        <input id="upload" #file type="file" accept=".xlsx" class="border border-violet-700 w-full rounded text-base text-slate-500
             file:mr-4 file:py-2 file:px-4
             file:border-r
             file:text-sm file:font-semibold
@@ -163,50 +175,50 @@
                 (selected)="importScheduleHandler($event!)"></app-lov>
         </div>
     </div>
-    
+
     <!-- Listing Table -->
-        <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-base text-gray-600">
-                    <thead class="bg-gray-50 text-base uppercase text-gray-500 border-b border-gray-100">
-                        <tr>
-                            <th class="px-3 py-3 font-semibold">Id</th>
-                            <th class="px-3 py-3 font-semibold">First&nbsp;Name</th>
-                            <th class="px-3 py-3 font-semibold">Last&nbsp;Name</th>
-                            <th class="px-3 py-3 font-semibold text-start">Email</th>
-                            <th class="px-3 py-3 font-semibold text-start">Phone</th>
-                            <th class="px-3 py-3 font-semibold text-start">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100">
-                        @for(row of enrol_list(); track row.rowId){
-                        <tr class="hover:bg-gray-50 transition">
-                            <td class="p-3 whitespace-nowrap">
-                                <div class="text-base font-medium text-gray-900">{{ row.rowId }}</div>
-                            </td>
-                            <td class="p-3 whitespace-nowrap">
-                                <div class="text-base font-medium text-gray-900">{{ row.first_name }}</div>
-                            </td>
-                            <td class="p-3 whitespace-nowrap">
-                                <div class="text-base font-medium text-gray-900">{{ row.last_name }}</div>
-                            </td>
-                            <td class="p-3 whitespace-nowrap">
-                                <div class="text-base font-medium text-gray-900">{{ row.email }}
-                                </div>
-                            </td>
-                            <td class="p-3 whitespace-nowrap">
-                                <div class="text-base font-medium text-gray-900">{{ row.phone }}
-                                </div>
-                            </td>
-                            <td class="p-3 whitespace-nowrap">
-                                <div class="text-base font-medium text-gray-900">{{ row.import_status }}</div>
-                            </td>
-                        </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
+    <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-base text-gray-600">
+                <thead class="bg-gray-50 text-base uppercase text-gray-500 border-b border-gray-100">
+                    <tr>
+                        <th class="px-3 py-3 font-semibold">Id</th>
+                        <th class="px-3 py-3 font-semibold">First&nbsp;Name</th>
+                        <th class="px-3 py-3 font-semibold">Last&nbsp;Name</th>
+                        <th class="px-3 py-3 font-semibold text-start">Email</th>
+                        <th class="px-3 py-3 font-semibold text-start">Phone</th>
+                        <th class="px-3 py-3 font-semibold text-start">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    @for(row of enrol_list(); track row.rowId){
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ row.rowId }}</div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ row.first_name }}</div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ row.last_name }}</div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ row.email }}
+                            </div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ row.phone }}
+                            </div>
+                        </td>
+                        <td class="p-3 whitespace-nowrap">
+                            <div class="text-base font-medium text-gray-900">{{ row.import_status }}</div>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
         </div>
+    </div>
 </app-dialog>
 <app-dialog [isOpen]="statusDialog" title="Change Status" [buttons]="statusDialogButtons" [backdrop]="false">
     <form [formGroup]="statusForm">
@@ -247,6 +259,67 @@
                   control: statusForm.controls['status']
                 }">
         </ng-container>
+    </form>
+</app-dialog>
+<app-dialog [isOpen]="newDialog" title="New Enrolment" [buttons]="newDialogButtons" [size]="'3xl'" [backdrop]="false">
+    <form [formGroup]="newForm">
+        <div class="flex flex-col items-start gap-3 mb-3">
+
+            <div class="w-full">
+                <app-lov [items]="course_list()"
+                    [config]="{ minLength: 5, placeholder:'Select a Course', showImage: false }"
+                    (selected)="newCourseHandler($event!)"></app-lov>
+            </div>
+            <div class="w-full">
+                <app-lov [items]="schedule_list()"
+                    [config]="{ minLength: 5, placeholder:'Select a Schedule', showImage: false }"
+                    (selected)="newScheduleHandler($event!)"></app-lov>
+            </div>
+
+            <div class="w-full">
+                <input type="text" class="input" placeholder="First Name" formControlName="first_name" />
+                <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'First Name is required',
+                  control: newForm.controls['first_name']
+                }"></ng-container>
+            </div>
+            <div class="w-full">
+                <input type="text" class="input" placeholder="Last Name" formControlName="last_name" />
+                <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'Last Name is required',
+                  control: newForm.controls['last_name']
+                }"></ng-container>
+            </div>
+            <div class="w-full">
+                <input type="email" class="input" placeholder="Email" formControlName="email" />
+                <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'Email is required',
+                  control: newForm.controls['email']
+                }"></ng-container>
+                <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'email',
+                  message: 'Email must be in correct format',
+                  control: newForm.controls['email']
+                }"></ng-container>
+            </div>
+            <div class="w-full">
+                <input type="tel" class="input" placeholder="Phone" formControlName="phone" />
+                <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'required',
+                  message: 'Phone is required',
+                  control: newForm.controls['phone']
+                }"></ng-container>
+                <ng-container [ngTemplateOutlet]="formError" [ngTemplateOutletContext]="{
+                  validation: 'pattern',
+                  message: 'Phone number must be in correct format',
+                  control: newForm.controls['phone']
+                }"></ng-container>
+            </div>
+    
+    </div>
     </form>
 </app-dialog>
 <ng-template #formError let-control="control" let-message="message" let-validation="validation">

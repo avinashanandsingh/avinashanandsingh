@@ -3,13 +3,11 @@ import 'package:app/models/invite.dart';
 import 'package:app/models/register.dart';
 import 'package:app/models/signin.dart';
 import 'package:app/models/user.dart';
-import 'package:app/pages/user/signin.dart';
 import 'package:app/services/api.dart';
 import 'package:app/services/storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
-import '../helpers/globals.dart';
 
 class Identity extends ChangeNotifier {
   final ValueNotifier<bool> _isAuthenticated = ValueNotifier<bool>(false);

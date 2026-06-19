@@ -1,4 +1,13 @@
-import { Component, effect, ElementRef, OnInit, signal, TemplateRef, ViewChild, WritableSignal } from '@angular/core';
+import {
+  Component,
+  effect,
+  ElementRef,
+  OnInit,
+  signal,
+  TemplateRef,
+  ViewChild,
+  WritableSignal,
+} from '@angular/core';
 import { EnrollmentService } from '../../../services/enrollment-service';
 import Filter from '../../../models/filter';
 import { IEnrollmentData } from '../../../models/enrollment';
@@ -17,6 +26,7 @@ import Swal from 'sweetalert2';
 import { Pager } from '../../../components/pager/pager';
 import { ExcelService } from '../../../services/excel-service';
 import { IUser } from '../../../models/user';
+import { UserService } from '../../../services/user-service';
 
 @Component({
   selector: 'enrollment-list',
@@ -32,19 +42,20 @@ export default class List implements OnInit {
   list = signal<IEnrollmentData[]>([]);
   course_list = signal<IListItem[]>([]);
   schedule_list = signal<IListItem[]>([]);
+  user_list = signal<IListItem[]>([]);
   bulkDialog = signal<boolean>(false);
   loader = signal<boolean>(false);
-  user =signal<IUser | null>(null);
-  xlrows:any[] =[];
+  user = signal<IUser | null>(null);
+  xlrows: any[] = [];
   enrol_list = signal<any[]>([]);
   courseId = signal<string>('');
   scheduleId = signal<string>('');
   popover = signal<boolean>(false);
-  
 
   filterForm: FormGroup = new FormGroup({
     courseid: new FormControl(''),
     scheduleid: new FormControl(''),
+    userid: new FormControl(''),
     from_date: new FormControl(undefined),
     to_date: new FormControl(undefined),
     status: new FormControl(''),
@@ -111,7 +122,7 @@ export default class List implements OnInit {
       action: async () => {
         let courseId = this.courseId();
         let scheduleId = this.scheduleId();
-        if(courseId == undefined) return;
+        if (courseId == undefined) return;
 
         this.show(this.loader);
         let idx = 0;
@@ -126,7 +137,7 @@ export default class List implements OnInit {
             phone: row.phone,
             enrolledat: new Date(),
           });
-        
+
           if (result?.data?.import) {
             row.import_status = 'Completed';
             /* Swal.fire({
@@ -159,18 +170,80 @@ export default class List implements OnInit {
       type: 'btn btn-primary w-full',
     },
   ]);
- @ViewChild('file', { static: true }) upload!: ElementRef<any>;
+
+  newDialog = signal<boolean>(false);
+  newForm: FormGroup = new FormGroup({
+    courseid: new FormControl(''),
+    scheduleid: new FormControl(''),
+    first_name: new FormControl('', Validators.required),
+    last_name: new FormControl('', Validators.required),
+    email: new FormControl('', [Validators.required, Validators.email]),
+    phone: new FormControl('', [Validators.required, Validators.pattern('^\\+[1-9]\\d{7,15}$')]),
+  });
+  newDialogButtons = signal<Array<{ label: string; action: any; type: any }>>([
+    {
+      label: 'Close',
+      action: () => {
+        this.hide(this.newDialog);
+      },
+      type: 'btn btn-secondary w-full',
+    },
+    {
+      label: 'Save',
+      action: async () => {
+        if (this.newForm.invalid) return;
+
+        this.show(this.loader);
+        let formData = this.newForm.getRawValue();
+        let result = await this.service.import({
+          courseid: formData?.courseid,
+          scheduleid: formData?.scheduleid,
+          first_name: formData?.first_name,
+          last_name: formData?.last_name,
+          email: formData?.email,
+          phone: formData?.phone,
+          enrolledat: new Date(),
+        });
+
+        if (result?.data?.import) {
+          Swal.fire({
+            title: 'Success',
+            html: 'Enrolment is successful',
+            icon: 'success',
+            timer: 3000,
+          });
+        } else {
+          let error = result?.errors?.shift();
+          let msg = error?.extensions?.originalError?.message;
+          Swal.fire({
+            title: 'Failed',
+            html: msg,
+            icon: 'error',
+            timer: 3000,
+          });
+        }
+
+        this.load({ criteria: this.criteria() });
+        this.newForm.reset();
+        this.hide(this.loader);
+        this.hide(this.newDialog);
+      },
+      type: 'btn btn-primary w-full',
+    },
+  ]);
+  @ViewChild('file', { static: true }) upload!: ElementRef<any>;
   constructor(
     private course: CourseService,
     private schedule: ScheduleService,
     private service: EnrollmentService,
     private titleService: TitleService,
+    private userService: UserService,
     private xl: ExcelService,
   ) {
-    effect(()=>{
+    effect(() => {
       this.xlrows = this.enrol_list();
       console.log(this.xlrows);
-    })
+    });
   }
   async ngOnInit(): Promise<void> {
     this.titleService.title = 'Enrollments';
@@ -181,6 +254,7 @@ export default class List implements OnInit {
       limit: this.limit,
     });
     await this.load_course_list();
+    await this.load_user_list();
     this.loader.set(false);
   }
 
@@ -236,6 +310,21 @@ export default class List implements OnInit {
     this.schedule_list.set(list);
   }
 
+  async load_user_list(): Promise<void> {
+    let result = await this.userService.list({});
+    let list: IListItem[] = [];
+    if (result?.rows!) {
+      result.rows.forEach((row) => {
+        list.push({
+          id: row.id!,
+          value: `${row.first_name} ${row.last_name}`,
+          label: `${row.first_name} ${row.last_name}`,
+        });
+      });
+    }
+    this.user_list.set(list);
+  }
+
   async filter() {
     let formData = this.filterForm.getRawValue();
     let keys = Object.keys(formData);
@@ -282,6 +371,10 @@ export default class List implements OnInit {
     this.filterForm.controls['scheduleid'].setValue(item?.id);
   }
 
+  userHandler(item: IListItem) {
+    this.filterForm.controls['userid'].setValue(item?.id);
+  }
+
   async importCourseHandler(item: IListItem): Promise<void> {
     if (item) {
       this.loader.set(true);
@@ -290,9 +383,22 @@ export default class List implements OnInit {
       this.loader.set(false);
     }
   }
-  
+
   importScheduleHandler(item: IListItem) {
     this.scheduleId.set(item.id as string);
+  }
+
+  async newCourseHandler(item: IListItem): Promise<void> {
+    if (item) {
+      this.loader.set(true);
+      this.newForm.controls['courseid'].setValue(item.id as string);
+      await this.load_schedule_list(item?.id);
+      this.loader.set(false);
+    }
+  }
+
+  newScheduleHandler(item: IListItem) {
+    this.newForm.controls['scheduleid'].setValue(item.id as string);
   }
 
   show(me: WritableSignal<boolean>, id?: string) {
@@ -300,8 +406,8 @@ export default class List implements OnInit {
       let row = this.list().find((x) => x.id === id);
       this.user.set(row?.user!);
       this.statusForm.patchValue({ id: id, status: row?.status });
-    }else{
-      this.upload.nativeElement.value="";
+    } else {
+      this.upload.nativeElement.value = '';
       this.enrol_list.set([]);
     }
     me.set(true);
@@ -311,37 +417,36 @@ export default class List implements OnInit {
     me.set(false);
   }
 
-
   async selectImportFile(e: any) {
     let file = e?.target?.files[0];
     //var reader = new FileReader();
     //this.fileToUpload = file;
     const arrayBuffer = await file.arrayBuffer();
     let data = await this.xl.read(arrayBuffer);
-    console.log("data: ", data);
+    console.log('data: ', data);
     //reader.readAsArrayBuffer(file);
-    let rows:any[] = [];
+    let rows: any[] = [];
     let rownum = 1;
-      data.forEach((x: any) => {
-        rows.push({
-          rowId: rownum,
-          first_name: x[1],
-          last_name: x[2],
-          email: x[3],
-          phone: x[4],
-          //gender: x[6],
-          //dateOfBirth: this.convertDate(x[7]),
-          //address: x[20],
-          //city: x[21],
-          //state: x[22],
-          //zip: x[23],
-          //worker_desciption: x[24],
-          //work_category: x[25],
-          import_status: "Loaded",
-        });
-        rownum++;
+    data.forEach((x: any) => {
+      rows.push({
+        rowId: rownum,
+        first_name: x[1],
+        last_name: x[2],
+        email: x[3],
+        phone: x[4],
+        //gender: x[6],
+        //dateOfBirth: this.convertDate(x[7]),
+        //address: x[20],
+        //city: x[21],
+        //state: x[22],
+        //zip: x[23],
+        //worker_desciption: x[24],
+        //work_category: x[25],
+        import_status: 'Loaded',
       });
-      this.enrol_list.set(rows);
+      rownum++;
+    });
+    this.enrol_list.set(rows);
     /*reader.onload = async (value: any) => {
       let buffer = value?.target?.result;
       let data = await this.xl.read(buffer);
