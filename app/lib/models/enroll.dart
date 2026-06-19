@@ -24,12 +24,16 @@ class EnrollData {
   });
 
   factory EnrollData.fromJson(Map<String, dynamic> json) {
+    ScheduleData? scheduleData;
+    if (json['schedule'] != null) {
+      scheduleData = ScheduleData.fromJson(json['schedule']);
+    }
     return EnrollData(
       id: json['id'] as String?,
       courseId: json['first_name'] as String?,
       course: CourseBasicData.fromJson(json['course']),
       scheduleId: json['last_name'] as String?,
-      schedule: ScheduleData.fromJson(json['schedule']),
+      schedule: scheduleData,
       enrolledat: json['enrolledat'] as String?,
       expiredat: json['expiredat'] as String?,
       qna: json['qna'],

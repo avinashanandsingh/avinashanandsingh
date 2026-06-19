@@ -15,10 +15,19 @@ class MeditationCircles extends StatelessWidget {
         future: Identity().isLoggedIn(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            return ListView.builder(
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                for (var item in list)
+                  MeditationItem(data: item, isLoggedIn: snapshot.data!),
+              ],
+            );
+            /* return ListView.builder(
               scrollDirection: Axis.horizontal,
               physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 8),
+
+              //padding: const EdgeInsets.symmetric(horizontal: 8),
               itemCount: list.length,
               itemBuilder: (context, index) {
                 return MeditationItem(
@@ -26,7 +35,7 @@ class MeditationCircles extends StatelessWidget {
                   isLoggedIn: snapshot.data!,
                 );
               },
-            );
+            );*/
           } else {
             return Container();
           }

@@ -1,3 +1,4 @@
+import 'package:app/components/course/item.dart';
 import 'package:app/models/course.dart';
 import 'package:app/models/enroll.dart';
 import 'package:app/models/order.dart';
@@ -120,6 +121,12 @@ class _DashboardState extends State<Dashboard>
       future: Service.enrollment.list({
         "criteria": [
           {"column": "userid", "cop": "eq", "value": widget.user.id!},
+          {
+            "column": "status",
+            "cop": "in",
+            "lop": "AND",
+            "value": ["ENROLLED", "COMPLETED"],
+          },
         ],
       }),
       builder: (context, snapshot) {
@@ -141,7 +148,39 @@ class _DashboardState extends State<Dashboard>
                     child: ListView.builder(
                       itemCount: result.list!.length,
                       itemBuilder: (context, index) {
-                        return _buildCourseCard(result.list![index]);
+                        var item = result.list![index];
+                        return GestureDetector(
+                          onTap: () async {
+                            List<String> statusList = ["ENROLLED", "COMPLETED"];
+                            if (statusList.contains(item.status!)) {
+                              Result<CourseData>? result = await Service.course
+                                  .get({
+                                    "criteria": [
+                                      {
+                                        "column": "id",
+                                        "cop": "eq",
+                                        "value": item.course?.id,
+                                      },
+                                    ],
+                                  });
+                              if (result!.succeed) {
+                                navigatorKey.currentState?.push(
+                                  MaterialPageRoute(
+                                    builder: (context) => Course(
+                                      data: result.row,
+                                      scheduleId: item.scheduleId,
+                                    ),
+                                  ),
+                                );
+                              } else {
+                                Alert.show(result.message!, isError: false);
+                              }
+                            }
+                          },
+                          child: EnrollItem(data: item),
+                        );
+
+                        //_buildCourseCard(result.list![index]);
                       },
                     ),
                   ),

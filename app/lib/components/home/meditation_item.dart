@@ -18,11 +18,12 @@ import '../../helpers/globals.dart';
 class MeditationItem extends StatefulWidget {
   final MeditationData data;
   final bool isLoggedIn;
-
+  final bool vertical;
   const MeditationItem({
     super.key,
     required this.data,
     required this.isLoggedIn,
+    this.vertical = true,
   });
   @override
   State<MeditationItem> createState() => MeditationsItemState();
@@ -80,9 +81,10 @@ class MeditationsItemState extends State<MeditationItem> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: Column(
+    if (widget.vertical) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+
         children: [
           GestureDetector(
             onTap: () async {
@@ -192,7 +194,7 @@ class MeditationsItemState extends State<MeditationItem> {
                 alignment: Alignment.center,
                 children: [
                   CircleAvatar(
-                    radius: 40,
+                    radius: 30,
                     backgroundImage: NetworkImage(widget.data.thumbnail ?? ''),
                   ),
                   ClipRRect(
@@ -220,14 +222,164 @@ class MeditationsItemState extends State<MeditationItem> {
               ),
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 3),
+          Text(
+            softWrap: true,
+            widget.data.title ?? '',
+            textAlign: TextAlign.center,
+            style: TextTheme.of(context).labelSmall?.copyWith(fontSize: 11),
+          ),
+        ],
+      );
+    } else {
+      return Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          GestureDetector(
+            onTap: () async {
+              if (!widget.isLoggedIn) {
+                navigatorKey.currentState?.push(
+                  MaterialPageRoute(
+                    builder: (context) => const SignIn(redirect: Home()),
+                  ),
+                );
+                return;
+              }
+              if (widget.data.free!) {
+                AudioDialog.show(
+                  context,
+                  url: widget.data.url!,
+                  title: widget.data.title!.replaceAll("\n", " "),
+                  author: "Meditation",
+                  backgroundUrl:
+                      "https://assets.mixkit.co/z8nazrerdw1dcdvnvykfp8c2yqmj",
+                  mode: AudioDialog.BackgroundMode.video,
+                );
+              } else {
+                bool bought = await Service.order.bought(
+                  widget.data.id!,
+                  "MEDITATION",
+                );
+                if (bought) {
+                  AudioDialog.show(
+                    context,
+                    url: widget.data.url!,
+                    title: widget.data.title!.replaceAll("\n", " "),
+                    author: "Meditation",
+                    backgroundUrl:
+                        "https://assets.mixkit.co/z8nazrerdw1dcdvnvykfp8c2yqmj",
+                    mode: AudioDialog.BackgroundMode.video,
+                  );
+                } else {
+                  // Buy now start payment flow
+
+                  OrderData orderData = OrderData(
+                    context: "MEDITATION",
+                    contextid: widget.data.id,
+                    name: "Meditation Audio - ${widget.data.title}",
+                    price: widget.data.sale,
+                    orderStatus: "INITIATED",
+                    orderStatusReason:
+                        'Your order has been initiated and awaiting payment',
+                    paymentStatus: "PENDING",
+                    createdat: DateTime.now(),
+                  );
+                  var result = await Service.order.add(orderData);
+                  if (result?.row == null) {
+                    Alert.show(
+                      "Failed to create order. Please try again.",
+                      isError: true,
+                    );
+                    return;
+                  }
+
+                  var payment = await Service.setting.get(('PAYMENT'));
+                  if (payment == 'ON') {
+                    var payment = await Service.setting.get('PAYMENT');
+                    dynamic user = await Service.identity.me();
+                    if (payment == 'ON') {
+                      await Service.store.set(
+                        "latest_order_id",
+                        result!.row!.id!,
+                      );
+                      UserData userData = UserData.fromJson(user);
+                      RazorpayService.instance.startPayment(
+                        options: {
+                          'key':
+                              dotenv.env['RAZORPAY_KEY'] ??
+                              '', // Replace with your key
+                          'currency': 'INR',
+                          'amount':
+                              1 *
+                              100, // amount in the smallest currency unit amount * 100
+                          'name': dotenv.env['COMPANY'] ?? '',
+                          'description':
+                              '${widget.data.title} Meditation Audio',
+                          'timeout': 300, // in seconds
+                          'prefill': {
+                            "name":
+                                "${userData.firstName ?? ''} ${userData.lastName ?? ''}",
+                            "contact": userData.phone,
+                            "email": userData.email,
+                          },
+                          'theme': {'color': '#5A2A82'},
+                          'modal': {'confirm_close': true, 'handle_back': true},
+                        },
+                        onSuccess: handlePaymentSuccess,
+                        onFailure: handlePaymentError,
+                      );
+                    }
+                  }
+                }
+              }
+            },
+            child: Container(
+              padding: const EdgeInsets.all(3),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: AppColors.accentGold, width: 2),
+              ),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  CircleAvatar(
+                    radius: 30,
+                    backgroundImage: NetworkImage(widget.data.thumbnail ?? ''),
+                  ),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(40),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
+                      child: Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withAlpha(150),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          widget.isLoggedIn
+                              ? Icons.play_arrow_rounded
+                              : Icons.lock_rounded,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(width: 12),
           Text(
             widget.data.title ?? '',
             textAlign: TextAlign.center,
-            style: TextTheme.of(context).labelSmall,
+            style: TextTheme.of(context).labelMedium,
           ),
         ],
-      ),
-    );
+      );
+    }
   }
 }

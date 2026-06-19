@@ -1,21 +1,23 @@
-import 'package:app/components/course_card.dart';
-import 'package:app/components/home/branding_item.dart';
-import 'package:app/components/home/section.dart';
-import 'package:app/components/resource_carousel.dart';
-import 'package:app/models/branding.dart';
-import 'package:app/models/course.dart';
-import 'package:app/models/resource.dart';
-import 'package:app/models/sacredvibe.dart';
-import 'package:app/services/service.dart';
-import 'package:app/utils/result.dart';
+import 'package:app/pages/meditation.dart';
 import 'package:flutter/material.dart';
 import '../components/layout.dart';
+import '../components/course_card.dart';
+import '../components/home/branding_item.dart';
+import '../components/home/section.dart';
+import '../components/resource_carousel.dart';
 import '../components/home/section_header.dart';
 import '../components/home/hero_card.dart';
 import '../components/home/short_courses.dart';
 import '../components/home/meditation_circles.dart';
 import '../components/home/abundance_card.dart';
 import '../components/home/sacred_vibes_tile.dart';
+import '../models/branding.dart';
+import '../models/course.dart';
+import '../models/resource.dart';
+import '../models/sacredvibe.dart';
+import '../services/service.dart';
+import '../utils/result.dart';
+import '../helpers/globals.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -190,13 +192,28 @@ class _HomeState extends State<Home> with SingleTickerProviderStateMixin {
 
             //const GiftBanner(),
             const SizedBox(height: 32),
-            const SectionHeader(
+            SectionHeader(
               title: "MEDITATION",
               subtitle: "Guided practices to centre your mind & energy.",
+              explore: true,
+              onTap: () async {
+                var loggedIn = await Service.identity.isLoggedIn();
+                navigatorKey.currentState?.push(
+                  MaterialPageRoute(
+                    builder: (context) => Meditation(isLoggedIn: loggedIn),
+                  ),
+                );
+              },
             ),
             const SizedBox(height: 8),
             FutureBuilder(
-              future: Service.meditation.list(),
+              future: Service.meditation.list({
+                "criteria": [
+                  {"column": "status", "cop": "eq", "value": "ACTIVE"},
+                ],
+                "offset": 0,
+                "limit": 3,
+              }),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return Center(

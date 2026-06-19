@@ -5,8 +5,15 @@ import '../../theme/theme.dart';
 class SectionHeader extends StatelessWidget {
   final String title;
   final String? subtitle;
-
-  const SectionHeader({super.key, required this.title, this.subtitle});
+  final bool? explore;
+  final VoidCallback? onTap;
+  const SectionHeader({
+    super.key,
+    required this.title,
+    this.subtitle,
+    this.explore = false,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -20,12 +27,6 @@ class SectionHeader extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  const Icon(
-                    Icons.auto_awesome,
-                    color: AppColors.accentGold,
-                    size: 18,
-                  ),
-                  const SizedBox(width: 8),
                   Text(
                     title,
                     style: GoogleFonts.cinzel(
@@ -37,23 +38,28 @@ class SectionHeader extends StatelessWidget {
                   ),
                 ],
               ),
-              /* Row(
-                children: [
-                  Text(
-                    "Explore",
-                    style: GoogleFonts.lato(
-                      color: Colors.grey.shade600,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w600,
-                    ),
+              if (explore!) ...[
+                GestureDetector(
+                  onTap: onTap,
+                  child: Row(
+                    children: [
+                      Text(
+                        "Explore",
+                        style: GoogleFonts.lato(
+                          color: Colors.grey.shade600,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Icon(
+                        Icons.chevron_right,
+                        color: Colors.grey.shade600,
+                        size: 18,
+                      ),
+                    ],
                   ),
-                  Icon(
-                    Icons.chevron_right,
-                    color: Colors.grey.shade600,
-                    size: 18,
-                  ),
-                ],
-              ), */
+                ),
+              ],
             ],
           ),
           if (subtitle != null) ...[

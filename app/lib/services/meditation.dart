@@ -5,18 +5,12 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 class Meditation {
   final String url = dotenv.env['URL'] ?? '';
   final ApiService api = ApiService();
-  Future<List<MeditationData>> list() async {
+  Future<List<MeditationData>> list(dynamic filter) async {
     List<MeditationData> data = [];
     dynamic body = {
       "query":
           r'query list ($filter: Filter!) { meditations(filter: $filter) { count rows { id title thumbnail url free price offer status } } }',
-      "variables": {
-        "filter": {
-          "criteria": [
-            {"column": "status", "cop": "eq", "value": "ACTIVE"},
-          ],
-        },
-      },
+      "variables": {"filter": filter},
     };
     dynamic result = await api.post(url, body);
     if (result != null) {
