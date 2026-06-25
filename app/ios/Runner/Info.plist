@@ -68,6 +68,8 @@
 	</array>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Photo gallary permission</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>We need permission to save images and videos to your photo library.</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>

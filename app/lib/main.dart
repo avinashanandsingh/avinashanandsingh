@@ -1,8 +1,9 @@
-import 'package:app/helpers/globals.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:app/theme/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:app/pages/splash.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../helpers/globals.dart';
+import '../theme/theme.dart';
+import '../pages/splash.dart';
 
 final themeProvider = ThemeProvider();
 Future<Widget> _resolveInitialScreen() async {
@@ -13,6 +14,8 @@ Future<Widget> _resolveInitialScreen() async {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+
   await dotenv.load(fileName: ".env");
   runApp(const MyApp());
 }
